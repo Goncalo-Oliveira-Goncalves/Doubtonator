@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Agent — Orchestrator</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  min-height:100dvh;
+  overflow:hidden;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* The .frame has the job of changing the resolution of everything, perfect for seeing windows on certain sizes, but not good for responsiveness */
+.frame { 
+  position:relative;
+  width:min(100vw,calc(100vh * 9/16));
+  height:min(100vh,calc(100vw * 16/9));
+  aspect-ratio:9/16;
+  background:#fff;
+  border:5px solid #000;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* ── On real mobile: fill the screen, drop the desktop preview border ── */
+@media (max-width:480px) {
+  body {
+    background:#fff;
+    align-items:flex-start;
+  }
+  .frame {
+    width:100vw;
+    height:100dvh;
+    border:none;
+    /* honour notch / home-indicator safe areas */
+    padding-top:env(safe-area-inset-top);
+    padding-bottom:env(safe-area-inset-bottom);
+    padding-left:env(safe-area-inset-left);
+    padding-right:env(safe-area-inset-right);
+  }
+}
+
+/* ── Top nav ──────────────────────────────────────────── */
+.nav-top {
+  height:calc(1/16 * 100%);
+  flex-shrink:0;
+  display:flex;
+  align-items:flex-start;
+  padding:14px 14px 0;
+}
+.close-btn {
+  cursor:pointer;
+  user-select:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:clamp(18px,3vw,22px);
+  height:clamp(18px,3vw,22px);
+}
+.close-btn svg { display:block; width:100%; height:100%; }
+
+/* ── Hero canvas ──────────────────────────────────────── */
+.hero {
+  flex-shrink:0;
+  height:calc(3.4/16 * 100%);
+  position:relative;
+  overflow:hidden;
+}
+.hero canvas {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+
+/* ── Chrome-style tab bar ─────────────────────────────── */
+.tab-bar {
+  flex-shrink:0;
+  background:transparent;
+  border-bottom:3px solid #000;
+  display:flex;
+  align-items:flex-end;
+  padding:6px 8px 0;
+  gap:3px;
+}
+.tab {
+  flex:1;           /* fill container equally */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:clamp(6px,1.2vw,9px) 0;
+  font-size:clamp(8px,1.4vw,11px);
+  font-weight:800;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  cursor:pointer;
+  user-select:none;
+  border-radius:7px 7px 0 0;
+  color:#888;
+  background:#d2d2d2;
+  border:2px solid #b8b8b8;
+  border-bottom:none;
+  position:relative;
+  z-index:1;
+  margin-bottom:-3px;
+  white-space:nowrap;
+}
+.tab.active {
+  background:#fff;
+  color:#111;
+  border:2.5px solid #000;
+  border-bottom:3px solid #fff;
+  z-index:3;
+}
+
+/* ── Scrollable content ───────────────────────────────── */
+.content {
+  flex:1;
+  overflow-y:auto;
+  overflow-x:hidden;
+  scrollbar-width:none;
+}
+.content::-webkit-scrollbar { display:none; }
+.view { display:none; padding:14px 14px 28px; }
+.view.active { display:block; }
+
+.section-label {
+  font-size:clamp(7px,1.1vw,9px);
+  font-weight:700;
+  color:#aaa;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  margin-bottom:14px;
+}
+
+/* ── Timeline ─────────────────────────────────────────── */
+.t-item { display:flex; gap:10px; }
+.t-spine { display:flex; flex-direction:column; align-items:center; width:11px; flex-shrink:0; padding-top:2px; }
+.t-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.t-dot.running { background:#111; box-shadow:0 0 0 3px rgba(0,0,0,0.10); }
+.t-dot.done    { background:#111; }
+.t-dot.pending { background:transparent; border:2px solid #ccc; }
+.t-line { flex:1; width:2px; background:#ebebeb; margin-top:5px; min-height:10px; }
+.t-body { flex:1; padding-bottom:18px; min-width:0; }
+.t-status { font-size:clamp(6px,1vw,8px); font-weight:700; letter-spacing:0.14em; text-transform:uppercase; margin-bottom:2px; }
+.t-status.running { color:#111; }
+.t-status.done    { color:#bbb; }
+.t-status.pending { color:#ccc; }
+.t-name { font-size:clamp(10px,1.8vw,13px); font-weight:700; color:#111; line-height:1.3; margin-bottom:4px; }
+.t-name.muted { color:#c0c0c0; }
+.t-desc { font-size:clamp(9px,1.5vw,11px); color:#888; line-height:1.5; margin-bottom:8px; }
+.t-progress { margin-bottom:7px; }
+.t-track { height:3px; background:#ededed; border-radius:2px; overflow:hidden; margin-bottom:3px; }
+.t-fill  { height:100%; background:#111; border-radius:2px; }
+.t-pct   { font-size:clamp(7px,1.1vw,9px); font-weight:700; color:#aaa; }
+.t-meta  { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+.t-time  { font-size:clamp(8px,1.3vw,10px); color:#bbb; font-weight:500; }
+.t-agent-pill {
+  font-size:clamp(7px,1.1vw,8.5px); font-weight:700; color:#888;
+  letter-spacing:0.08em; text-transform:uppercase;
+  background:#f0f0f0; border:1.5px solid #e2e2e2; border-radius:5px; padding:2px 7px;
+}
+
+/* ── Evolution: canvas fills the view ─────────────────── */
+#view-evolution { padding:14px 0 28px; }
+#view-evolution .section-label { padding:0 14px; margin-bottom:10px; }
+#evo-canvas { display:block; width:100%; }
+
+/* ── Wire-endpoint popup ──────────────────────────────── */
+.wp-wrap {
+  position:absolute;
+  z-index:50;
+  display:none;
+  pointer-events:none;
+}
+.wp-wrap.visible {
+  display:block;
+  pointer-events:all;
+}
+/* CSS-border caret (pointing up or down, toggled via class) */
+.wp-caret-o,.wp-caret-i,.wp-caret-c { position:absolute; }
+.wp-box {
+  background:#efefef;
+  border-radius:13px;
+  padding:13px 13px 9px;
+  width:155px;
+  border:2px solid #bebebe;
+  position:relative;
+  z-index:2;
+  box-shadow:0 4px 18px rgba(0,0,0,0.10);
+}
+.wp-title {
+  font-size:12px; font-weight:700; color:#555; margin-bottom:4px;
+}
+.wp-sub {
+  font-size:11px; color:#999; margin-bottom:10px; line-height:1.45;
+}
+.wp-btn {
+  background:#e0e0e0; border-radius:8px; padding:7px 10px;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; border:none; width:100%;
+}
+.wp-btn span {
+  font-size:9px; font-weight:700; color:#aaa; letter-spacing:0.12em;
+}
+</style>
+</head>
+<body>
+
+<div class="frame" id="frame">
+
+  <!-- ── Top Nav ────────────────────────────────────────── -->
+  <div class="nav-top">
+    <div class="close-btn">
+      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="2" y1="2" x2="14" y2="14" stroke="#111" stroke-width="2.4" stroke-linecap="round"/>
+        <line x1="14" y1="2" x2="2" y2="14" stroke="#111" stroke-width="2.4" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ── Hero canvas ────────────────────────────────────── -->
+  <div class="hero">
+    <canvas id="hero-canvas"></canvas>
+    <!-- Wire-endpoint popup (shown on tap) -->
+    <div class="wp-wrap" id="wire-popup">
+      <div class="wp-caret-o" id="wpc-o"></div>
+      <div class="wp-caret-i" id="wpc-i"></div>
+      <div class="wp-caret-c" id="wpc-c"></div>
+      <div class="wp-box">
+        <div class="wp-title" id="wpc-title"></div>
+        <div class="wp-sub"   id="wpc-sub"></div>
+        <button class="wp-btn"><span id="wpc-btn"></span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Chrome tab bar ─────────────────────────────────── -->
+  <div class="tab-bar">
+    <div class="tab active" id="tab-timeline"  onclick="switchTab('timeline')">Timeline</div>
+    <div class="tab"        id="tab-evolution" onclick="switchTab('evolution')">Evolution</div>
+  </div>
+
+  <!-- ── Scrollable content ─────────────────────────────── -->
+  <div class="content">
+
+    <!-- TIMELINE — rendered from TIMELINE_DATA by renderTimeline() ──── -->
+    <div class="view active" id="view-timeline">
+      <div class="section-label" id="timeline-label"></div>
+      <!-- items injected here -->
+    </div><!-- /timeline -->
+
+    <!-- EVOLUTION — label auto-computed from EVO_COMMITS ──── -->
+    <div class="view" id="view-evolution">
+      <div class="section-label" id="evo-label"></div>
+      <canvas id="evo-canvas"></canvas>
+    </div><!-- /evolution -->
+
+  </div><!-- /content -->
+
+</div><!-- /frame -->
+
+<script>
+// ════════════════════════════════════════════════════════════
+//  TAB SWITCHING
+// ════════════════════════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  if (name === 'evolution') requestAnimationFrame(drawEvoTree);
+}
+
+// ════════════════════════════════════════════════════════════
+//  TIMELINE
+//  Each item: { status, name, desc, progress, time }
+//    status   — 'running' | 'done' | 'pending'
+//    progress — 0-100 or null (omits the progress row entirely)
+//    time     — display string shown in meta
+// ════════════════════════════════════════════════════════════
+const TIMELINE_DATA = [
+  {
+    status:   'running',
+    name:     'Build Content Calendar #12',
+    desc:     'Structuring 7 video concepts from incoming briefs and research signals into a production plan.',
+    progress: 65,
+    time:     'Started 14m ago',
+  },
+  {
+    status:   'running',
+    name:     'Notion DB Sync',
+    desc:     'Pulling new content briefs and ideas from the connected Notion workspace.',
+    progress: 30,
+    time:     'Started 3m ago',
+  },
+  {
+    status:   'done',
+    name:     'Topic Prioritisation',
+    desc:     'Ranked and filtered 31 content angles based on incoming research signals.',
+    progress: null,
+    time:     '2h 18m ago · 9m duration',
+  },
+  {
+    status:   'pending',
+    name:     'Review & Approve Calendar',
+    desc:     'Waiting for calendar build to reach 100% before forwarding to Writer.',
+    progress: null,
+    time:     'Queued',
+  },
+];
+
+function renderTimeline(items) {
+  const view  = document.getElementById('view-timeline');
+  const label = document.getElementById('timeline-label');
+
+  // Auto-compute label from the data
+  const total   = items.length;
+  const running = items.filter(i => i.status === 'running').length;
+  label.textContent = `${total} ${total === 1 ? 'Activity' : 'Activities'}` +
+                      (running > 0 ? ` · ${running} Running` : '');
+
+  // Remove any previously rendered items (keep the label element)
+  Array.from(view.children).forEach(el => {
+    if (el !== label) el.remove();
+  });
+
+  items.forEach((item, idx) => {
+    const isLast     = idx === items.length - 1;
+    const statusLabel = { running: 'Running', done: 'Completed', pending: 'Pending' }[item.status];
+    const nameMuted  = item.status === 'pending' ? ' muted' : '';
+
+    // Spine: last item has no connecting line below it
+    const spineLine = isLast ? '' : '<div class="t-line"></div>';
+
+    // Progress bar row — only rendered when progress is a number
+    const progressRow = item.progress != null
+      ? `<div class="t-progress">
+           <div class="t-track"><div class="t-fill" style="width:${item.progress}%"></div></div>
+           <div class="t-pct">${item.progress}%</div>
+         </div>`
+      : '';
+
+    const html = `
+      <div class="t-item">
+        <div class="t-spine">
+          <div class="t-dot ${item.status}"></div>
+          ${spineLine}
+        </div>
+        <div class="t-body">
+          <div class="t-status ${item.status}">${statusLabel}</div>
+          <div class="t-name${nameMuted}">${item.name}</div>
+          <div class="t-desc">${item.desc}</div>
+          ${progressRow}
+          <div class="t-meta"><span class="t-time">${item.time}</span></div>
+        </div>
+      </div>`;
+
+    view.insertAdjacentHTML('beforeend', html);
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+//  HERO CANVAS
+// ════════════════════════════════════════════════════════════
+const hero = document.getElementById('hero-canvas');
+const hCtx = hero.getContext('2d');
+let hW, hH;
+
+const YSCALE       = 0.58;   // perspective vertical squish
+const GRID_SPACING = 22;     // shared between dots and wire anchor columns
+
+const NODE_POINTS_RAW = [
+  [315.283,7.155],[387.227,7.155],[569.134,82.504],[620.007,133.376],
+  [695.355,315.283],[695.355,387.227],[620.007,569.134],[569.134,620.007],
+  [387.227,695.355],[315.283,695.355],[133.376,620.007],[82.504,569.134],
+  [7.155,387.227],[7.155,315.283],[82.504,133.376],[133.376,82.504],
+];
+
+function buildPts(size) {
+  const xs = NODE_POINTS_RAW.map(p => p[0]);
+  const ys = NODE_POINTS_RAW.map(p => p[1]);
+  const minX = Math.min(...xs), maxX = Math.max(...xs);
+  const minY = Math.min(...ys), maxY = Math.max(...ys);
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+  const scale = size / Math.max(maxX - minX, maxY - minY);
+  return NODE_POINTS_RAW.map(([x, y]) => ({
+    x: (x - cx) * scale,
+    y: (y - cy) * scale * YSCALE,
+  }));
+}
+
+// ── Perspective helper — mirrors drawDotGrid's formula ─────────────────
+// colOffset: signed column index from center (0 = hW/2)
+// y: screen y position
+function perspX(colOffset, y) {
+  const VP_Y = -hH * 0.25;
+  const pF = Math.pow(Math.max(0.02, (y - VP_Y) / (hH - VP_Y)), 0.70);
+  return hW / 2 + colOffset * GRID_SPACING * pF;
+}
+
+// ── Node shadow ────────────────────────────────────────────────────────
+// Two-layer approach: distant overhead light casts a wide diffuse penumbra
+// (like sunlight) + a tight contact/AO shadow directly under the node.
+function drawNodeShadow(nx, ny, size) {
+  const thickness = size * 0.17;
+  const halfSqY   = size * 0.5 * YSCALE;
+  // Shadow sits on the floor plane, just below the node bottom face
+  const shadowY   = ny + halfSqY + thickness * 0.5;
+
+  hCtx.save();
+  hCtx.translate(nx, shadowY);
+  // Squish on Y maps the circle onto the perspective floor plane
+  hCtx.scale(1, YSCALE * 0.45);
+
+  // Layer 1 — wide diffuse penumbra (far-away light source, very blurred)
+  const outerR = size * 1.1;
+  const gOuter = hCtx.createRadialGradient(0, 0, 0, 0, 0, outerR);
+  gOuter.addColorStop(0,    'rgba(0,0,0,0.14)');
+  gOuter.addColorStop(0.35, 'rgba(0,0,0,0.09)');
+  gOuter.addColorStop(0.65, 'rgba(0,0,0,0.04)');
+  gOuter.addColorStop(0.88, 'rgba(0,0,0,0.01)');
+  gOuter.addColorStop(1,    'rgba(0,0,0,0)');
+  hCtx.beginPath();
+  hCtx.arc(0, 0, outerR, 0, Math.PI * 2);
+  hCtx.fillStyle = gOuter;
+  hCtx.fill();
+
+  // Layer 2 — tight contact shadow / ambient occlusion directly under node
+  const innerR = size * 0.44;
+  const gInner = hCtx.createRadialGradient(0, 0, 0, 0, 0, innerR);
+  gInner.addColorStop(0,    'rgba(0,0,0,0.22)');
+  gInner.addColorStop(0.55, 'rgba(0,0,0,0.10)');
+  gInner.addColorStop(1,    'rgba(0,0,0,0)');
+  hCtx.beginPath();
+  hCtx.arc(0, 0, innerR, 0, Math.PI * 2);
+  hCtx.fillStyle = gInner;
+  hCtx.fill();
+
+  hCtx.restore();
+}
+
+// ── Node drawing ───────────────────────────────────────────────────────
+function drawHeroNode(nx, ny, size) {
+  const thickness = size * 0.17;
+  const pts = buildPts(size);
+  hCtx.save();
+  hCtx.translate(nx, ny);
+  const n = pts.length;
+  for (let i = 0; i < n; i++) {
+    const a = pts[i], b = pts[(i + 1) % n];
+    if ((a.y + b.y) / 2 < 0) continue;
+    hCtx.beginPath();
+    hCtx.moveTo(a.x, a.y);
+    hCtx.lineTo(b.x, b.y);
+    hCtx.lineTo(b.x, b.y + thickness);
+    hCtx.lineTo(a.x, a.y + thickness);
+    hCtx.closePath();
+    hCtx.fillStyle = '#080808';
+    hCtx.fill();
+  }
+  hCtx.beginPath();
+  pts.forEach((p, i) => i === 0 ? hCtx.moveTo(p.x, p.y) : hCtx.lineTo(p.x, p.y));
+  hCtx.closePath();
+  hCtx.fillStyle = '#1e1e1e';
+  hCtx.fill();
+  hCtx.restore();
+}
+
+const GEAR_PATH = new Path2D(`M34.5,20.375v-6.25h-4.514c-0.32-1.313-0.838-2.545-1.521-3.669l3.193-3.193
+  l-4.42-4.419l-3.193,3.193c-1.125-0.683-2.355-1.2-3.67-1.521V0.001h-6.25v4.515
+  c-1.313,0.321-2.546,0.838-3.671,1.521L7.262,2.844L2.843,7.263l3.193,3.193
+  c-0.684,1.125-1.2,2.357-1.521,3.669H0v6.25h4.516c0.32,1.312,0.838,2.545,1.521,3.669
+  l-3.193,3.191l4.419,4.421l3.192-3.193c1.125,0.685,2.357,1.2,3.671,1.521v4.516h6.25
+  v-4.516c1.313-0.32,2.545-0.838,3.67-1.521l3.192,3.193l4.421-4.421l-3.193-3.191
+  c0.685-1.125,1.199-2.355,1.521-3.669H34.5z M17.25,23.5c-3.451,0-6.25-2.798-6.25-6.25
+  S13.799,11,17.25,11s6.25,2.798,6.25,6.25S20.701,23.5,17.25,23.5z`);
+
+function drawGear(cx, cy, size) {
+  const scale = size / 34.5;
+  hCtx.save();
+  hCtx.translate(cx - size / 2, cy - (size * YSCALE) / 2);
+  hCtx.scale(scale, scale * YSCALE);
+  hCtx.fillStyle = 'rgba(255,255,255,0.26)';
+  hCtx.fill(GEAR_PATH);
+  hCtx.restore();
+}
+
+// ── Bezier helpers ─────────────────────────────────────────────────────
+function cubicPt(t, p0, c0, c1, p1) {
+  const u = 1 - t;
+  return {
+    x: u*u*u*p0.x + 3*u*u*t*c0.x + 3*u*t*t*c1.x + t*t*t*p1.x,
+    y: u*u*u*p0.y + 3*u*u*t*c0.y + 3*u*t*t*c1.y + t*t*t*p1.y,
+  };
+}
+
+// ── Tube pulse glow ────────────────────────────────────────────────────
+// a: alpha multiplier (1 = full brightness, <1 = fading near edge)
+function drawTubePulse(t, p0, c0, c1, p1, a = 1) {
+  const SPREAD = 0.055;
+  const t0 = Math.max(0, t - SPREAD), t1 = Math.min(1, t + SPREAD);
+  const pts = [];
+  for (let i = 0; i <= 10; i++) pts.push(cubicPt(t0 + (t1 - t0) * i / 10, p0, c0, c1, p1));
+
+  function sp(lw, r, g, b, baseA, blur) {
+    hCtx.beginPath();
+    hCtx.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) hCtx.lineTo(pts[i].x, pts[i].y);
+    hCtx.lineWidth = lw; hCtx.lineCap = 'round';
+    hCtx.strokeStyle = `rgba(${r},${g},${b},${(baseA * a).toFixed(3)})`;
+    hCtx.shadowBlur = blur * a; hCtx.shadowColor = 'rgba(140,210,255,0.9)';
+    hCtx.stroke();
+  }
+  hCtx.shadowBlur = 0;
+  sp(18, 140,210,255, 0.04, 0);
+  sp(11, 140,210,255, 0.09, 0);
+  sp(6,  140,210,255, 0.22, 0);
+  sp(3,  190,225,255, 0.62, 8);
+  sp(1.4,220,240,255, 0.95, 14);
+  hCtx.shadowBlur = 0;
+}
+
+// ── Wire drawing ───────────────────────────────────────────────────────
+// makeWire — cubic bezier using the outward-tangent formula from Frontend.md:
+//   C0 = P0 + s·T0,  C1 = P1 + s·T1
+//   T = normalize(connectionPoint − nodeCenter)  (outward unit vector)
+//   s = 0.45 × dist(P0, P1)
+//
+// Node end uses the true outward tangent from node center through the connection
+// point (e.g. top face → T=(0,−1), bottom face → T=(0,+1)).
+// Canvas-edge end uses the chord direction toward the node connection point.
+//
+// colEnd===0 → input wire  (P1 is node top,    P0 is canvas top edge)
+// colStart===0 → output wire (P0 is node bottom, P1 is canvas bottom edge)
+function makeWire(colStart, yStart, colEnd, yEnd, nX, nY) {
+  const P0 = { x: perspX(colStart, yStart), y: yStart };
+  const P1 = { x: perspX(colEnd,   yEnd  ), y: yEnd   };
+
+  const dist = Math.hypot(P1.x - P0.x, P1.y - P0.y);
+  const s    = 0.45 * dist;
+
+  function norm(ax, ay) { const l = Math.hypot(ax, ay) || 1; return { x: ax/l, y: ay/l }; }
+
+  if (colEnd === 0) {
+    // Input: P1 is node connection — outward tangent at node end
+    const t1 = norm(P1.x - nX, P1.y - nY);                // outward at node
+    const t0 = norm(P1.x - P0.x, P1.y - P0.y);            // chord toward node at canvas edge
+    return {
+      p0: P0,
+      c0: { x: P0.x + s * t0.x, y: P0.y + s * t0.y },
+      c1: { x: P1.x + s * t1.x, y: P1.y + s * t1.y },
+      p1: P1,
+    };
+  } else {
+    // Output: P0 is node connection — outward tangent at node end
+    const t0 = norm(P0.x - nX, P0.y - nY);                // outward at node
+    const t1 = norm(P0.x - P1.x, P0.y - P1.y);            // chord toward node at canvas edge
+    return {
+      p0: P0,
+      c0: { x: P0.x + s * t0.x, y: P0.y + s * t0.y },
+      c1: { x: P1.x + s * t1.x, y: P1.y + s * t1.y },
+      p1: P1,
+    };
+  }
+}
+
+// Connection metadata for wire-endpoint popup
+const WIRE_CONNECTIONS = {
+  input: [
+    { label: 'Researcher', sub: 'AI peer feeding research data into this node.', btn: 'VIEW AGENT' },
+    null,
+    { label: 'Notion DB',  sub: 'Connected workspace supplying content briefs.', btn: 'OPEN DATABASE' },
+  ],
+  output: [
+    { label: 'Writer', sub: 'AI peer receiving tasks from this node.', btn: 'VIEW AGENT' },
+    null,
+  ],
+};
+
+// ── Wire layout generators ─────────────────────────────────────────────
+// Each returns an array of {col, meta} for n wires, centered around col 0.
+// Input step=14 compensates for VP compression at y=0 (pF≈0.32).
+// Output step=4.5 is natural perspective scale at y=hH (pF≈1.0).
+// Both produce roughly the same visual spread (~95-100px half-width).
+function inputWireConfig(n, connections) {
+  const step = 14, half = (n - 1) / 2;
+  return Array.from({ length: n }, (_, i) => ({
+    col:  (i - half) * step,
+    meta: (connections && connections[i]) || null,
+  }));
+}
+function outputWireConfig(n, connections) {
+  const step = 4.5, half = (n - 1) / 2;
+  return Array.from({ length: n }, (_, i) => ({
+    col:  (i - half) * step,
+    meta: (connections && connections[i]) || null,
+  }));
+}
+
+// Rebuilt each frame — stores full bezier + metadata for hit-testing
+let wireSegments = [];
+
+// Sample a cubic bezier at t ∈ [0,1]
+function bezierPt(t, p0, c0, c1, p1) {
+  const m = 1 - t;
+  return {
+    x: m*m*m*p0.x + 3*m*m*t*c0.x + 3*m*t*t*c1.x + t*t*t*p1.x,
+    y: m*m*m*p0.y + 3*m*m*t*c0.y + 3*m*t*t*c1.y + t*t*t*p1.y,
+  };
+}
+
+// Minimum distance from point (cx,cy) to the bezier, and the closest point
+function closestOnBezier(cx, cy, p0, c0, c1, p1) {
+  let minD = Infinity, best = p0;
+  for (let i = 0; i <= 48; i++) {
+    const pt = bezierPt(i / 48, p0, c0, c1, p1);
+    const d  = Math.hypot(cx - pt.x, cy - pt.y);
+    if (d < minD) { minD = d; best = pt; }
+  }
+  return { dist: minD, pt: best };
+}
+
+function drawWires(nodeX, nodeY, nodeSize) {
+  const thickness = nodeSize * 0.17;
+  const halfSqY   = nodeSize * 0.5 * YSCALE;
+  const nodeTopY  = nodeY - halfSqY;
+  const nodeBotY  = nodeY + halfSqY + thickness;
+
+  // ── Define wires here — change counts/connections to reconfigure ───────
+  const inputs  = inputWireConfig(3, WIRE_CONNECTIONS.input);
+  const outputs = outputWireConfig(2, WIRE_CONNECTIONS.output);
+
+  function wireFade(fromX, fromY, toX, toY) {
+    const g = hCtx.createLinearGradient(fromX, fromY, toX, toY);
+    g.addColorStop(0,    'rgba(26,26,26,1.00)');
+    g.addColorStop(0.42, 'rgba(26,26,26,0.72)');
+    g.addColorStop(0.72, 'rgba(26,26,26,0.20)');
+    g.addColorStop(0.90, 'rgba(26,26,26,0.04)');
+    g.addColorStop(1.0,  'rgba(26,26,26,0.00)');
+    return g;
+  }
+
+  function edgeAlpha(t) {
+    return Math.min(1, Math.min(t, 1 - t) / 0.20);
+  }
+
+  wireSegments = [];   // rebuild hit list each frame
+  const time = Date.now() / 1000;
+  hCtx.save();
+
+  // ── Input wires (canvas top edge → node top) ─────────────────────────
+  for (let i = 0; i < inputs.length; i++) {
+    const { col, meta } = inputs[i];
+    const w = makeWire(col, 0, 0, nodeTopY, nodeX, nodeY);
+
+    hCtx.beginPath();
+    hCtx.moveTo(w.p0.x, w.p0.y);
+    hCtx.bezierCurveTo(w.c0.x, w.c0.y, w.c1.x, w.c1.y, w.p1.x, w.p1.y);
+    hCtx.strokeStyle = wireFade(w.p1.x, w.p1.y, w.p0.x, w.p0.y);
+    hCtx.lineWidth = 2;
+    hCtx.lineCap = 'round';
+    hCtx.stroke();
+
+    const t = ((time * 0.38) + i * 0.34) % 1;
+    const pAlpha = edgeAlpha(1 - t);
+    if (pAlpha > 0.05) drawTubePulse(t, w.p0, w.c0, w.c1, w.p1, pAlpha);
+
+    if (meta) wireSegments.push({ ...w, ...meta });
+  }
+
+  // ── Output wires (node bottom → bottom edge) ──────────────────────────
+  for (let i = 0; i < outputs.length; i++) {
+    const { col, meta } = outputs[i];
+    const w = makeWire(0, nodeBotY, col, hH, nodeX, nodeY);
+
+    hCtx.beginPath();
+    hCtx.moveTo(w.p0.x, w.p0.y);
+    hCtx.bezierCurveTo(w.c0.x, w.c0.y, w.c1.x, w.c1.y, w.p1.x, w.p1.y);
+    hCtx.strokeStyle = wireFade(w.p0.x, w.p0.y, w.p1.x, w.p1.y);
+    hCtx.lineWidth = 2;
+    hCtx.lineCap = 'round';
+    hCtx.stroke();
+
+    const t = ((time * 0.38) + (i + inputs.length) * 0.34) % 1;
+    const pAlpha = edgeAlpha(t);
+    if (pAlpha > 0.05) drawTubePulse(t, w.p0, w.c0, w.c1, w.p1, pAlpha);
+
+    if (meta) wireSegments.push({ ...w, ...meta });
+  }
+
+  hCtx.restore();
+}
+
+// ── Perspective dot grid ───────────────────────────────────────────────
+// Dots converge to VP above canvas. Fade based on distance from node.
+function drawDotGrid(nodeX, nodeY, nodeSize) {
+  const VP_Y    = -hH * 0.25;
+  const rows = Math.ceil(hH / GRID_SPACING) + 2;
+  const cols = Math.ceil(hW / GRID_SPACING) + 6;
+  const halfCols = (cols - 1) / 2;
+
+  for (let r = 0; r < rows; r++) {
+    const y = r * GRID_SPACING;
+    const pF = Math.pow(Math.max(0.02, (y - VP_Y) / (hH - VP_Y)), 0.70);
+
+    for (let c = 0; c < cols; c++) {
+      const x = hW / 2 + (c - halfCols) * GRID_SPACING * pF;
+      if (x < -GRID_SPACING || x > hW + GRID_SPACING) continue;
+
+      const dist     = Math.hypot(x - nodeX, y - nodeY);
+      const heat     = Math.max(0, 1 - dist / (nodeSize * 2.6));
+      // Edge fade: smooth to white beyond a radius from the node
+      const edgeFade = Math.max(0, 1 - dist / (Math.min(hW, hH) * 0.70));
+
+      const radius = pF * (0.5 + heat * 0.85);
+      const alpha  = pF * edgeFade * (0.05 + heat * 0.50);
+
+      if (radius < 0.08 || alpha < 0.005) continue;
+      hCtx.beginPath();
+      hCtx.arc(x, y, radius, 0, Math.PI * 2);
+      hCtx.fillStyle = `rgba(0,0,0,${alpha})`;
+      hCtx.fill();
+    }
+  }
+}
+
+// ── Wire-endpoint popup ────────────────────────────────────────────────
+const wpWrap  = document.getElementById('wire-popup');
+const wpcO    = document.getElementById('wpc-o');
+const wpcI    = document.getElementById('wpc-i');
+const wpcC    = document.getElementById('wpc-c');
+const wpcTitle = document.getElementById('wpc-title');
+const wpcSub   = document.getElementById('wpc-sub');
+const wpcBtn   = document.getElementById('wpc-btn');
+
+const POPUP_W = 155, POPUP_H = 100, CARET = 10;
+
+// anchorX/Y is the point on the wire that was clicked — popup appears near it
+function showWirePopup(seg, anchorX, anchorY) {
+  wpcTitle.textContent = seg.label;
+  wpcSub.textContent   = seg.sub;
+  wpcBtn.textContent   = seg.btn;
+
+  // Place above the click if in the lower half of the canvas, else below
+  const placeAbove = anchorY > hH / 2;
+  let bx = anchorX - POPUP_W / 2;
+  let by = placeAbove ? anchorY - POPUP_H - CARET - 6 : anchorY + CARET + 6;
+
+  // Clamp within hero bounds
+  bx = Math.max(6, Math.min(hW - POPUP_W - 6, bx));
+  by = Math.max(6, Math.min(hH - POPUP_H - 6, by));
+
+  wpWrap.style.left = bx + 'px';
+  wpWrap.style.top  = by + 'px';
+
+  // Caret points toward the wire click point
+  const caretX = Math.max(CARET + 2, Math.min(POPUP_W - CARET * 2 - 2, anchorX - bx - CARET));
+  if (placeAbove) {
+    wpcO.style.cssText = `left:${caretX}px;top:${POPUP_H-1}px;width:0;height:0;border-left:${CARET}px solid transparent;border-right:${CARET}px solid transparent;border-top:${CARET}px solid #bebebe;z-index:1;`;
+    wpcI.style.cssText = `left:${caretX+2}px;top:${POPUP_H-3}px;width:0;height:0;border-left:${CARET-2}px solid transparent;border-right:${CARET-2}px solid transparent;border-top:${CARET-1}px solid #efefef;z-index:3;`;
+    wpcC.style.cssText = `left:${caretX-2}px;top:${POPUP_H-4}px;width:${CARET*2+4}px;height:5px;background:#efefef;z-index:4;`;
+  } else {
+    wpcO.style.cssText = `left:${caretX}px;top:${-CARET-1}px;width:0;height:0;border-left:${CARET}px solid transparent;border-right:${CARET}px solid transparent;border-bottom:${CARET}px solid #bebebe;z-index:1;`;
+    wpcI.style.cssText = `left:${caretX+2}px;top:${-CARET+1}px;width:0;height:0;border-left:${CARET-2}px solid transparent;border-right:${CARET-2}px solid transparent;border-bottom:${CARET-1}px solid #efefef;z-index:3;`;
+    wpcC.style.cssText = `left:${caretX-2}px;top:${CARET-2}px;width:${CARET*2+4}px;height:5px;background:#efefef;z-index:4;`;
+  }
+
+  wpWrap.classList.add('visible');
+}
+
+function hideWirePopup() {
+  wpWrap.classList.remove('visible');
+}
+
+// Click/tap handler — find closest wire within 14px hit radius
+hero.addEventListener('click', e => {
+  const r  = hero.getBoundingClientRect();
+  const cx = (e.clientX - r.left) * (hW / r.width);
+  const cy = (e.clientY - r.top)  * (hH / r.height);
+
+  let best = null, bestDist = Infinity;
+  for (const seg of wireSegments) {
+    const { dist, pt } = closestOnBezier(cx, cy, seg.p0, seg.c0, seg.c1, seg.p1);
+    if (dist < 14 && dist < bestDist) {
+      best = { seg, anchorX: pt.x, anchorY: pt.y };
+      bestDist = dist;
+    }
+  }
+
+  if (best) {
+    showWirePopup(best.seg, best.anchorX, best.anchorY);
+  } else {
+    hideWirePopup();
+  }
+});
+
+// ── Resize + main loop ─────────────────────────────────────────────────
+function resizeHero() {
+  const r = hero.getBoundingClientRect();
+  hW = hero.width  = r.width;
+  hH = hero.height = r.height;
+}
+
+function heroLoop() {
+  hCtx.clearRect(0, 0, hW, hH);
+  const nodeX    = hW / 2;
+  const nodeY    = hH * 0.52;
+  const nodeSize = Math.min(hW, hH) * 0.30;
+
+  drawNodeShadow(nodeX, nodeY, nodeSize);   // on floor first — dots render ON shadow
+  drawDotGrid(nodeX, nodeY, nodeSize);
+  drawWires(nodeX, nodeY, nodeSize);
+  drawHeroNode(nodeX, nodeY, nodeSize);
+  drawGear(nodeX, nodeY, nodeSize * 0.38);
+
+  requestAnimationFrame(heroLoop);
+}
+
+// ════════════════════════════════════════════════════════════
+//  EVOLUTION CANVAS TREE
+//  Data follows Evolution DB structure:
+//    Version, Name, Changes, Input Version (parentId), Output Version
+// ════════════════════════════════════════════════════════════
+const EVO_COMMITS = [
+  { id:'v2.1',  v:'v2.1',     name:'Memory Architecture',
+    changes:'Persistent context management. Improved task queuing.',
+    date:'3 days ago',  lane:0, current:true,  dead:false, parentId:'v2.0' },
+  { id:'v2.0',  v:'v2.0',     name:'Full Rewrite',
+    changes:'Eliminated sequential blocking. Async peer dispatch.',
+    date:'12 days ago', lane:0, current:false, dead:false, parentId:'v1.1' },
+  { id:'v1.1',  v:'v1.1',     name:'Parallel Tasks',
+    changes:'Concurrent dispatch. Researcher + Writer run simultaneously.',
+    date:'22 days ago', lane:0, current:false, dead:false, parentId:'v1.0' },
+  { id:'v1.2e', v:'v1.2-exp', name:'Async Experiment',
+    changes:'Fully-async model. Abandoned — context loss issues.',
+    date:'18 days ago', lane:1, current:false, dead:true,  parentId:'v1.1' },
+  { id:'v1.0',  v:'v1.0',     name:'Initial',
+    changes:'Basic sequential orchestration, no persistent memory.',
+    date:'31 days ago', lane:0, current:false, dead:false, parentId:null   },
+];
+
+function drawEvoTree() {
+  const canvas = document.getElementById('evo-canvas');
+  if (!canvas) return;
+
+  const PAD_L = 14, PAD_R = 14, PAD_T = 10, PAD_B = 24;
+  const LANE_W = 30;       // px per lane column
+  const NUM_LANES = 2;
+  const ROW_H  = 92;       // px per commit row — extra space prevents overlap
+  const DOT_R  = 5;
+  const FONT   = "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";
+
+  // Measure actual width from parent (or frame fallback)
+  const contentEl = document.getElementById('view-evolution');
+  const W = contentEl.clientWidth || document.getElementById('frame').clientWidth || 300;
+  const H = EVO_COMMITS.length * ROW_H + PAD_T + PAD_B;
+
+  canvas.width  = W;
+  canvas.height = H;
+  canvas.style.height = H + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+
+  // ── Compute dot (commit) positions ──────────────────────
+  const pos = {};
+  EVO_COMMITS.forEach((c, i) => {
+    pos[c.id] = {
+      x: PAD_L + c.lane * LANE_W + LANE_W / 2,
+      y: PAD_T + i * ROW_H + ROW_H * 0.40,
+    };
+  });
+
+  const textX = PAD_L + NUM_LANES * LANE_W + 10;
+  const textW = W - textX - PAD_R;
+
+  // ── Draw lines (behind dots) ─────────────────────────────
+  ctx.lineCap = 'round';
+
+  EVO_COMMITS.forEach(c => {
+    if (!c.parentId) return;
+    const from = pos[c.id];
+    const to   = pos[c.parentId];
+
+    if (c.lane === 0) {
+      // Main trunk: straight vertical
+      ctx.beginPath();
+      ctx.strokeStyle = '#c8c8c8';
+      ctx.lineWidth = 2;
+      ctx.moveTo(from.x, from.y);
+      ctx.lineTo(to.x, to.y);
+      ctx.stroke();
+    } else {
+      // Branch: cubic bezier with vertical tangents — departs downward from
+      // parent, arrives from above at branch commit (top-to-bottom flow).
+      const d = Math.abs(from.y - to.y) * 0.55;
+      ctx.beginPath();
+      ctx.strokeStyle = '#d4d4d4';
+      ctx.lineWidth = 2;
+      ctx.moveTo(to.x, to.y);
+      ctx.bezierCurveTo(
+        to.x,   to.y   + d,   // cp1: depart DOWNWARD from parent
+        from.x, from.y - d,   // cp2: arrive from ABOVE at branch commit
+        from.x, from.y        // end at branch commit dot
+      );
+      ctx.stroke();
+    }
+  });
+
+  // ── Draw dots (on top of lines) ──────────────────────────
+  EVO_COMMITS.forEach(c => {
+    const { x, y } = pos[c.id];
+
+    if (c.current) {
+      // Outer glow ring
+      ctx.beginPath();
+      ctx.arc(x, y, DOT_R + 5, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(0,0,0,0.10)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      // Fill
+      ctx.beginPath();
+      ctx.arc(x, y, DOT_R + 1, 0, Math.PI * 2);
+      ctx.fillStyle = '#111';
+      ctx.fill();
+    } else if (c.dead) {
+      ctx.beginPath();
+      ctx.arc(x, y, DOT_R - 1, 0, Math.PI * 2);
+      ctx.fillStyle = '#e0e0e0';
+      ctx.fill();
+      ctx.strokeStyle = '#bbb';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      ctx.arc(x, y, DOT_R, 0, Math.PI * 2);
+      ctx.fillStyle = '#111';
+      ctx.fill();
+    }
+  });
+
+  // ── Draw labels ──────────────────────────────────────────
+  function rrect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function fitText(text, maxW) {
+    if (ctx.measureText(text).width <= maxW) return text;
+    let t = text;
+    while (t.length > 1 && ctx.measureText(t + '…').width > maxW) t = t.slice(0, -1);
+    return t + '…';
+  }
+
+  EVO_COMMITS.forEach(c => {
+    const { y } = pos[c.id];
+    const badgeY   = y - 26;
+    const nameY    = y +  4;
+    const changesY = y + 17;
+    const dateY    = y + 30;
+
+    // Version badge
+    ctx.font = `800 9px ${FONT}`;
+    const bw = Math.max(28, ctx.measureText(c.v).width + 14);
+    rrect(textX, badgeY, bw, 16, 3);
+    ctx.fillStyle = c.dead ? '#d0d0d0' : '#111';
+    ctx.fill();
+    ctx.fillStyle = c.dead ? '#999' : '#fff';
+    ctx.textAlign = 'center';
+    ctx.fillText(c.v, textX + bw / 2, badgeY + 11);
+
+    // Current tag
+    if (c.current) {
+      const tagX = textX + bw + 6;
+      ctx.font = `800 7px ${FONT}`;
+      const tw = ctx.measureText('CURRENT').width + 12;
+      rrect(tagX, badgeY, tw, 16, 3);
+      ctx.strokeStyle = '#111';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = '#111';
+      ctx.textAlign = 'center';
+      ctx.fillText('CURRENT', tagX + tw / 2, badgeY + 11);
+    }
+
+    // Name
+    ctx.font = `700 ${c.dead ? 11 : 13}px ${FONT}`;
+    ctx.fillStyle = c.dead ? '#c0c0c0' : '#111';
+    ctx.textAlign = 'left';
+    ctx.fillText(fitText(c.name, textW), textX, nameY);
+
+    // Changes
+    ctx.font = `400 10px ${FONT}`;
+    ctx.fillStyle = c.dead ? '#c8c8c8' : '#999';
+    ctx.fillText(fitText(c.changes, textW), textX, changesY);
+
+    // Date
+    ctx.font = `500 9px ${FONT}`;
+    ctx.fillStyle = '#ccc';
+    ctx.fillText(c.date, textX, dateY);
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════════
+window.addEventListener('resize', () => {
+  resizeHero();
+  if (document.getElementById('view-evolution').classList.contains('active')) {
+    requestAnimationFrame(drawEvoTree);
+  }
+});
+
+requestAnimationFrame(() => {
+  resizeHero();
+  heroLoop();
+  // Draw evolution tree once so it's ready when the tab is opened
+  requestAnimationFrame(drawEvoTree);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+# The Calendar Tab
+
+> *Copied from: Frontend.md — "The Calendar Tab" section*
+
+> Demo: [calendar-tab.html](calendar-tab.html) ← empty stub
+
+The calendar tab has 2 sections, the calendar & upcoming events. The calendar is similar from the one we saw in some windows, just some extra features. Besides being able to visualize the streak, you can see future calls and events.
+
+If you tap on a certain day, it opens a _day timeline popup window_. Which I'll break down in just a second.
+
+Then, on the second section, you can see a timeline of upcoming important events. The timeline format will copy from timeline/feed view from the database node popup window.
+
+Now, lets talk about the highlights there can be in a day, a day can be highlighted with an SVG and a color below the actual text of that day's number. The most obvious kind of highlight is a call, with a camera as picture. Second is the end of a community challenge & day of rewards, when picture is a trophy we'll add more over time, but for now that's it.
+
+> **Suggested edit (Calendar Tab):** The two highlight types (call = camera, community challenge = trophy) should be moved to the DB structure — they're essentially an enum that will grow. Reference the Events DB `Type` field in `Database Structure Backend.md`.
