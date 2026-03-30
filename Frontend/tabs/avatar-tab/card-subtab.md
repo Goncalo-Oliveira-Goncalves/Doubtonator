@@ -19,7 +19,7 @@ The second section's a list. A list of different data.
 Let me break down what a list element has, from left to right, an icon, and text. A flexbox with those two elements from left and right.
 
 For example:
-- Icon: A clapper board:
+- Icon: A clapper board → [assets/icons/clapperboard-icon.svg](../../../assets/icons/clapperboard-icon.svg) *(missing)*
 - Text: "Your time per filming session has reduced by an average of 33%, with 45% more results" - These are prewritten texts with variable substitution. I write them, and then the variables are subtituted, then based on an algorithm, we pick the one that will motivate them the most.
 
 This data will be gotten from the "Data Structure Backend.md", but you get the idea...

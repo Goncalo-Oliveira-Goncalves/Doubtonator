@@ -74,17 +74,17 @@ These are the raw color values. Never use these directly in components — alway
 | +60% tint  | `#b1d3f5` |
 | +80% tint  | `#d8e9fa` |
 
-**Sè Lèi Orange** *(warning/secondary)* — `#fa824c`
+**Sè Lèi Orange** *(warning/secondary)* — `#ff9600`
 | Scale | Hex |
 |-------|-----|
-| +20% shade | `#c8683d` |
-| +40% shade | `#964e2e` |
-| +60% shade | `#64341e` |
-| +80% shade | `#321a0f` |
-| +20% tint  | `#fb9b70` |
-| +40% tint  | `#fcb494` |
-| +60% tint  | `#fdcdb7` |
-| +80% tint  | `#fee6db` |
+| +20% shade | `#cc7800` |
+| +40% shade | `#995a00` |
+| +60% shade | `#663c00` |
+| +80% shade | `#331e00` |
+| +20% tint  | `#ffab33` |
+| +40% tint  | `#ffc066` |
+| +60% tint  | `#ffd599` |
+| +80% tint  | `#ffeacc` |
 
 ---
 
@@ -159,8 +159,8 @@ These are the raw color values. Never use these directly in components — alway
 | `color-success-subtle` | Lone Hunter +80% tint `#ecf6dd` | Success backgrounds |
 | `color-info` | Oregon Blue `#3c91e6` | Hints, tooltips, neutral nudges |
 | `color-info-subtle` | Oregon Blue +80% tint `#d8e9fa` | Info backgrounds |
-| `color-warning` | Sè Lèi Orange `#fa824c` | Near-miss, "watch out" states |
-| `color-warning-subtle` | Sè Lèi Orange +80% tint `#fee6db` | Warning backgrounds |
+| `color-warning` | Sè Lèi Orange `#ff9600` | Near-miss, "watch out" states |
+| `color-warning-subtle` | `#fff5d3` | Warning backgrounds |
 | `color-danger` | Uh Oh Red `#e63c3c` | Errors, wrong answers, destructive actions |
 | `color-danger-subtle` | Uh Oh Red +80% tint `#fad8d8` | Error backgrounds |
 
