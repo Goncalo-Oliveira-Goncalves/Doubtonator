@@ -15,3 +15,5 @@ It is divided into 3 sections:
   - Cameras
   - Other Goodies
   The styling per catalog will be a div with a colorful background, and an arrow on the center right, pointing to the right, opening the item brings you to the _catalog popup window_
+
+> *Note:* When I say smooth transition, I don't mean an actual transition, but from one section to another, it smoothly changes background.
