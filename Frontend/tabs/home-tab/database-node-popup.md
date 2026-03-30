@@ -9,6 +9,8 @@ Database node popup windows have a similar layout to the agent node popup window
 - Feed / Timeline (depends on data)
 - Calendar
 
+DB Node Popup Window is different from agent node popup because, it has no evolution tab.
+
 You can, on the backend, chose which views they can see from. If they have only access to 1 view, we don't show the tabs, nor title.
 
 Let's quickly cover, besides the data, what other components are and then we'll go back to detailing each of the views.
