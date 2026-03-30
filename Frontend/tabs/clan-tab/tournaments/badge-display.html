@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Badge Display — Demo</title>
+  <style>
+    /* ── Semantic tokens from brand-guidelines.md ── */
+    :root {
+      --color-background: #342e37;        /* Lava Black (dark mode) */
+      --color-surface: #5d585f;
+      --color-text-primary: #fafffd;
+      --color-text-secondary: #aeabaf;
+      --color-border: #5d585f;
+
+      /* Badge tier primary colors */
+      --badge-bronze:   #e6ae7e;
+      --badge-silver:   #e1f0ff;
+      --badge-gold:     #ffef38;
+      --badge-sapphire: #43c3fe;
+      --badge-ruby:     #fe4c4c;
+      --badge-emerald:  #87df05;
+      --badge-amethyst: #cf81ff;
+      --badge-pearl:    #feaade;
+      --badge-obsidian: #28282c;
+      --badge-diamond:  #87e9ea;
+
+      --badge-size-center: 96px;    /* Active/current badge */
+      --badge-size-side: 76px;      /* 80% of center */
+    }
+
+    body {
+      margin: 0;
+      background: var(--color-background);
+      font-family: 'Fredoka One', sans-serif;
+      color: var(--color-text-primary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 32px;
+    }
+
+    h2 {
+      font-size: 18px;
+      color: var(--color-text-secondary);
+      margin: 0;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Badge Strip Container ── */
+    .badge-strip-wrapper {
+      position: relative;
+      width: 360px;
+      overflow: hidden;
+    }
+
+    /* Fade-out mask on left and right edges (from badge-display.md suggested edit) */
+    .badge-strip-wrapper::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
+      /* The mask reveals the background through the edges, creating the fade */
+      background: var(--color-background);
+    }
+
+    .badge-strip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 16px 8px;
+    }
+
+    /* ── Individual Badge ── */
+    .badge {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      /* TODO: Replace with actual SVG shapes per brand-guidelines.md Shape 1–4 */
+    }
+
+    .badge.center {
+      width: var(--badge-size-center);
+      height: var(--badge-size-center);
+    }
+
+    .badge.side {
+      width: var(--badge-size-side);
+      height: var(--badge-size-side);
+    }
+
+    /* Badge shape placeholder — implement real SVG shapes here */
+    .badge-shape {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;         /* Placeholder — replace with SVG */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 800;
+      color: #342e37;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Shine layer — 20% white linear overlay (from brand-guidelines.md "Some Notes") */
+    .badge-shape::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* Locked badge style */
+    .badge.locked .badge-shape {
+      background: #4a4a4a;
+      color: var(--color-text-secondary);
+    }
+
+    /* ── TODO: Badge shape implementations ─────────────────────────────────
+     *
+     * Per brand-guidelines.md, there are 4 shapes:
+     *   Shape 1 (Bronze, Silver, Gold)     — Shield/tombstone outline (ASCII: flat top, rounded bottom)
+     *   Shape 2 (Sapphire, Ruby, Emerald)  — Octagon outline
+     *   Shape 3 (Amethyst, Pearl, Obsidian)— Rounded rect with flat-cut corners
+     *   Shape 4 (Diamond)                  — Diamond/teardrop outline
+     *
+     * Each badge also has:
+     *   - "Simplified" variant (small sizes, used in bottom navbar)
+     *   - "Real" variant (large display, used here)
+     *   - Particle dots effect from Gold tier and above
+     *
+     * Implement the .badge-shape as an inline SVG or CSS clip-path.
+     * ──────────────────────────────────────────────────────────────────── -->
+
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@800&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <h2>Badge Display — Clan / Tournaments</h2>
+
+  <!--
+    DEMO SCENARIO: User is currently in the Gold tier.
+    - Bronze and Silver are unlocked (previously participated).
+    - Gold is the active center badge.
+    - Sapphire+ are locked (greyed out, unknown).
+  -->
+
+  <div class="badge-strip-wrapper">
+    <div class="badge-strip" id="badgeStrip">
+
+      <!-- UNLOCKED: Bronze (Shape 1) -->
+      <div class="badge side unlocked" data-tier="bronze">
+        <div class="badge-shape" style="background: var(--badge-bronze);">
+          <!-- TODO: Shape 1 SVG -->
+          BRZ
+        </div>
+      </div>
+
+      <!-- UNLOCKED: Silver (Shape 1) -->
+      <div class="badge side unlocked" data-tier="silver">
+        <div class="badge-shape" style="background: var(--badge-silver);">
+          <!-- TODO: Shape 1 SVG -->
+          SLV
+        </div>
+      </div>
+
+      <!-- ACTIVE CENTER: Gold (Shape 1) -->
+      <div class="badge center unlocked active" data-tier="gold">
+        <div class="badge-shape" style="background: var(--badge-gold);">
+          <!-- TODO: Shape 1 SVG + particle dots (Gold+ requirement) -->
+          GLD
+        </div>
+      </div>
+
+      <!-- LOCKED: Sapphire (Shape 2) -->
+      <div class="badge side locked" data-tier="sapphire">
+        <div class="badge-shape">
+          <!-- TODO: Locked icon from assets folder -->
+          🔒
+        </div>
+      </div>
+
+      <!-- LOCKED: Ruby (Shape 2) -->
+      <div class="badge side locked" data-tier="ruby">
+        <div class="badge-shape">
+          🔒
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!--
+    TODO items for you to implement:
+    1. Draw real SVG badge shapes for Shape 1, 2, 3, 4 (replace placeholder divs above)
+    2. Add particle dots effect to Gold, Sapphire, Ruby, Emerald, Amethyst, Pearl, Obsidian, Diamond
+    3. Add the locked grey badge icon from assets/ instead of the emoji placeholder
+    4. Adjust the strip to show all 10 tiers, centered on whichever is active
+    5. Confirm: does the fade wrapper approach below work, or should it be a CSS mask on the strip itself?
+  -->
+
+</body>
+</html>

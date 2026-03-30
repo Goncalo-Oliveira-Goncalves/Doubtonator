@@ -33,6 +33,8 @@ After this, we have the "print it" section - this is where you have a button to 
 
 Lets talk about the UI, it pairs well with the last section in a kind of bento box style...
 
+> **[DOUBT]:** "Bento box style" for Info + Print It sections — are these two sections displayed side by side (50/50 split) or stacked vertically but with matching visual weight? Also, when the AI rejects a video upload, what does the UI look like — does the AI feedback appear inline below the upload button, or as a separate popup?
+
 And it has 2 elements, one at the rightmost and one at the leftmost, respectively: the text "PRINT SCRIPT", and an arrow pointing right.
 
 The background has a vivid color.

@@ -18,6 +18,8 @@ Again, I'll explain the leveling's algorithm on the backend, for now, that's all
 
 The achievements is literally a compilation of a bunch of conditional statements.
 
+> **[DOUBT]:** Achievements are referenced in `card-subtab.md` as visible on the passport view, but there is no document listing what the achievements actually are, what their icons look like, or what conditions trigger them. This needs its own file before the card subtab can be fully implemented.
+
 The journal is where the coach (or also called user) takes notes. I'll explain more later...
 
 For now... lets see what shows up when you click on the tab.

@@ -44,6 +44,8 @@ This button has 2 elements, on the leftmost, a "TALK" text, and on the rightmost
 
 When you press on it and it is recording, 2 things happen, first, there is a red outline around the button, a thick 4px one, and next, the button's container itself takes the shape of the soundwave being received, adds to the buttons initial shape and smooths it out, here's an example (taken from google's stitch development environment):
 
+> **[DOUBT]:** The talk button morphing into the soundwave shape — this is the most technically complex animation in the entire spec. "Takes the shape of the soundwave and smooths it out" implies a real-time border-path morph. How is this implemented — CSS `clip-path` animated with JS, a canvas overlay, or SVG path animation? And is this an exception to the no-CSS-animation rule? The example was from Google Stitch but no image or link is present here.
+
 > Demo (talk button state): [quest-talk-button.html](quest-talk-button.html) ← empty stub
 
 The next button is the answer button, which... "ANSWERS" as said on the text.

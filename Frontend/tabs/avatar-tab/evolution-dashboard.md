@@ -15,6 +15,8 @@ We'll talk more about what shows up when you click a node once we got to the nod
 
 But, just know, most of the properties from the canvas apply, starting out position, (0,0), having a grid. Allowing the format of nodes to be changes with an SVG, etc...
 
+> **[DOUBT]:** "Most of the properties from the canvas apply" is too vague for implementation. Which ones specifically carry over? For example: does the dot-grid heat map apply? Does the PixiJS depth/perspective apply? Does the same spline formula for links apply? A checklist of which canvas features are in/out for this tab would help.
+
 For now though, the biggest change is that all of these nodes get their data from trackers, a new category, if we were to compare with agents and databases, this needs a page style for it too, it will get one, _The Tracker Window_, don't worry.
 
 Note: Even though we create template styles for categories of nodes, we allow for personalized modifications per node format. For the meaning of this terminology, please reference to the "Database Structure Backend.md" for more information.

@@ -6,6 +6,8 @@ The node can have various shapes, a square, a circle, a shield, a star, basicall
 However, the node also doesn't look flat, as if seen from a top down perspective, but more as if seen from a 60 degree (opening to the right) angle with the horizontal plane of projection, and making 90 degrees with the frontal plane of projection.
 To add depth, we will use PixiJS. And we will specify the SVGs.
 
+> **[DOUBT]:** The perspective description is ambiguous. "60 degree opening to the right with the horizontal plane, 90 degrees with the frontal" could mean: (a) a CSS 3D `perspective` + `rotateX` transform, (b) a hand-drawn isometric projection, or (c) a PixiJS 3D mesh. Which is it? A reference screenshot or Figma frame would lock this down. Also — is the depth effect the same for all node shapes (circle, square, shield, star)?
+
 Here is an example code with PixiJS for a node for the canvas. Do not take this as the code for the app, even though it's a great start, this alone is not flexible.
 
 > PixiJS node snippet: [canvas-node-pixi.js](canvas-node-pixi.js) ← populated (module snippet, not standalone)
@@ -17,6 +19,8 @@ Upon clicking the node, a little popup shows up *{:and to be clear, the example 
 > Node popup example: [node-popup.html](node-popup.html) ← populated
 
 Also, when you click the button, the node goes a bit down, I didn't code that functionality in, by the way, there is NO animation, on or off, one state to the next. I like that stylized look.
+
+> **[DOUBT]:** "3D extrusion" for buttons (node goes down on press) — this style is referenced multiple times across quest rewards, the purchase button, and here, but it's never fully spec'd in one place. What exactly does this look like? Is it a CSS `box-shadow` offset change, a `translateY`, or a PixiJS layer shift? Should there be a dedicated button-style section in brand-guidelines.md?
 
 > Button states example: [button-states.html](button-states.html) ← populated
 

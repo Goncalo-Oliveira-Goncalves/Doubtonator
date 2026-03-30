@@ -12,6 +12,8 @@ Here there is a hard transition from section 1 (colorful background) to section 
 
 The second section, as told, has a white background. And it will be a markdown stylized document, where we tell more about the product.
 
+> **[DOUBT]:** Who authors the markdown product description — is this admin-entered content in the backend, AI-generated, or pulled from an external product API? This affects both the backend data model and whether we need a rich-text editor in the admin panel.
+
 The third section will be special, it is always found in the bottom of the screen, even when scrollable, a button to purchase.
 
 The button has 2 parts, the text "PURCHASE" and to the rightmost, the amount of sparks it costs, besides that, there is a like opacity decrease when the content is overlapping with the bounding box for the document. Also blur, both are progressive (top 100% for opacity, 0px for blur) to bottom, (at 0% opacity, 4px blur).

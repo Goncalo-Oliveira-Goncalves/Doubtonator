@@ -5,9 +5,13 @@
 > Demo: [quest-approve-scripts.html](quest-approve-scripts.html) ← empty stub
 
 I think this could work in the same way as tinder. That is, they click to start the task and 7 cards appear for them to approve or disprove.
+
+> **[DOUBT]:** What does the script card look like in its default (non-swiped) state? Is there a title, preview text, or just the full markdown content? Is there a visible count indicator showing "card 3 of 7" in the static state, or only on the progress bar at the bottom?
 To approve, they swipe right. To disprove, they swipe left.
 
-Once you disprove, you are, however, forced to provide feedback on what was messed up and what to say instead. If you click, you can see the full script, and you can scroll (the swipe left or right thing still works)
+Once you disprove, you are, however, forced to provide feedback on what was messed up and what to say instead.
+
+> **[DOUBT]:** What does the feedback form on disproval look like? Is it free-text only, a set of predefined categories (e.g. "Off-brand tone", "Factually wrong", "Too long"), or both? This affects the UI significantly and also needs a backend spec for the feedback structure. If you click, you can see the full script, and you can scroll (the swipe left or right thing still works)
 
 You can also see a progress bar in the bottom saying how many scripts are left.
 

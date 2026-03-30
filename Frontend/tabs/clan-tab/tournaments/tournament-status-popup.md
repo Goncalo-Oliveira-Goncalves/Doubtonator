@@ -2,6 +2,8 @@
 
 > *Copied from: Frontend.md — "Tournament Status Window popup"*
 
+> **[DOUBT]:** This file has no `> Demo:` reference unlike every other popup. Should one be added? Also — cells 2, 3, 4 each have a stat counter and a bottom label, but the icon for each cell is not described. What icon represents "Minutes Recording"? "Words Said"? "Total Videos"? Please specify or point to assets.
+
 Now, lets talk a bit about the tournament status window popup, there are a few things:
 
 There are 2 groups - Badge and stats.

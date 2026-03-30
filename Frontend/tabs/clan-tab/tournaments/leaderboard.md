@@ -19,7 +19,9 @@ The opposite also happens, if the bottom 4 go down a league, and there are 17 pa
 
 For more information on story promotion and demotion zone information, please refer to the database structure backend document.
 
-Now, you're highlighted in accept color, that is, your place as an item on the list, you container, has a background color that will highlight you (and this container will also have rounded corners.)
+Now, you're highlighted in accent color, that is, your place as an item on the list, your container, has a background color that will highlight you (and this container will also have rounded corners.)
+
+> **[DOUBT]:** "Accent color" for the current user's row — what color exactly? `color-primary` (Lone Hunter green `#9fd356`)? `color-info` (Oregon Blue)? Or a more subtle tint like `color-primary-subtle`? This needs a token.
 
 Now, lets talk a bit more about the container there is for each item of the list or user...
 
@@ -33,8 +35,7 @@ The second group is the XP container, there will be a counter, followed by the w
 
 > **Suggested edit (Leaderboard):** The phrase "story promotion" appears to be a typo — remove "story". The skeleton leaderboard with 7 ghost rows should be a hardcoded number — consider making it match the actual tournament participant count in the future.
 
-%%%%%%%
-Now lets talk about the leaderboard... when you have no quests completed, it shows up as a skeleton of what should be the leaderboard, with 7 users, however, from top to bottom, the opacity of the container goes from 100% to 0%. After that container, we can see you, your rank is null, said as "-", then followed by your avatar and then your name, this group of 3 is found to the leftmost of the container, and then to the rightmost, there is a text saying "XP".
+> **[DOUBT]:** Everything below this line (%%%%% marker) is a duplicate of the content above it. This section should be deleted once confirmed. when you have no quests completed, it shows up as a skeleton of what should be the leaderboard, with 7 users, however, from top to bottom, the opacity of the container goes from 100% to 0%. After that container, we can see you, your rank is null, said as "-", then followed by your avatar and then your name, this group of 3 is found to the leftmost of the container, and then to the rightmost, there is a text saying "XP".
 
 Now to complete the picture of the leaderboard, we must talk about what it looks like when you have completed quests. Firstly, the description on the status section changes to "Top X to advance to the next league" -- when it was before: "Complete a quest to join this TIMEFRAME's leaderboard."
 Then, there will show up, bellow the description, instead of the, before, "GO TO QUESTS" button, the time left on the tournament.

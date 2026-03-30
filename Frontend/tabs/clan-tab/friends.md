@@ -18,6 +18,8 @@ Group 2 has 2 elements, at the top, the most recent time there was a message in 
 
 Upon clicking a chat, it's a normal DM chat bubble conversation.
 
+> **[DOUBT]:** Message bubble styling is never described. Which side are sent messages on (right)? Received (left)? What's the bubble background color — `color-primary` for sent, `color-surface` for received? Are there message tails? What about timestamps — per message, or grouped?
+
 What if they don't have any chats? A callout shows up with something like "This place seems quite lonely, start some conversations with people", to start conversations, you click on the name of posters and commenters in the chat section.
 
 > **Note:** When no contacts, they can click on names in the "Chat" section to start a conversation in the friends tab, if they go directly to the friends tab without talking to anyone, a little callout shows up "It's quite empty in here, try talking to someone."

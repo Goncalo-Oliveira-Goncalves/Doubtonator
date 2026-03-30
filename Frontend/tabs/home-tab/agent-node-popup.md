@@ -5,6 +5,8 @@
 > Demo: [agent-node-popup.html](agent-node-popup.html) ← empty stub
 > Implementation: [../../HTMLs/agent-node.html](../../HTMLs/agent-node.html) ← current working file
 
+> **[DOUBT]:** The `../../HTMLs/agent-node.html` path resolves to `frontend/HTMLs/agent-node.html` — but this folder does not exist on disk. Was this file created and then deleted, or was it planned but never made? If it's a working file, it should be tracked in git.
+
 Alright. Firstly, on the top left corner, there is an "x", clicking on it brings you back to the canvas.
 Then, lets talk about "the node visualizer". We will put the node on the center top of screen. However this time, the camera is at about 30 degrees with the horizontal plane of projection, 90 degrees with the frontal. And it's in perspective view.
 Really, what we see is the node sitting on the canvas.
@@ -15,5 +17,7 @@ After the heading, there is a little menu. With 2 options: Timeline, Evolution.
 First, lets talk about the timeline view & how it works...
 The timeline view is a sort of feed of recent activities (please reference to the Database Structure Backend.md for the structure) an agent can have subagents, NOT peer agents, SUBAGENTS, that's the right term, mini agents that take care of specific functions on a certain agent, so on many of the cards on the feed, there will be progress bars. Then there is a start and end time. Then there is the title of the task & ID of what it does. Then there is description & performed activities.
 The evolution tab will be a graph of the git branching of the AIs, the version which I have selected will be highlighted
+
+> **[DOUBT]:** The evolution tab shows AI version branching (like a git graph). Two things are unclear: (1) Who manages these AI versions — is it admin-only, or can users create branches? (2) What does "the version which I have selected" mean — is there a version-switching interaction here, and if so, what does selecting a version do (deploy it? preview it?)?
 
 > **Suggested edit (Agent Node Popup):** The phrase "an agent can have subagents" needs clarification — in this system, agents dispatch to *peer agents* (e.g. Writer, Researcher), not to subagents in the traditional sense. Update wording to reflect the peer-dispatch model. Also.
