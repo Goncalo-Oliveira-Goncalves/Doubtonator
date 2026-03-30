@@ -28,4 +28,4 @@ On the center top, there is a text "Streak"; Then this window is broken down int
 
     Upon completing a full month, instead of semi noticeable, semi transparent color of the fire, the container's is background turns golden, with a nice shine, and the text color of those days, matches the color that it would be on an actual image of gold, essentially carving in the numbers into the golden plate, not that you'd actually do that, but it should give you an idea of the text color I am going for in that container.
 
-> **Suggested edit (Streak Popup):** The `<!-- steal calendar thing -->` comment is a TODO — replace with a real reference once a Duolingo-inspired streak calendar prototype is built.
+> **Suggested edit (Streak Popup):** The `<!-- steal calendar thing -->` comment is a TODO — replace with a real reference once a Duolingo-inspired streak calendar prototype is built. --- I DO NOT understand this suggestion

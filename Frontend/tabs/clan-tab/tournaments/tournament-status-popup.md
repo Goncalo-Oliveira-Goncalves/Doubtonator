@@ -18,4 +18,4 @@ Cell 4:
 
 Finally in the top left corner, there's an X to close the popup window. The popup window's background is the color of the badge, or has the badge's gradient if it's a gradient.
 
-> **Note:** The popup does NOT appear in all 3 outcomes, only when the win -- there is no conditional -- NO. When they win, they get it, when they do not, they get NOTHING. Putting them in will demotivate the users, which leads to churn, which leads to less money, NO.
+This window will show up ONLY if they win. Not if they lose, nor if they stay. Because that would demotivate them.

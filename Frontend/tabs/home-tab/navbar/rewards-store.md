@@ -1,3 +1,4 @@
+> [PENDING]
 # Rewards Store
 
 > *Copied from: Frontend.md — "Rewards Store"*
@@ -14,5 +15,3 @@ It is divided into 3 sections:
   - Cameras
   - Other Goodies
   The styling per catalog will be a div with a colorful background, and an arrow on the center right, pointing to the right, opening the item brings you to the _catalog popup window_
-
-> **Suggested edit (Rewards Store):** The phrase "I am yet to this figure this out" should be cleaned up or converted into a `[PENDING]` callout. Also, the transition between sections 1 and 2 uses "smoothly" — verify with the no-animation rule (the rest of the app has no animations except the streak fire and spark).

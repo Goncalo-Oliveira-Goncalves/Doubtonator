@@ -16,4 +16,4 @@ But like a heat map, the closer to nodes, the bigger the opacity. And by the way
 
 > Full canvas prototype: [home-canvas.html](home-canvas.html) ← populated
 
-> **Suggested edit (Canvas section):** The prototype in `home-canvas.html` uses placeholder tab names (Home / Activity / Settings). Update them to match the real 5 tabs (Home / Calendar / Clan / Quests / Profile). The `nodes` array is also hardcoded — once the backend is wired, this should be fetched per-user from the Canvas DB.
+[PROBLEM WITH CODE: The prototype in `home-canvas.html` uses placeholder tab names (Home / Activity / Settings). Update them to match the real 5 tabs (Home / Calendar / Clan / Quests / Profile). The `nodes` array is also hardcoded — once the backend is wired, this should be fetched per-user from the Canvas DB.]

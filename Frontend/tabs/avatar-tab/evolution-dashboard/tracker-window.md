@@ -32,10 +32,9 @@ Now, lets get to the graphs:
 > Histogram demo: [chart-histogram.html](chart-histogram.html) ← empty stub
 > Spline demo: [chart-spline.html](chart-spline.html) ← empty stub
 > Column chart demo: [chart-column.html](chart-column.html) ← empty stub
+> Bubble chart demo: [chart-column.html](chart-column.html) ← empty stub
 
 And finally, the last thing we wanna do in the frontend... is talk about the tiny popups that show up when you click stats or graphs - and again it's very similar to the little popups, when clicking in nodes on the canvas.
 The difference is for graphs, at the top, there is the heading of a graph, below that, the graph, below that the description, & if they tap on the graph, they can open it full screen, zoom in, zoom out. Along with the origin of the data on an "i" callout (back on popup) and you can also see the data's history of change over time at the end. (except for temporal data... duh), which is why we put temporal graphs on stat popups.
 
 Talking about that. For a stat, they can see the current value, origin, description of what it is, name (as the heading), and at the bottom the temporal evolution of it
-
-> **Suggested edit (Tracker Window):** The bubble chart is listed under chart types but has no demo file referenced — add `chart-bubble.html` to the demos list.
