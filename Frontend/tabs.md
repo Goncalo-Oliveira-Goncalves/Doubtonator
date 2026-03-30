@@ -63,12 +63,15 @@
 | [tabs/avatar-tab/card-subtab.md](tabs/avatar-tab/card-subtab.md) | Card/passport subtab |
 | [tabs/avatar-tab/evolution-dashboard.md](tabs/avatar-tab/evolution-dashboard.md) | Evolution analysis dashboard subtab |
 | [tabs/avatar-tab/evolution-dashboard/tracker-window.md](tabs/avatar-tab/evolution-dashboard/tracker-window.md) | Tracker window (data elements, charts, stat popups) |
+| [tabs/avatar-tab/journal.md](tabs/avatar-tab/journal.md) | Journal subtab |
+| [tabs/avatar-tab/journal/note-popup.md](tabs/avatar-tab/journal/note-popup.md) | Note popup window |
 
 ## Other
 
 | File | Covers |
 |---|---|
 | [bottom-navbar.md](bottom-navbar.md) | Bottom navigation bar (shared across all tabs) |
+| [conclusion.md](conclusion.md) | Conclusion — component-based dev philosophy + reading order |
 
 ## HTML Demos
 

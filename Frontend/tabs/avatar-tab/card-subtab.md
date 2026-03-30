@@ -26,3 +26,6 @@ This data will be gotten from the "Data Structure Backend.md", but you get the i
 
 `[TODO: (done first) List out all possible motivational sentences you could say]`
 `[TODO: Algorithm to pick most motivational thing to say]`
+
+%%%%%%%
+Now, lets go over to the next subsection with the node tree icon, in this case, what it was supposed to be at least, a git branch.

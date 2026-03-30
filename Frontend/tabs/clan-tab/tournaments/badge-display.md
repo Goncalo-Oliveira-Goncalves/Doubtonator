@@ -34,6 +34,66 @@ Bronze competitions are weekly, the next 4 are monthly, the next 5 are quarterly
 
 However, here's something important: you can only see the leagues you participated in, so if you never passed from silver, you can see bronze to your left, but all the other ones have a grey locked badge (an icon present in the assets, please refer to the assets folder for more information), indicating you don't know what it is until you win.
 
+%%%%%%%
+- Amethist
+- Pearl
+- Obsidian
+- Diamond
+
+Bronze competitions are weekly, the next 4 are monthly, the next 5 are quarterly. And there are rewards for the 1st, 2nd and 3rd place, also editable on the backend, please refer to the "Database Structure Backend.md" document for more information:
+
+- Bronze:
+  1. 20 Sparks
+  2. 10 Sparks
+  3. 5 Sparks
+
+- Silver:
+  1. 25 Sparks
+  2. 15 Sparks
+  3. 10 Sparks
+
+- Gold:
+  1. 30 Sparks
+  2. 20 Sparks
+  3. 15 Sparks
+
+- Sapphire:
+  1. 35 Sparks
+  2. 25 Sparks
+  3. 20 Sparks
+
+- Ruby:
+  1. 40 Sparks
+  2. 30 Sparks
+  3. 25 Sparks
+
+- Emerald:
+  1. 45 Sparks
+  2. 35 Sparks
+  3. 30 Sparks
+
+- Amethist:
+  1. 50 Sparks
+  2. 40 Sparks
+  3. 35 Sparks
+
+- Pearl:
+  1. 55 Sparks
+  2. 45 Sparks
+  3. 40 Sparks
+
+- Obsidian:
+  1. 60 Sparks
+  2. 50 Sparks
+  3. 45 Sparks
+
+- Diamond:
+  1. 75 Sparks
+  2. 60 Sparks
+  3. 50 Sparks
+
+However, here's something important: you can only see the leagues you participated in, so if you never passed from silver, you can see bronze to your left, but all the other ones have a grey locket badge (an icon present in the assets, please refer to the assets folder for more information), indicating you don't know what it is until you win.
+
 So the badge display will have the badge you are on, and this badge will be in the center of the container, the badges after and before will follow, by the way, they are 20% smaller in size (so 80% the size) to indicate the league they are on.
 
 They should not be able to scroll horizontally to see the leagues towards the corners... the badges on left and right fade out.
