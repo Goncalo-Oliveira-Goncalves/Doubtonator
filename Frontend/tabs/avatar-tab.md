@@ -9,7 +9,7 @@ This tab will give home for a few very important features.
 I shall list them out:
 - Leveling
 - Achievements
-- Journal
+- Journal (for user to write and edit)
 - Progress (real life)
 
 The journal is the most important one.

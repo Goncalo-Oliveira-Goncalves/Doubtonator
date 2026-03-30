@@ -20,7 +20,7 @@ There are 3 sections these cards have...
 The heading is simply the quest, the ones we have right now is...
 - Record a Video (7 per week, they can record anytime, but we recommend having a weekly hour)
 - Approve Script Batches - which the heading is "Approve Scripts"
-- Give Feedback/Answer Questions (for market research) - which the heading is "Help Us Out"
+- Give Feedback/Answer Questions (for market research) - which the heading is "Help Us Out" (quest name on database structure backend)
 
 ## Description
 Below the heading we have a 2 line description. By the way, all of this should be configurable on a database in the backend. I will not provide the description right now.

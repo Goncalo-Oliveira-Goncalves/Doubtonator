@@ -128,7 +128,7 @@ Events
             ID
             Name
             Description
-            Type (calls, for now that's it...)
+            Type (calls, for now that's it... gotten from Event Type DB)
             Users (users who have the event in their calendars -- type @everyone for everyone @group:GROUP for a specific group of people subtituting GROUP by the said group ID. Groups are defined in the "Belonging Gorups List")
             Content (markdown allowing URLs and other stuff)
             Event Creator
