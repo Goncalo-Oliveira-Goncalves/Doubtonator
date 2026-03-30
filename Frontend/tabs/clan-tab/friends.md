@@ -6,7 +6,7 @@
 
 After the tournaments sub-tab, the only one left is the friends subtab.
 
-The friends tab will be a copy of whatsapp (without friend groups only DMs.)
+The friends tab will be a copy of whatsapp (DMs only, no group chats in v1).
 
 It will be a list of all their contacts, sorted by who they talked with recently.
 
@@ -18,4 +18,4 @@ Group 2 has 2 elements, at the top, the most recent time there was a message in 
 
 Upon clicking a chat, it's a normal DM chat bubble conversation.
 
-> **Suggested edit (Friends):** Add a note about what happens on first open with no contacts — empty state design is missing. Also, "(without friend groups only DMs)" is ambiguous — rewrite as "(DMs only, no group chats in v1)".
+> **Note:** When no contacts, they can click on names in the "Chat" section to start a conversation in the friends tab, if they go directly to the friends tab without talking to anyone, a little callout shows up "It's quite empty in here, try talking to someone."

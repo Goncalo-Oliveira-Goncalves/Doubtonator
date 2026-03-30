@@ -44,4 +44,5 @@ The third section is a formatted markdown - which will be the script, this secti
 The last section is a video to upload (you can upload multiple videos), it's literally a button saying "UPLOAD RECORDINGS", this button sticks to the bottom of the screen and has some margin with the bottom, it's also centered.
 The final thing about this section is that, on the container for the bottom (touching the bottom, left & right of the frame), the opacity of the markdown below, at the top of the container's 100%, and at the bottom, 0%, the opposite happens with blur, 0px at the top, 4px at the bottom.
 
-> **Suggested edit (Record Videos):** The Print It section: clarify what "actively sends to the printer" means on mobile — this is likely only feasible on iOS via AirPrint or by generating a PDF and prompting share sheet. Flag this as a platform-specific limitation.
+> Note: What do I mean with actively send it to printer?
+    On android, most printer have an app on the phone that allows to print via wifi nowadays, we can just make it so they can share a pdf with the printer. If on iOS, the process is somewhat similar. I believe (do not own an iOS). And if no options are available, we can always generate a pdf out of the markdown optimized for readability for them to print.

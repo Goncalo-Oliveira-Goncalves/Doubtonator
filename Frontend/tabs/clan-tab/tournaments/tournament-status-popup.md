@@ -18,4 +18,4 @@ Cell 4:
 
 Finally in the top left corner, there's an X to close the popup window. The popup window's background is the color of the badge, or has the badge's gradient if it's a gradient.
 
-> **Suggested edit (Tournament Status Popup):** The "You won the X tournament" text should be conditional — you might have been *promoted*, *stayed*, or *demoted*. The popup should reflect all 3 outcomes, not just a win. Suggest adding outcome-based copy variants.
+> **Note:** The popup does NOT appear in all 3 outcomes, only when the win -- there is no conditional -- NO. When they win, they get it, when they do not, they get NOTHING. Putting them in will demotivate the users, which leads to churn, which leads to less money, NO.

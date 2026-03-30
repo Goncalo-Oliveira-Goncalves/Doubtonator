@@ -34,7 +34,7 @@ Below that, there is a question (the question), stylized as a heading.
 
 ### Text
 
-Then the next section is text, your answer, it's scrollable, and the text size grows as you type or talk more.
+Then the next section is text, your answer, it's scrollable, and the number of lines grow as you type or talk more (text size stays the same, it's just bounding boxes and context being added through a script).
 
 ### Buttons
 
@@ -50,4 +50,4 @@ The next button is the answer button, which... "ANSWERS" as said on the text.
 
 Finally, this section has a opacity effect, like the last ones of it's kind, starts at the bottom of the screen with 0% opacity for the text underneath it, and on the top of the container, which touches right, left & bottom corners, 100% opacity, blur here is, also 0px, and at the bottom, 4px.
 
-> **Suggested edit (Answer Questions):** The "text size grows as you type" behavior — clarify: does the font-size increase, or does the textarea expand? These are different implementations. Also, the AI honesty check needs a backend spec — flag as `[TODO: define honesty scoring algorithm]`.
+> **Suggested edit (Answer Questions):** The AI honesty check needs a backend spec — flag as `[TODO: define honesty scoring algorithm]`.

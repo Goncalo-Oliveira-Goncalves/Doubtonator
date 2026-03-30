@@ -18,4 +18,4 @@ And then one "GO TO APP"
 
 That explains this window. It opens right after you get the streak (which you increase by completing quests.)
 
-> **Suggested edit (Commemorative Popup):** Clarify trigger: the window opens when the *app is opened* after hitting a milestone (not immediately at the moment of completing the quest). This matters for push notification UX.
+The streak appears right after completing a quest that reaches a goal to increase the streak. The streak increases by one, when during that week you record 7 videos. I believe I already talked about the streak tiers [link where I talked about that] -- because of this, there is no trigger, "if certain value, play", and it checks that when increasing the streak after completing the quest before getting back to the tabs. This functionality just wouldn't make any sense with push notifications.
