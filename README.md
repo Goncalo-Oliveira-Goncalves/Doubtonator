@@ -81,6 +81,9 @@ This project follows a Greek alphabet versioning scheme:
 ## Status
 
 - [x] Frontend design specs (all 5 tabs documented)
+- [] Seach into how duolingo does palettes and other brand guidelines elements
+- [] Replicate brand guidelines of duolingo in your own style
+- [] Design Examples to AI
 - [x] Database schema drafted
 - [x] Backend language and framework selected
 - [ ] Backend implementation
