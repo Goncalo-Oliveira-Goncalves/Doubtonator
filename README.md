@@ -35,7 +35,6 @@
 ├────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ tournaments.md             │ "Midnight US time" — which timezone; "last rank" = Bronze or one below?                                                                                              │
 ├────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ leaderboard.md             │ "Accent color" token undefined; duplicate %%%%% content flagged for deletion                                                                                         │
 ├────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ tournament-status-popup.md │ No demo reference; icons for cells 2/3/4 not described                                                                                                               │
 ├────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
@@ -154,8 +153,10 @@ This project follows a Greek alphabet versioning scheme:
 - [x] Frontend design specs (all 5 tabs documented)
 - [x] Seach into how duolingo does palettes and other brand guidelines elements
 - [x] Replicate brand guidelines of duolingo in your own style
-- [] Clear Up All AI Doubts
-- [] Design Examples to AI
+- [ ] Clear Up All AI Doubts
+- [ ] Design Examples to AI
+- [ ] Tag all algorithm requirements across frontend specs with `[TODO]` markers
+- [ ] Create all missing UI assets and icons (see Assets Needed below)
 - [x] Database schema drafted
 - [x] Backend language and framework selected
 - [ ] Backend implementation
@@ -167,3 +168,29 @@ This project follows a Greek alphabet versioning scheme:
 ---
 
 *Built for my clients.*
+
+---
+
+## Assets Needed
+
+### UI Icons & SVGs
+- [ ] `assets/other-ui-elements/soundwave-icon.svg` — talk button soundwave icon (answer-questions quest)
+- [ ] `assets/other-ui-elements/rank-medal-gold.svg` — 1st place rank medal for leaderboard rows
+- [ ] `assets/other-ui-elements/rank-medal-silver.svg` — 2nd place rank medal for leaderboard rows
+- [ ] `assets/other-ui-elements/rank-medal-bronze.svg` — 3rd place rank medal for leaderboard rows
+
+### Canvas Node Shapes
+- [ ] `assets/canvas-nodes/node-shape-circle.svg` — circle node shape for PixiJS canvas
+- [ ] `assets/canvas-nodes/node-shape-square.svg` — square node shape for PixiJS canvas
+- [ ] `assets/canvas-nodes/node-shape-shield.svg` — shield node shape for PixiJS canvas
+- [ ] `assets/canvas-nodes/node-shape-star.svg` — star node shape for PixiJS canvas
+
+### Lottie Animations *(Omega phase — deferred)*
+- [ ] `assets/lottie/streak-fire-yellow.json`
+- [ ] `assets/lottie/streak-fire-yellow-orange.json`
+- [ ] `assets/lottie/streak-fire-orange.json`
+- [ ] `assets/lottie/streak-fire-orange-blue.json`
+- [ ] `assets/lottie/streak-fire-blue.json`
+- [ ] `assets/lottie/streak-fire-grey.json`
+- [ ] `assets/lottie/spark-burst.json`
+- [ ] `assets/lottie/clapperboard-on-fire.json`
