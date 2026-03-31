@@ -13,7 +13,7 @@ On the center top, there is a text "Streak"; Then this window is broken down int
     This section has 2 sub-sections:
       Sub-Section 1:
         The first sub-section is status. With 2 objects, being the leftmost one text, giving your streak (e.g: "X day streak.")
-        And the one on the right of that one, an animation of the streak fire (with the right color), it's a looping animation → [assets/animations/streak-fire-[color].lottie](../../../../assets/animations/) *(missing — one file per color variant: grey, yellow, yellow-orange, orange, orange-blue, blue)*.
+        And the one on the right of that one, an animation of the streak fire (with the right color), it's a looping animation → [assets/animations/streak-fire-[color].lottie](../../../../assets/animations/) *(deferred to version omega — one file per color variant: grey, yellow, yellow-orange, orange, orange-blue, blue)*.
       Sub-Section 2:
         This subsection has 2 elements and it's a callout, notion style
         Object 1: Heading of the callout data "Your Streak Position:"

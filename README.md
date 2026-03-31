@@ -142,6 +142,7 @@ This project follows a Greek alphabet versioning scheme:
 | **Alpha** | `alpha-v0.1` → `alpha-v0.24` | Design specs, architecture, early prototypes |
 | **Beta** | `beta-v0.2` → ... | Feature development |
 | **...** | continuing through **Omega** | Greek alphabet milestones |
+| **Omega** | `omega-v0.x` | Animations — Lottie files for streak fire (×6 color variants), spark burst, and clapperboard-on-fire |
 | **v1.0** | After Omega | Public release |
 
 > Current version: **alpha-v0.1**
@@ -151,8 +152,9 @@ This project follows a Greek alphabet versioning scheme:
 ## Status
 
 - [x] Frontend design specs (all 5 tabs documented)
-- [] Seach into how duolingo does palettes and other brand guidelines elements
-- [] Replicate brand guidelines of duolingo in your own style
+- [x] Seach into how duolingo does palettes and other brand guidelines elements
+- [x] Replicate brand guidelines of duolingo in your own style
+- [] Clear Up All AI Doubts
 - [] Design Examples to AI
 - [x] Database schema drafted
 - [x] Backend language and framework selected
