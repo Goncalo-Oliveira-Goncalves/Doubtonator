@@ -1,0 +1,6 @@
+{
+  "enabledPlugins": {
+    "backend-development-assistant@pluginagentmarketplace-backend": true,
+    "bencium-controlled-ux-designer@bencium-marketplace": true
+  }
+}
