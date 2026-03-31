@@ -9,7 +9,7 @@ This window has the important job of commemorating the user for reaching a certa
 > **[DOUBT]:** "An animation of a clapper board on fire" — is this a Lottie file, a CSS frame-by-frame sprite, or something else? The general rule says no CSS transitions/animations. If it's an exception, it needs to be explicitly stated. Also, the "SHARE" button — does this use the native OS share sheet, or a custom share UI?
 
 Then, the screen is divided in two sections... the first is one saying "[STREAK NUMBER] day streak!"; on this one, there will be 3 elements:
-- An animation of a clapper board on fire (color of streak) → [assets/animations/clapperboard-fire.lottie](../../../../assets/animations/clapperboard-fire.lottie) *(deferred to version omega)*
+- An animation of a clapper board on fire (color of streak) (lottie file) → [assets/animations/clapperboard-fire.lottie](../../../../assets/animations/clapperboard-fire.lottie) *(deferred to version omega)*
 - A counter with the streak, relatively big text,
 - A text saying "day streak!"
 

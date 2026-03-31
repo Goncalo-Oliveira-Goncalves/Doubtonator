@@ -36,8 +36,6 @@ Now, lets get to the graphs:
 > Column chart demo: [chart-column.html](chart-column.html) ← empty stub
 > Bubble chart demo: [chart-bubble.html](chart-bubble.html) ← empty stub
 
-> **[DOUBT]:** The bubble chart demo was referencing `chart-column.html` (same file as the column chart above) — corrected to `chart-bubble.html` above. Please confirm.
-
 And finally, the last thing we wanna do in the frontend... is talk about the tiny popups that show up when you click stats or graphs - and again it's very similar to the little popups, when clicking in nodes on the canvas.
 The difference is for graphs, at the top, there is the heading of a graph, below that, the graph, below that the description, & if they tap on the graph, they can open it full screen, zoom in, zoom out. Along with the origin of the data on an "i" callout (back on popup) and you can also see the data's history of change over time at the end. (except for temporal data... duh), which is why we put temporal graphs on stat popups.
 

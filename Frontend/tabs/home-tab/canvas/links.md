@@ -4,9 +4,7 @@
 
 For the connection of the nodes, also called "Links" or "Arrows without a tip", it's a bit interesting...
 
-1. When the nodes are transfering data to other nodes we should be able to see it from the node viewer, the links should be black, however when transfering data, it's as if there is a point going through the link and leaving out a glow "inside the link", kinda like something glow-ey through a tube.
-
-> **[DOUBT]:** The data-transfer glow animation — three things are undefined: (1) Speed: is it tied to actual data transfer frequency, or a fixed looping animation? (2) Color: what color is the glow point (primary green `#9fd356`? white? node-color-specific)? (3) Trail length: does the glow fade out over a fixed pixel length, or over a percentage of the link length?
+1. When the nodes are transfering data to other nodes we should be able to see it from the node viewer, the links should be black, however when transfering data, it's as if there is a point going through the link and leaving out a glow "inside the link", kinda like something glow-ey through a tube. The speed of the glow throught the tube is the speed between going from one AI to another, which might be fast, so we crank up the glow. And yes, it is actual data passing through, it's a way to visualize it in real time. The color of the glow should be our primary green.
 2. The links are soft, but not rounded either. (I could show you some examples of give you the formula, Imma give you the formula...)
 
 ## Spline Tangent Formula (how to compute the curve shape)

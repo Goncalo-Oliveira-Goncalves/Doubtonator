@@ -16,9 +16,9 @@ The first group has, an avatar, on the left ansd to the right of that, a subgrou
 
 Group 2 has 2 elements, at the top, the most recent time there was a message in the conversation, at the bottom, a fully rounded container with number of new messages with a vibrant background color, if no messages, the container's invisible.
 
-Upon clicking a chat, it's a normal DM chat bubble conversation.
+Upon clicking a chat, it's a normal DM chat bubble conversation. The message bubbles copy whatsapp. The bubble colors will be what suits best, completely decided by designer.
 
-> **[DOUBT]:** Message bubble styling is never described. Which side are sent messages on (right)? Received (left)? What's the bubble background color — `color-primary` for sent, `color-surface` for received? Are there message tails? What about timestamps — per message, or grouped?
+The timestamps are also per message
 
 What if they don't have any chats? A callout shows up with something like "This place seems quite lonely, start some conversations with people", to start conversations, you click on the name of posters and commenters in the chat section.
 

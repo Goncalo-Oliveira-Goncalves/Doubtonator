@@ -26,6 +26,6 @@ The third view and final view is the calendar view, which is very simple, firstl
 Then after that, we have a grid, which cells happen to have a 1:1 ratio, with 7 columns for the the days of the week. The first row of the grid is the days of the week, being as follows: (S | M | T | W | T | F | S). After that, the next rows will be weeks with elements being the days, by order.
 The day it is today is highlighted on the calendar. Then, there are different kinds of highlights for days where something is scheduled, you can change the highlight color and shape via an svg. (please reference to the "Database Structure Backend.md" for more information)
 
-> **[DOUBT]:** Two things undefined: (1) What does the default "today" highlight look like — a circle? filled cell? border ring? What color? (2) Is the first column of the calendar grid Sunday or Monday? This varies by locale.
+The today highlight looks like a circle. In red. The first column on the calendar is a sunday.
 
-> **Suggested edit (Database Node Popup):** Consider adding a note that the Database Node popup does NOT have a Timeline/Evolution tab menu — it has the view-type tabs (Table / Feed / Calendar) instead. This is easy to confuse with the Agent Node popup's tab menu.
+> **Note** that the Database Node popup does NOT have a Evolution tab menu — it has the view-type tabs (Table / Feed / Calendar) instead. This is easy to confuse with the Agent Node popup's tab menu.

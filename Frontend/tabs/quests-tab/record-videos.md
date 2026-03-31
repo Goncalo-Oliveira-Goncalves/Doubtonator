@@ -31,9 +31,7 @@ The background color for this section's vivid, it can be a vivid gradient too.
 ### Print It Section
 After this, we have the "print it" section - this is where you have a button to print the script, which gives you a pdf or it actually, ACTIVELY, send it to the printer.
 
-Lets talk about the UI, it pairs well with the last section in a kind of bento box style...
-
-> **[DOUBT]:** "Bento box style" for Info + Print It sections — are these two sections displayed side by side (50/50 split) or stacked vertically but with matching visual weight? Also, when the AI rejects a video upload, what does the UI look like — does the AI feedback appear inline below the upload button, or as a separate popup?
+Lets talk about the UI, it pairs well with the last section in a kind of bento box style (stacked vertically, section 1 on top, section 2 bellow that)...
 
 And it has 2 elements, one at the rightmost and one at the leftmost, respectively: the text "PRINT SCRIPT", and an arrow pointing right.
 
@@ -48,3 +46,5 @@ The final thing about this section is that, on the container for the bottom (tou
 
 > Note: What do I mean with actively send it to printer?
     On android, most printer have an app on the phone that allows to print via wifi nowadays, we can just make it so they can share a pdf with the printer. If on iOS, the process is somewhat similar. I believe (do not own an iOS). And if no options are available, we can always generate a pdf out of the markdown optimized for readability for them to print.
+
+The AI feedback appears as a simple popup window you can close with feedback and bullet points.

@@ -27,14 +27,12 @@ The status is a group of 4 things, organized from top to bottom, as such:
 
 > Demo: [tournament-status-popup.html](tournament-status-popup.html) ← empty stub
 
-Now onto some tiny details, when you finish a tournament, which finishes at midnight of a certain day, US time, when you open the app next day, a _tournament status window popup_ will appear
+Now onto some tiny details, when you finish a tournament, which finishes at midnight of a certain day, New Yord time, when you open the app next day, a _tournament status window popup_ will appear
 
-> **[DOUBT]:** "Midnight US time" — which US timezone? EST (UTC-5)? PST (UTC-8)? This matters for users internationally. Also: "when you get demoted to the last rank" — does "last rank" mean back to Bronze (the very bottom), or just one rank below current (e.g., Gold → Silver)? This is a significant game design difference., which we'll about in just a second. When you don't film, and when the league ends, you get demoted to the last rank. Same happens if you end up on the demotion zone.
+When you don't film, and when the league ends, you get demoted to the one rank below current (e.g Gold -> Silver). Same happens if you end up on the demotion zone.
 
 ## Last Note
 
 > *Copied from: Frontend.md — "Last node" (note about bottom menu badge)*
 
 The last note I have on the tournaments sub-tab is that on the bottom menu icon for clans, there is a simplified version of their badge, which I already said, just wanted to remind you.
-
-> **Suggested edit:** This note is redundant with bottom-navbar.md — merge or remove.

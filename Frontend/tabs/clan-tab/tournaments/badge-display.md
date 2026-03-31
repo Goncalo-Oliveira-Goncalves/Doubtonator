@@ -32,7 +32,7 @@ Bronze competitions are weekly, the next 4 are monthly, the next 5 are quarterly
 - Obsidian: 1. 60 / 2. 50 / 3. 45
 - Diamond: 1. 75 / 2. 60 / 3. 50
 
-However, here's something important: you can only see the leagues you participated in, so if you never passed from silver, you can see bronze to your left, but all the other ones have a grey locked badge → [assets/icons/locked-badge.svg](../../../../assets/icons/locked-badge.svg) *(missing)*, indicating you don't know what it is until you win.
+However, here's something important: you can only see the leagues you participated in, so if you never passed from silver, you can see bronze to your left, but all the other ones have a grey locked badge → [assets/badges/locked-badge.svg](../../../../assets/badges/locked-badge.svg), indicating you don't know what it is until you win.
 
 %%%%%%%
 - Amethist
@@ -92,10 +92,9 @@ Bronze competitions are weekly, the next 4 are monthly, the next 5 are quarterly
   2. 60 Sparks
   3. 50 Sparks
 
-However, here's something important: you can only see the leagues you participated in, so if you never passed from silver, you can see bronze to your left, but all the other ones have a grey locked badge → [assets/icons/locked-badge.svg](../../../../assets/icons/locked-badge.svg) *(missing)*, indicating you don't know what it is until you win.
+However, here's something important: you can only see the leagues you participated in, so if you never passed from silver, you can see bronze to your left, but all the other ones have a grey locked badge → [assets/badges/locked-badge.svg](../../../../assets/badges/locked-badge.svg), indicating you don't know what it is until you win.
 
 So the badge display will have the badge you are on, and this badge will be in the center of the container, the badges after and before will follow, by the way, they are 20% smaller in size (so 80% the size) to indicate the league they are on.
+> Implementation: `mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent)`
 
 They should not be able to scroll horizontally to see the leagues towards the corners... the badges on left and right fade out.
-
-> **Suggested edit (Badge Display):** The fade-out on left/right should specify: CSS `mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent)` — add this as an implementation note.

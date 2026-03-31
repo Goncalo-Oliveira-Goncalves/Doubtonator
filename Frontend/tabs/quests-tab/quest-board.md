@@ -27,8 +27,6 @@ Below the heading we have a 2 line description. By the way, all of this should b
 
 And then, below the description we have a button, which has 2 elements, at the top, a button with the text: "ACCEPT QUEST" or "FILM", the first one's default, there is a second one, in this case, "FILM", that is configurable in the backend.
 
-Below this button, the second element, which is the estimated time to do a task, placed on the rightmost, this element has a clock icon → [assets/icons/clock-icon.svg](../../../assets/icons/clock-icon.svg) *(missing)* on the left, followed by the time in minutes (it's a group)
+Below this button, the second element, which is the estimated time to do a task, placed on the rightmost, this element has a clock icon → [assets/other-ui-elements/clock-icon-colored.svg](../../../assets/other-ui-elements/clock-icon-colored.svg) on the left, followed by the time in minutes (it's a group)
 
 That concludes the quests tab, except for one thing... what happens when you complete a quest? You get the _quests rewards popup window_.
-
-> **Suggested edit (Quest Board):** The quest heading "Help Us Out" is the display name — confirm this is final and matches what's stored in the Quest DB `Quest Name` field.

@@ -310,13 +310,9 @@ Narrowing diamond.
 
 ### Some Notes
 They have a little shine layer (linear white overlay at 20%)
-From gold above there are little particle dots
 
-> **[DOUBT]:** Particle dots — are these static decorative dots or animated? If animated, is this an exception to the no-CSS-transition rule, or should these be frame-based / Lottie? Also, what is the size, density, and placement pattern of the dots?
+### Streak palette
 
-### Streak palette [INCORRECT — see navbar.md for the correct tiers and colors; this section needs to be updated to match]
-
-> **[DOUBT]:** This section is marked incorrect but hasn't been updated. The correct tiers and colors are in `tabs/home-tab/navbar.md` (Yellow/Yellow-Orange/Orange/Orange-Blue/Blue with milestones at 1 week, 1 month, 3 months, 7 months, 1 year). Please update this section to match, or delete it and point here to navbar.md as the source of truth.
 | State | Color | When |
 |-------|-------|-----|
 | Yellow | ffef38 | achieved 1st week |

@@ -15,7 +15,9 @@ The streak and sparks are the same elements from the home tab with the same inte
 The level and XP progress bar are new. This is one element broken down into 3, We'll talk about the z axis here, because there are things on top of each other.
 The bottom layer is the XP bar. A progress bar saying how close or far away we are from leveling up. Also, the progress bar angle is like, 60 degrees, instead of 90, this angle should be tested on both narrow and wide screen sizes, so the color of the XP is vivid as so.
 
-> **[DOUBT]:** "Progress bar angle is 60 degrees" — does this mean the bar itself is rotated/tilted diagonally? That's an unusual pattern. Or does it mean the end caps of the bar are angled (a parallelogram shape instead of a rounded pill)? These are very different implementations. A sketch would help. The progress color is neon green, and the bar background's kinda white or something (depends on the palette)
+And when I mean the progress bar is rotate at 60 degrees I mean this:
+
+██/▒░░░░░░░░░░ (almost like there is a slash after the progress to give it a bit of an angle -- sorry, I am not good at ascii art... but hopefully you get my point)
 
 The next layer is a container, the LV container, with fully rounded corners, centered text, with the level on it.
 
