@@ -1,1 +1,92 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Quests Top Nav</title></head><body><!-- TODO: quests top nav — level + angled XP bar, streak, sparks --></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quests Top Nav — Doubtonator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#342e37; --surface:#3e3842; --surface-2:#4a4450; --primary:#9fd356; --warning:#ff9600; --text:#fafffd; --text-sec:#858287; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body { background:#1e1a21; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:48px; padding:48px 24px; font-family:'Fredoka One',sans-serif; color:var(--text); }
+    .eyebrow { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; letter-spacing:2.5px; text-transform:uppercase; color:var(--primary); opacity:.8; }
+    .header { text-align:center; display:flex; flex-direction:column; gap:5px; }
+    .header h1 { font-size:24px; }
+    .header p  { font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-sec); }
+    /* Phone frame context */
+    .frame { width:390px; background:var(--bg); border-radius:44px; overflow:hidden; border:1px solid rgba(255,255,255,.08); box-shadow:0 24px 60px rgba(0,0,0,.5); }
+    /* Top nav area */
+    .top-nav { padding:24px 24px 0; display:flex; flex-direction:column; gap:16px; }
+    .nav-row  { display:flex; align-items:center; justify-content:space-between; }
+    .nav-title { font-size:22px; }
+    .nav-chips { display:flex; align-items:center; gap:8px; }
+    /* Streak chip */
+    .chip { display:flex; align-items:center; gap:5px; background:var(--surface); border-radius:20px; padding:6px 12px; cursor:pointer; transition:background .15s; }
+    .chip:hover { background:var(--surface-2); }
+    .chip-val { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; letter-spacing:.5px; }
+    /* XP bar */
+    .xp-wrap { background:var(--surface); border-radius:16px; padding:12px 16px 10px; display:flex; flex-direction:column; gap:7px; margin-bottom:20px; }
+    .xp-row  { display:flex; align-items:center; justify-content:space-between; }
+    .lv { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--primary); background:rgba(159,211,86,.12); padding:2px 9px; border-radius:20px; }
+    .xp-txt { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; color:var(--text-sec); }
+    .xp-txt b { color:var(--text); }
+    .track { height:7px; background:var(--surface-2); border-radius:4px; overflow:hidden; }
+    .fill  { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--primary),#b2dc78); transition:width 1s cubic-bezier(.22,1,.36,1); }
+    /* Mock quests below */
+    .mock { padding:0 16px 24px; display:flex; flex-direction:column; gap:10px; }
+    .mock-card { height:72px; background:var(--surface); border-radius:16px; opacity:.3; }
+    .mock-card:nth-child(2){opacity:.2} .mock-card:nth-child(3){opacity:.12}
+  </style>
+</head>
+<body>
+<div class="header">
+  <span class="eyebrow">Component · Quests</span>
+  <h1>Quests Top Navigation</h1>
+  <p>Level badge, XP bar, streak &amp; sparks</p>
+</div>
+
+<div class="frame">
+  <div class="top-nav">
+    <div class="nav-row">
+      <span class="nav-title">Quests</span>
+      <div class="nav-chips">
+        <!-- Streak -->
+        <div class="chip" title="Streak">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C8 7 6 10 6 14a6 6 0 0012 0c0-2-.8-4-2-6-1 2-2 3-4 3 0-3 1-6 3-9z" fill="#ff9600"/>
+          </svg>
+          <span class="chip-val" style="color:#ff9600">18</span>
+        </div>
+        <!-- Sparks -->
+        <div class="chip" title="Sparks">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2l2.5 6H21l-5.5 4 2 6.5L12 15l-5.5 3.5 2-6.5L3 8h6.5L12 2z" fill="#9fd356"/>
+          </svg>
+          <span class="chip-val" style="color:#9fd356">248</span>
+        </div>
+      </div>
+    </div>
+    <!-- XP bar -->
+    <div class="xp-wrap">
+      <div class="xp-row">
+        <span class="lv">LV 12</span>
+        <span class="xp-txt"><b>3,240</b> / <b>4,000</b> XP</span>
+      </div>
+      <div class="track"><div class="fill" id="fill" style="width:0%"></div></div>
+    </div>
+  </div>
+  <!-- Ghost cards to show context -->
+  <div class="mock">
+    <div class="mock-card"></div>
+    <div class="mock-card"></div>
+    <div class="mock-card"></div>
+  </div>
+</div>
+
+<script>
+  window.addEventListener('load',()=>setTimeout(()=>document.getElementById('fill').style.width='81%',100));
+</script>
+</body>
+</html>

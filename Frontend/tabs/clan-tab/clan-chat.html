@@ -1,1 +1,280 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Clan Chat</title></head><body><!-- TODO: clan chat — category tabs, post feed --></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Clan Chat — Doubtonator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#342e37; --surface:#3e3842; --surface-2:#4a4450; --primary:#9fd356; --info:#3c91e6; --warning:#ff9600; --text:#fafffd; --text-sec:#858287; --border:rgba(255,255,255,.08); }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body { background:#1e1a21; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 16px; font-family:'Fredoka One',sans-serif; color:var(--text); }
+    .phone { width:390px; height:844px; background:var(--bg); border-radius:44px; overflow:hidden; border:1px solid rgba(255,255,255,.08); box-shadow:0 32px 80px rgba(0,0,0,.6); display:flex; flex-direction:column; }
+
+    /* Top nav */
+    .top-nav { padding:20px 24px 12px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+    .nav-title { font-size:22px; }
+    .nav-tabs-icon { width:32px; height:32px; border-radius:10px; background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+
+    /* Category tabs — horizontal scroll */
+    .cats { display:flex; gap:8px; padding:0 24px 12px; overflow-x:auto; flex-shrink:0; -ms-overflow-style:none; scrollbar-width:none; }
+    .cats::-webkit-scrollbar { display:none; }
+    .cat { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; letter-spacing:1px; text-transform:uppercase; padding:6px 14px; border-radius:20px; cursor:pointer; white-space:nowrap; transition:background .15s, color .15s; color:var(--text-sec); background:var(--surface); border:1px solid transparent; }
+    .cat.active { background:rgba(159,211,86,.12); color:var(--primary); border-color:rgba(159,211,86,.2); }
+    .cat:hover:not(.active) { background:var(--surface-2); }
+
+    /* Post input */
+    .post-input-wrap { padding:0 24px 12px; flex-shrink:0; }
+    .post-input-row { display:flex; align-items:center; gap:10px; background:var(--surface); border-radius:16px; padding:10px 14px; border:1px solid var(--border); cursor:text; }
+    .pi-avatar { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,#3c91e6,#9fd356); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; color:#342e37; }
+    .pi-placeholder { font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-sec); opacity:.5; flex:1; }
+    .pi-send { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--primary); }
+
+    /* Posts feed */
+    .feed { flex:1; overflow-y:auto; padding:0 16px 24px; display:flex; flex-direction:column; gap:10px; }
+    .feed::-webkit-scrollbar { width:0; }
+
+    /* Post card */
+    .post { background:var(--surface); border-radius:20px; padding:16px; border:1px solid var(--border); cursor:pointer; transition:background .15s; }
+    .post:hover { background:var(--surface-2); }
+    .post.pinned { border-color:rgba(255,150,0,.2); background:rgba(255,150,0,.05); }
+
+    /* Post header */
+    .post-hdr { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+    .post-avatar { width:36px; height:36px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-family:'Nunito',sans-serif; font-weight:800; font-size:14px; color:#342e37; }
+    .post-meta { flex:1; }
+    .post-name { font-size:14px; line-height:1.1; }
+    .post-time { font-family:'Nunito',sans-serif; font-size:11px; color:var(--text-sec); }
+    .pin-icon { color:var(--warning); font-size:14px; flex-shrink:0; }
+    .cat-tag { font-family:'Nunito',sans-serif; font-weight:800; font-size:10px; letter-spacing:1px; text-transform:uppercase; padding:2px 8px; border-radius:6px; flex-shrink:0; }
+
+    /* Post body */
+    .post-body { font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-sec); line-height:1.6; margin-bottom:10px; }
+    .post-body strong { color:var(--text); font-weight:700; }
+    .post-body code { background:rgba(255,255,255,.06); border-radius:4px; padding:1px 5px; font-size:12px; font-family:monospace; color:#9fd356; }
+
+    /* Post footer */
+    .post-ftr { display:flex; align-items:center; gap:16px; }
+    .pf-btn { display:flex; align-items:center; gap:5px; font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; color:var(--text-sec); cursor:pointer; transition:color .15s; }
+    .pf-btn:hover { color:var(--text); }
+    .pf-btn.liked { color:var(--danger,#e63c3c); }
+    .pf-btn svg { flex-shrink:0; }
+
+    /* Post popup overlay */
+    .overlay { position:absolute; inset:0; background:rgba(20,18,22,.9); display:flex; align-items:flex-end; padding:0; opacity:0; pointer-events:none; transition:opacity .25s; z-index:50; }
+    .overlay.show { opacity:1; pointer-events:all; }
+    .popup { background:var(--surface); border-radius:28px 28px 0 0; width:100%; max-height:90%; overflow-y:auto; padding:24px 24px 48px; display:flex; flex-direction:column; gap:14px; }
+    .popup::-webkit-scrollbar { width:0; }
+    .pop-hdr { display:flex; align-items:center; justify-content:space-between; }
+    .pop-title { font-size:20px; flex:1; margin-right:12px; }
+    .pop-close { width:32px; height:32px; border-radius:10px; background:var(--surface-2); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-sec); flex-shrink:0; }
+    .pop-body { font-family:'Nunito',sans-serif; font-size:14px; color:var(--text-sec); line-height:1.7; }
+    .pop-body strong { color:var(--text); font-weight:700; }
+    .pop-body ul { padding-left:18px; margin:8px 0; }
+    .pop-author { display:flex; align-items:center; gap:12px; border-top:1px solid var(--border); padding-top:14px; }
+    .pop-author-av { width:40px; height:40px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:#342e37; }
+    .pop-author-name { font-size:15px; }
+    .pop-author-sub { font-family:'Nunito',sans-serif; font-size:11px; color:var(--text-sec); margin-top:1px; }
+    /* Comment */
+    .comment { background:var(--surface-2); border-radius:14px; padding:12px 14px; }
+    .comment.nested { margin-left:20px; border-left:2px solid var(--border); border-radius:0 14px 14px 0; padding-left:12px; }
+    .cmt-hdr { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+    .cmt-av { width:26px; height:26px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-family:'Nunito',sans-serif; font-weight:800; font-size:10px; color:#342e37; }
+    .cmt-name { font-size:12px; }
+    .cmt-time { font-family:'Nunito',sans-serif; font-size:10px; color:var(--text-sec); margin-left:auto; }
+    .cmt-body { font-family:'Nunito',sans-serif; font-size:12px; color:var(--text-sec); line-height:1.5; }
+    .cmt-ftr { display:flex; gap:12px; margin-top:6px; }
+    .cmt-btn { font-family:'Nunito',sans-serif; font-weight:800; font-size:10px; letter-spacing:.5px; color:var(--text-sec); cursor:pointer; }
+    .cmt-btn.liked { color:#e63c3c; }
+    .comments-lbl { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--text-sec); opacity:.4; }
+  </style>
+</head>
+<body>
+<div class="phone" style="position:relative">
+
+  <!-- Top nav -->
+  <div class="top-nav">
+    <span class="nav-title">Community</span>
+    <div class="nav-tabs-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M7 12h10M10 18h4" stroke="#858287" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+
+  <!-- Category tabs -->
+  <div class="cats">
+    <div class="cat active" onclick="filterCat(this)">All</div>
+    <div class="cat" onclick="filterCat(this)">Questions</div>
+    <div class="cat" onclick="filterCat(this)">General</div>
+    <div class="cat" onclick="filterCat(this)">Sauce</div>
+    <div class="cat" onclick="filterCat(this)">Wins</div>
+    <div class="cat" onclick="filterCat(this)">Feedback</div>
+  </div>
+
+  <!-- Post input -->
+  <div class="post-input-wrap">
+    <div class="post-input-row">
+      <div class="pi-avatar">G</div>
+      <span class="pi-placeholder">Share something with your clan…</span>
+      <span class="pi-send">Post</span>
+    </div>
+  </div>
+
+  <!-- Feed -->
+  <div class="feed">
+
+    <!-- Pinned post -->
+    <div class="post pinned" onclick="openPopup()">
+      <div class="post-hdr">
+        <div class="post-avatar" style="background:linear-gradient(135deg,#ff9600,#e07800)">M</div>
+        <div class="post-meta">
+          <div class="post-name">Marcus A.</div>
+          <div class="post-time">Pinned · Mar 28</div>
+        </div>
+        <div class="pin-icon">📌</div>
+        <span class="cat-tag" style="background:rgba(60,145,230,.15);color:#3c91e6">General</span>
+      </div>
+      <p class="post-body">Welcome to the Gold League! 🏆 This week's tournament runs until <strong>Sunday midnight ET</strong>. Top 4 advance to Sapphire. Good luck everyone — let's keep the quality high.</p>
+      <div class="post-ftr">
+        <div class="pf-btn liked">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#e63c3c"><path d="M12 21C12 21 3 14.5 3 8.5A4.5 4.5 0 0112 5.5 4.5 4.5 0 0121 8.5C21 14.5 12 21 12 21Z"/></svg>
+          24
+        </div>
+        <div class="pf-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="#858287" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          8
+        </div>
+        <div class="pf-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.5 6H21l-5.5 4 2 6.5L12 15l-5.5 3.5 2-6.5L3 8h6.5L12 2z" stroke="#9fd356" stroke-width="1.8"/></svg>
+          Gift
+        </div>
+      </div>
+    </div>
+
+    <!-- Regular post -->
+    <div class="post" onclick="openPopup()">
+      <div class="post-hdr">
+        <div class="post-avatar" style="background:linear-gradient(135deg,#9fd356,#6ab023)">S</div>
+        <div class="post-meta">
+          <div class="post-name">Sofia R.</div>
+          <div class="post-time">2h ago</div>
+        </div>
+        <span class="cat-tag" style="background:rgba(255,150,0,.12);color:#ff9600">Questions</span>
+      </div>
+      <p class="post-body">Hey, quick question — does anyone have a go-to structure for <strong>TOFU hooks</strong>? My analytics show I'm losing 70% of viewers in the first 5 seconds 😅</p>
+      <div class="post-ftr">
+        <div class="pf-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 21C12 21 3 14.5 3 8.5A4.5 4.5 0 0112 5.5 4.5 4.5 0 0121 8.5C21 14.5 12 21 12 21Z" stroke="#858287" stroke-width="1.8"/></svg>
+          7
+        </div>
+        <div class="pf-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="#858287" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          5 replies
+        </div>
+      </div>
+    </div>
+
+    <!-- Post with code -->
+    <div class="post" onclick="openPopup()">
+      <div class="post-hdr">
+        <div class="post-avatar" style="background:linear-gradient(135deg,#cf81ff,#8b3fbf)">J</div>
+        <div class="post-meta">
+          <div class="post-name">Jamie K.</div>
+          <div class="post-time">5h ago</div>
+        </div>
+        <span class="cat-tag" style="background:rgba(159,211,86,.12);color:#9fd356">Sauce</span>
+      </div>
+      <p class="post-body">Just hit <strong>$8k this month</strong> — first time ever breaking 5 figures 🎉 The single change? Stopped posting daily and started posting <strong>with intent</strong>. 3 videos/week, each aimed at a different awareness level.</p>
+      <div class="post-ftr">
+        <div class="pf-btn liked">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#e63c3c"><path d="M12 21C12 21 3 14.5 3 8.5A4.5 4.5 0 0112 5.5 4.5 4.5 0 0121 8.5C21 14.5 12 21 12 21Z"/></svg>
+          41
+        </div>
+        <div class="pf-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="#858287" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          12 replies
+        </div>
+        <div class="pf-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.5 6H21l-5.5 4 2 6.5L12 15l-5.5 3.5 2-6.5L3 8h6.5L12 2z" stroke="#9fd356" stroke-width="1.8"/></svg>
+          Gift
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Post popup -->
+  <div class="overlay" id="postOverlay">
+    <div class="popup">
+      <div class="pop-hdr">
+        <span class="pop-title">Welcome to the Gold League!</span>
+        <div class="pop-close" onclick="document.getElementById('postOverlay').classList.remove('show')">✕</div>
+      </div>
+      <p class="pop-body">Welcome to the <strong>Gold League</strong>! 🏆 This week's tournament runs until <strong>Sunday midnight ET</strong>. Top 4 advance to Sapphire.<br><br>A few things to keep in mind:<br><ul><li>Quests earn XP — XP determines your rank</li><li>Top 4 advance, bottom 4 get demoted</li><li>Quality matters — the AI rates consistency</li></ul><br>Let's keep the energy high. Good luck everyone!</p>
+      <div class="pop-author">
+        <div class="pop-author-av" style="background:linear-gradient(135deg,#ff9600,#e07800)">M</div>
+        <div>
+          <div class="pop-author-name">Marcus A.</div>
+          <div class="pop-author-sub">Mar 28, 2026 · @marcusandrade</div>
+        </div>
+      </div>
+
+      <div class="comments-lbl">8 Comments</div>
+
+      <div class="comment">
+        <div class="cmt-hdr">
+          <div class="cmt-av" style="background:linear-gradient(135deg,#9fd356,#6ab023)">S</div>
+          <span class="cmt-name">Sofia R.</span>
+          <span class="cmt-time">2h ago</span>
+        </div>
+        <p class="cmt-body">Let's go! I've been grinding quests all week. Top 4 here we come 💪</p>
+        <div class="cmt-ftr">
+          <span class="cmt-btn liked">♥ 4</span>
+          <span class="cmt-btn">Reply</span>
+        </div>
+      </div>
+
+      <!-- Nested comment -->
+      <div class="comment nested">
+        <div class="cmt-hdr">
+          <div class="cmt-av" style="background:linear-gradient(135deg,#3c91e6,#1a5fa8)">T</div>
+          <span class="cmt-name">Tom C.</span>
+          <span class="cmt-time">1h ago</span>
+        </div>
+        <p class="cmt-body">Same! Already got 40 XP from this morning's recording quest</p>
+        <div class="cmt-ftr">
+          <span class="cmt-btn">♥ 2</span>
+          <span class="cmt-btn">Reply</span>
+        </div>
+      </div>
+
+      <div class="comment">
+        <div class="cmt-hdr">
+          <div class="cmt-av" style="background:linear-gradient(135deg,#cf81ff,#8b3fbf)">J</div>
+          <span class="cmt-name">Jamie K.</span>
+          <span class="cmt-time">3h ago</span>
+        </div>
+        <p class="cmt-body">What's the cutoff for Sapphire? Is it top 4 out of how many?</p>
+        <div class="cmt-ftr">
+          <span class="cmt-btn">♥ 1</span>
+          <span class="cmt-btn">Reply</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function filterCat(el) {
+    document.querySelectorAll('.cat').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
+  function openPopup() {
+    document.getElementById('postOverlay').classList.add('show');
+  }
+</script>
+</body>
+</html>

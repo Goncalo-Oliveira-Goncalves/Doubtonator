@@ -1,11 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bottom Navigation Bar</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Bottom Navigation — Doubtonator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#342e37; --surface:#3e3842; --surface-2:#4a4450; --primary:#9fd356; --text:#fafffd; --text-sec:#858287; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body { background:#1e1a21; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:48px; padding:48px 24px; font-family:'Fredoka One',sans-serif; color:var(--text); }
+    .eyebrow { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; letter-spacing:2.5px; text-transform:uppercase; color:var(--primary); opacity:.8; }
+    .header { text-align:center; display:flex; flex-direction:column; gap:5px; }
+    .header h1 { font-size:24px; }
+    .header p  { font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-sec); }
+    .phone { width:390px; background:var(--bg); border-radius:44px; overflow:hidden; border:1px solid rgba(255,255,255,.08); box-shadow:0 32px 80px rgba(0,0,0,.6); }
+    .screen { height:440px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:12px; position:relative; overflow:hidden; }
+    .screen::before { content:''; position:absolute; inset:0; background-image:radial-gradient(circle,rgba(255,255,255,.05) 1px,transparent 1px); background-size:22px 22px; }
+    .screen-lbl { font-size:28px; }
+    .screen-sub { font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-sec); }
+    /* Nav */
+    .bottom-nav { height:72px; background:var(--surface); border-top:1px solid rgba(255,255,255,.08); display:flex; align-items:center; padding:0 8px; gap:4px; }
+    .nav-item { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; height:56px; border-radius:14px; cursor:pointer; transition:background .18s; border:1.5px solid transparent; -webkit-tap-highlight-color:transparent; }
+    .nav-item:not(.active):hover { background:rgba(255,255,255,.04); }
+    .nav-item.active { background:var(--surface-2); border-color:rgba(255,255,255,.1); }
+    .nav-icon { width:22px; height:22px; display:flex; align-items:center; justify-content:center; transition:transform .18s; }
+    .nav-item.active .nav-icon { transform:scale(1.08); }
+    .nav-label { font-family:'Nunito',sans-serif; font-weight:800; font-size:9px; letter-spacing:.8px; text-transform:uppercase; color:var(--text-sec); transition:color .18s; }
+    .nav-item.active .nav-label { color:var(--primary); }
+    /* SVG theming */
+    .s { fill:none; stroke:var(--text-sec); transition:stroke .18s; }
+    .nav-item.active .s { stroke:var(--primary); }
+    .f { fill:var(--text-sec); transition:fill .18s; }
+    .nav-item.active .f { fill:var(--primary); }
+    .hint { font-family:'Nunito',sans-serif; font-size:12px; font-weight:600; color:var(--text-sec); opacity:.45; }
+  </style>
 </head>
 <body>
-    <!-- TODO: bottom navbar — Home/Calendar/Clan/Quests/Profile, active state highlight + border -->
+<div class="header">
+  <span class="eyebrow">Component · Navigation</span>
+  <h1>Bottom Navigation Bar</h1>
+  <p>Tap tabs to switch · active = rounded container + primary colour + outline</p>
+</div>
+
+<div class="phone">
+  <div class="screen">
+    <span class="screen-lbl" id="lbl">Quests</span>
+    <span class="screen-sub" id="sub">Your daily &amp; weekly tasks</span>
+  </div>
+  <nav class="bottom-nav">
+
+    <div class="nav-item" data-tab="Home" data-sub="Canvas &amp; agents" onclick="pick(this)">
+      <div class="nav-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path class="s" d="M3 7l6-3 6 3 6-3v13l-6 3-6-3-6 3V7z" stroke-width="1.6" stroke-linejoin="round"/>
+          <path class="s" d="M9 4v13M15 7v13" stroke-width="1.6"/>
+        </svg>
+      </div>
+      <span class="nav-label">Home</span>
+    </div>
+
+    <div class="nav-item" data-tab="Calendar" data-sub="Events &amp; schedule" onclick="pick(this)">
+      <div class="nav-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <rect class="s" x="3" y="4" width="18" height="18" rx="3" stroke-width="1.6"/>
+          <path class="s" d="M16 2v4M8 2v4M3 10h18" stroke-width="1.6" stroke-linecap="round"/>
+          <circle class="f" cx="8"  cy="15" r="1.1"/>
+          <circle class="f" cx="12" cy="15" r="1.1"/>
+          <circle class="f" cx="16" cy="15" r="1.1"/>
+        </svg>
+      </div>
+      <span class="nav-label">Calendar</span>
+    </div>
+
+    <div class="nav-item" data-tab="Clan" data-sub="Community &amp; tournaments" onclick="pick(this)">
+      <div class="nav-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24">
+          <path class="f" d="M12 2L4 5.5V12c0 4.1 3.3 7.9 8 9 4.7-1.1 8-4.9 8-9V5.5L12 2z"/>
+        </svg>
+      </div>
+      <span class="nav-label">Clan</span>
+    </div>
+
+    <div class="nav-item active" data-tab="Quests" data-sub="Your daily &amp; weekly tasks" onclick="pick(this)">
+      <div class="nav-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <rect class="s" x="2" y="10" width="20" height="11" rx="2" stroke-width="1.6"/>
+          <path class="s" d="M2 14h20" stroke-width="1.6"/>
+          <path class="s" d="M7 3h10a2 2 0 012 2v5H5V5a2 2 0 012-2z" stroke-width="1.6"/>
+          <path class="s" d="M10 14v1.5a2 2 0 004 0V14" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="nav-label">Quests</span>
+    </div>
+
+    <div class="nav-item" data-tab="Profile" data-sub="Achievements &amp; stats" onclick="pick(this)">
+      <div class="nav-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle class="s" cx="12" cy="8" r="4" stroke-width="1.6"/>
+          <path   class="s" d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="nav-label">Profile</span>
+    </div>
+
+  </nav>
+</div>
+<span class="hint">Home / Calendar / Clan / Quests / Profile</span>
+<script>
+  function pick(el){
+    document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('lbl').textContent=el.dataset.tab;
+    document.getElementById('sub').textContent=el.dataset.sub;
+  }
+</script>
 </body>
 </html>

@@ -1,1 +1,375 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Database Node Popup</title></head><body><!-- TODO: database node popup — Table / Feed / Calendar views --></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Database Node Popup — Doubtonator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#342e37; --surface:#3e3842; --surface-2:#4a4450; --primary:#9fd356; --info:#3c91e6; --warning:#ff9600; --text:#fafffd; --text-sec:#858287; --border:rgba(255,255,255,.08); }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body { background:#1e1a21; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 16px; font-family:'Fredoka One',sans-serif; color:var(--text); }
+    .phone { width:390px; height:844px; background:var(--bg); border-radius:44px; overflow:hidden; border:1px solid rgba(255,255,255,.08); box-shadow:0 32px 80px rgba(0,0,0,.6); display:flex; flex-direction:column; }
+
+    /* Header */
+    .hdr { padding:20px 24px 0; flex-shrink:0; }
+    .back-btn { width:36px; height:36px; border-radius:12px; background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px; color:var(--text-sec); }
+
+    /* DB Node Stage */
+    .node-stage { height:160px; position:relative; flex-shrink:0; overflow:hidden; }
+    #nodeCanvas { position:absolute; inset:0; }
+
+    /* Node name */
+    .node-name { padding:0 24px 2px; font-size:24px; flex-shrink:0; }
+    .node-meta  { padding:0 24px 14px; font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-sec); display:flex; gap:12px; flex-shrink:0; }
+    .node-meta-item { display:flex; align-items:center; gap:4px; }
+
+    /* Tabs */
+    .tabs { display:flex; padding:0 24px; gap:4px; border-bottom:1px solid var(--border); flex-shrink:0; }
+    .tab { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; padding:10px 14px; cursor:pointer; color:var(--text-sec); border-bottom:2px solid transparent; margin-bottom:-1px; transition:color .15s, border-color .15s; }
+    .tab.active { color:var(--primary); border-color:var(--primary); }
+
+    /* Panels */
+    .panel { flex:1; overflow:hidden; display:none; flex-direction:column; }
+    .panel.active { display:flex; }
+
+    /* ── TABLE panel ── */
+    .tbl-scroll { overflow-x:auto; overflow-y:auto; flex:1; }
+    .tbl-scroll::-webkit-scrollbar { height:3px; }
+    .tbl-scroll::-webkit-scrollbar-track { background:transparent; }
+    .tbl-scroll::-webkit-scrollbar-thumb { background:rgba(255,255,255,.1); border-radius:2px; }
+    table { border-collapse:collapse; min-width:600px; width:100%; }
+    thead th { font-family:'Nunito',sans-serif; font-weight:800; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-sec); padding:12px 16px; text-align:left; background:var(--surface); border-bottom:1px solid var(--border); white-space:nowrap; }
+    thead th:first-child { padding-left:24px; }
+    tbody tr { border-bottom:1px solid var(--border); transition:background .1s; }
+    tbody tr:hover { background:rgba(255,255,255,.03); }
+    tbody td { font-family:'Nunito',sans-serif; font-size:12px; color:var(--text-sec); padding:10px 16px; white-space:nowrap; }
+    tbody td:first-child { padding-left:24px; font-weight:800; color:var(--text); }
+    .td-badge { display:inline-block; padding:2px 8px; border-radius:6px; font-size:10px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; }
+    .td-tofu { background:rgba(60,145,230,.15); color:#3c91e6; }
+    .td-mofu { background:rgba(159,211,86,.12); color:var(--primary); }
+    .td-bofu { background:rgba(255,150,0,.15); color:#ff9600; }
+    .td-approved { background:rgba(159,211,86,.12); color:var(--primary); }
+    .td-pending  { background:rgba(255,150,0,.12); color:#ff9600; }
+
+    /* ── FEED panel ── */
+    .feed-scroll { overflow-y:auto; flex:1; padding:16px 24px 32px; }
+    .feed-scroll::-webkit-scrollbar { width:0; }
+    .feed-item { display:flex; gap:12px; margin-bottom:14px; }
+    .feed-line { display:flex; flex-direction:column; align-items:center; flex-shrink:0; }
+    .feed-dot  { width:10px; height:10px; border-radius:50%; margin-top:4px; flex-shrink:0; }
+    .feed-bar  { width:2px; flex:1; background:var(--border); margin-top:4px; }
+    .feed-card { background:var(--surface); border-radius:14px; padding:12px 14px; flex:1; border:1px solid var(--border); }
+    .feed-top  { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:4px; }
+    .feed-title { font-size:13px; }
+    .feed-time  { font-family:'Nunito',sans-serif; font-size:10px; color:var(--text-sec); white-space:nowrap; }
+    .feed-sub   { font-family:'Nunito',sans-serif; font-size:12px; color:var(--text-sec); line-height:1.4; }
+    .feed-tags  { display:flex; gap:6px; margin-top:6px; flex-wrap:wrap; }
+    .feed-tag   { font-family:'Nunito',sans-serif; font-weight:800; font-size:10px; letter-spacing:.5px; padding:2px 8px; border-radius:6px; }
+
+    /* ── CALENDAR panel ── */
+    .cal-nav  { display:flex; align-items:center; justify-content:space-between; padding:14px 24px 10px; flex-shrink:0; }
+    .cal-month { font-size:17px; }
+    .cal-arrow { width:32px; height:32px; border-radius:10px; background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-sec); font-size:16px; transition:background .15s; }
+    .cal-arrow:hover { background:var(--surface-2); }
+    .cal-grid { flex:1; padding:0 16px 16px; overflow:hidden; }
+    .cal-days-row { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; margin-bottom:4px; }
+    .cal-day-hdr { font-family:'Nunito',sans-serif; font-weight:800; font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--text-sec); text-align:center; padding:4px 0; opacity:.5; }
+    .cal-weeks { display:flex; flex-direction:column; gap:2px; }
+    .cal-week  { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+    .cal-cell  { aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:8px; font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; color:var(--text-sec); cursor:pointer; transition:background .15s; position:relative; }
+    .cal-cell:hover { background:var(--surface); }
+    .cal-cell.other-month { opacity:.2; }
+    .cal-cell.today { color:#fafffd; }
+    .cal-cell.today::before { content:''; position:absolute; inset:0; border-radius:8px; background:var(--danger); z-index:-1; }
+    .cal-cell.has-event::after { content:''; position:absolute; bottom:3px; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:var(--primary); }
+    .cal-cell.has-event.today::after { background:#fff; }
+  </style>
+</head>
+<body>
+<div class="phone">
+
+  <div class="hdr">
+    <div class="back-btn">✕</div>
+  </div>
+
+  <!-- DB Node Stage -->
+  <div class="node-stage">
+    <canvas id="nodeCanvas" width="390" height="160"></canvas>
+  </div>
+
+  <div class="node-name">Content DB</div>
+  <div class="node-meta">
+    <span class="node-meta-item">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 4a8 1.5 0 010 3 8 1.5 0 010-3z" stroke="#858287" stroke-width="1.8"/><path d="M4 5.5v13c0 .83 3.58 1.5 8 1.5s8-.67 8-1.5v-13" stroke="#858287" stroke-width="1.8"/></svg>
+      12 tables
+    </span>
+    <span class="node-meta-item">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#858287" stroke-width="1.8"/></svg>
+      4,218 rows
+    </span>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('table',this)">Table</div>
+    <div class="tab" onclick="switchTab('feed',this)">Feed</div>
+    <div class="tab" onclick="switchTab('calendar',this)">Calendar</div>
+  </div>
+
+  <!-- TABLE panel -->
+  <div class="panel active" id="panel-table">
+    <div class="tbl-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Funnel</th>
+            <th>Status</th>
+            <th>Day</th>
+            <th>XP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Why You're Still Broke</td><td><span class="td-badge td-tofu">TOFU</span></td><td><span class="td-badge td-approved">Approved</span></td><td>Wed</td><td>2</td></tr>
+          <tr><td>3 Reasons Clients Ghost You</td><td><span class="td-badge td-mofu">MOFU</span></td><td><span class="td-badge td-approved">Approved</span></td><td>Thu</td><td>2</td></tr>
+          <tr><td>The $0 to $10k Roadmap</td><td><span class="td-badge td-tofu">TOFU</span></td><td><span class="td-badge td-pending">Pending</span></td><td>Fri</td><td>—</td></tr>
+          <tr><td>Stop Charging by the Hour</td><td><span class="td-badge td-mofu">MOFU</span></td><td><span class="td-badge td-approved">Approved</span></td><td>Mon</td><td>2</td></tr>
+          <tr><td>30 Leads From One Video</td><td><span class="td-badge td-tofu">TOFU</span></td><td><span class="td-badge td-pending">Pending</span></td><td>Tue</td><td>—</td></tr>
+          <tr><td>Why Testimonials Don't Convert</td><td><span class="td-badge td-bofu">BOFU</span></td><td><span class="td-badge td-approved">Approved</span></td><td>Wed</td><td>2</td></tr>
+          <tr><td>Content Mistake Killing Reach</td><td><span class="td-badge td-tofu">TOFU</span></td><td><span class="td-badge td-pending">Pending</span></td><td>Thu</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- FEED panel -->
+  <div class="panel" id="panel-feed">
+    <div class="feed-scroll">
+
+      <div class="feed-item">
+        <div class="feed-line"><div class="feed-dot" style="background:var(--primary)"></div><div class="feed-bar"></div></div>
+        <div class="feed-card">
+          <div class="feed-top"><span class="feed-title">Script Approved</span><span class="feed-time">2h ago</span></div>
+          <p class="feed-sub">User approved "3 Reasons Clients Ghost You" — queued for recording Wednesday.</p>
+          <div class="feed-tags">
+            <span class="feed-tag td-mofu">MOFU</span>
+            <span class="feed-tag td-approved">Approved</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="feed-item">
+        <div class="feed-line"><div class="feed-dot" style="background:var(--warning)"></div><div class="feed-bar"></div></div>
+        <div class="feed-card">
+          <div class="feed-top"><span class="feed-title">Script Generated</span><span class="feed-time">3h ago</span></div>
+          <p class="feed-sub">AI generated "Content Mistake Killing Reach" — waiting for review.</p>
+          <div class="feed-tags">
+            <span class="feed-tag td-tofu">TOFU</span>
+            <span class="feed-tag td-pending">Pending</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="feed-item">
+        <div class="feed-line"><div class="feed-dot" style="background:var(--primary)"></div><div class="feed-bar"></div></div>
+        <div class="feed-card">
+          <div class="feed-top"><span class="feed-title">Script Approved</span><span class="feed-time">Yesterday</span></div>
+          <p class="feed-sub">User approved "Why You're Still Broke" — uploaded recording Tuesday.</p>
+          <div class="feed-tags">
+            <span class="feed-tag td-tofu">TOFU</span>
+            <span class="feed-tag td-approved">Approved</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="feed-item">
+        <div class="feed-line"><div class="feed-dot" style="background:var(--info)"></div></div>
+        <div class="feed-card">
+          <div class="feed-top"><span class="feed-title">Batch Generated</span><span class="feed-time">2 days ago</span></div>
+          <p class="feed-sub">AI completed 7-script generation batch. All scripts pending review.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CALENDAR panel -->
+  <div class="panel" id="panel-calendar">
+    <div class="cal-nav">
+      <div class="cal-arrow" onclick="changeMonth(-1)">‹</div>
+      <span class="cal-month" id="calMonthLabel">March 2026</span>
+      <div class="cal-arrow" onclick="changeMonth(1)">›</div>
+    </div>
+    <div class="cal-grid">
+      <div class="cal-days-row">
+        <div class="cal-day-hdr">S</div><div class="cal-day-hdr">M</div>
+        <div class="cal-day-hdr">T</div><div class="cal-day-hdr">W</div>
+        <div class="cal-day-hdr">T</div><div class="cal-day-hdr">F</div>
+        <div class="cal-day-hdr">S</div>
+      </div>
+      <div class="cal-weeks" id="calWeeks"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── Tab switching ──────────────────────────────────────────────────────────────
+function switchTab(id, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+}
+
+// ── DB Node Canvas ─────────────────────────────────────────────────────────────
+const canvas = document.getElementById('nodeCanvas');
+const ctx = canvas.getContext('2d');
+const CW = 390, CH = 160;
+let t = 0;
+
+function drawDBNode() {
+  ctx.clearRect(0, 0, CW, CH);
+  ctx.fillStyle = '#2a252d';
+  ctx.fillRect(0, 0, CW, CH);
+
+  const nx = CW/2, ny = 100;
+
+  // Input wire
+  drawWire(nx - 40, 0, nx, ny - 36, t, '#9fd356');
+  // Output wire
+  drawWire(nx, ny + 36, nx + 40, CH, t + 0.4, '#9fd356');
+
+  // Node shadow glow
+  ctx.save();
+  ctx.shadowColor = '#9fd356';
+  ctx.shadowBlur = 18;
+  ctx.beginPath();
+  ctx.arc(nx, ny, 38, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(159,211,86,.06)';
+  ctx.fill();
+  ctx.restore();
+
+  // Rounded rect node
+  const rw = 46, rh = 32, rr = 10;
+  roundRect(nx - rw, ny - rh, rw*2, rh*2, rr);
+  ctx.fillStyle = '#3e3842';
+  ctx.fill();
+  ctx.strokeStyle = '#9fd356';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // DB lines
+  ctx.strokeStyle = '#9fd356';
+  ctx.lineWidth = 1.8;
+  [ny - 8, ny, ny + 8].forEach(ly => {
+    ctx.beginPath();
+    ctx.moveTo(nx - 18, ly);
+    ctx.lineTo(nx + 18, ly);
+    ctx.stroke();
+  });
+
+  t += 0.015;
+  requestAnimationFrame(drawDBNode);
+}
+
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y);
+  ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r);
+  ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h);
+  ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r);
+  ctx.arcTo(x,y,x+r,y,r);
+  ctx.closePath();
+}
+
+function drawWire(x1, y1, x2, y2, offset, color) {
+  const cpY = y1 + (y2-y1)*0.5;
+  ctx.beginPath();
+  ctx.moveTo(x1,y1); ctx.bezierCurveTo(x1,cpY,x2,cpY,x2,y2);
+  ctx.strokeStyle = 'rgba(133,130,135,.2)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  const p = ((offset * 0.8) % 1 + 1) % 1;
+  const mt = 1-p;
+  const bx = mt*mt*mt*x1+3*mt*mt*p*x1+3*mt*p*p*x2+p*p*p*x2;
+  const by = mt*mt*mt*y1+3*mt*mt*p*cpY+3*mt*p*p*cpY+p*p*p*y2;
+  ctx.beginPath(); ctx.arc(bx,by,4,0,Math.PI*2);
+  ctx.fillStyle = color; ctx.fill();
+  ctx.beginPath(); ctx.arc(bx,by,8,0,Math.PI*2);
+  ctx.fillStyle = color+'33'; ctx.fill();
+}
+
+drawDBNode();
+
+// ── Calendar ──────────────────────────────────────────────────────────────────
+const EVENT_DAYS = [3, 7, 10, 14, 17, 21, 24, 28]; // days with events (hardcoded)
+const TODAY = new Date(2026, 2, 31); // March 31, 2026
+
+let calYear = 2026, calMonth = 2; // 0-indexed
+
+function renderCalendar() {
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calMonthLabel').textContent = months[calMonth] + ' ' + calYear;
+
+  const weeksEl = document.getElementById('calWeeks');
+  weeksEl.textContent = '';
+
+  const firstDay = new Date(calYear, calMonth, 1).getDay(); // 0=Sun
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const daysInPrev  = new Date(calYear, calMonth, 0).getDate();
+
+  let dayNum = 1, nextDay = 1;
+  const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+
+  for (let cell = 0; cell < totalCells; cell += 7) {
+    const weekEl = document.createElement('div');
+    weekEl.className = 'cal-week';
+
+    for (let d = 0; d < 7; d++) {
+      const idx = cell + d;
+      const cellEl = document.createElement('div');
+      cellEl.className = 'cal-cell';
+
+      let displayDay, otherMonth = false;
+      if (idx < firstDay) {
+        displayDay = daysInPrev - firstDay + idx + 1;
+        otherMonth = true;
+      } else if (dayNum <= daysInMonth) {
+        displayDay = dayNum;
+        const isToday = calYear === TODAY.getFullYear() && calMonth === TODAY.getMonth() && dayNum === TODAY.getDate();
+        if (isToday) cellEl.classList.add('today');
+        if (EVENT_DAYS.includes(dayNum)) cellEl.classList.add('has-event');
+        dayNum++;
+      } else {
+        displayDay = nextDay++;
+        otherMonth = true;
+      }
+
+      if (otherMonth) cellEl.classList.add('other-month');
+      cellEl.textContent = displayDay;
+      weekEl.appendChild(cellEl);
+    }
+
+    weeksEl.appendChild(weekEl);
+  }
+}
+
+function changeMonth(delta) {
+  calMonth += delta;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0)  { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+renderCalendar();
+</script>
+</body>
+</html>

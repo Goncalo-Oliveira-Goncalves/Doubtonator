@@ -1,1 +1,111 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>XP Bar Detail</title></head><body><!-- TODO: XP bar — angled progress bar, LV container overlay, "LV" text label --></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XP Bar — Doubtonator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#342e37; --surface:#3e3842; --surface-2:#4a4450; --primary:#9fd356; --text:#fafffd; --text-sec:#858287; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body { background:var(--bg); min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:40px; padding:48px 24px; font-family:'Fredoka One',sans-serif; color:var(--text); }
+    .eyebrow { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; letter-spacing:2.5px; text-transform:uppercase; color:var(--primary); opacity:.8; }
+    .header { text-align:center; display:flex; flex-direction:column; gap:5px; }
+    .header h1 { font-size:24px; }
+    .header p  { font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-sec); }
+    /* XP bar */
+    .xp-wrap { width:100%; max-width:390px; background:var(--surface); border-radius:20px; padding:14px 18px 12px; display:flex; flex-direction:column; gap:8px; }
+    .xp-row  { display:flex; align-items:center; justify-content:space-between; }
+    .lv  { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--primary); background:rgba(159,211,86,.12); padding:3px 10px; border-radius:20px; }
+    .xp-txt { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; color:var(--text-sec); }
+    .xp-txt b { color:var(--text); font-weight:800; }
+    .track { width:100%; height:8px; background:var(--surface-2); border-radius:4px; overflow:hidden; }
+    .fill  { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--primary),#b2dc78); width:0%; transition:width 1.1s cubic-bezier(.22,1,.36,1); position:relative; overflow:hidden; }
+    .fill::after { content:''; position:absolute; top:0; left:-60px; width:60px; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent); animation:shim 2.2s ease-in-out infinite 1.3s; }
+    @keyframes shim{0%{left:-60px}100%{left:110%}}
+    /* Divider */
+    .div { display:flex; align-items:center; gap:12px; width:100%; max-width:390px; }
+    .div hr { flex:1; border:none; border-top:1px solid rgba(255,255,255,.07); }
+    .div span { font-family:'Nunito',sans-serif; font-size:10px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--text-sec); opacity:.35; }
+    /* Buttons */
+    .btns { display:flex; gap:12px; }
+    .btn { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; letter-spacing:1px; text-transform:uppercase; padding:10px 20px; border-radius:12px; border:none; cursor:pointer; transition:transform .12s; }
+    .btn:active{transform:scale(.95)}
+    .btn-p{background:var(--primary);color:#342e37}
+    .btn-g{background:var(--surface-2);color:var(--text-sec);border:1px solid rgba(255,255,255,.08)}
+    /* Variants */
+    .variants{display:flex;flex-direction:column;gap:24px;width:100%;max-width:390px}
+    .vlabel{font-family:'Nunito',sans-serif;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text-sec);opacity:.45;margin-bottom:8px}
+    /* Flash */
+    .flash{position:fixed;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s}
+    .flash.on{opacity:1}
+    .flash-box{background:rgba(52,46,55,.9);border:2px solid var(--primary);border-radius:20px;padding:16px 32px;font-size:28px;animation:pop .4s cubic-bezier(.34,1.56,.64,1) forwards}
+    @keyframes pop{from{transform:scale(.5) rotate(-8deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+  </style>
+</head>
+<body>
+<div class="header">
+  <span class="eyebrow">Component · Quests</span>
+  <h1>XP Progress Bar</h1>
+  <p>Animated on load · earn XP and watch it level up</p>
+</div>
+
+<div class="xp-wrap">
+  <div class="xp-row">
+    <span class="lv" id="lv">LV 12</span>
+    <span class="xp-txt"><b id="cur">3,240</b> / <b id="mx">4,000</b> XP</span>
+  </div>
+  <div class="track"><div class="fill" id="fill"></div></div>
+</div>
+
+<div class="btns">
+  <button class="btn btn-p" onclick="add(120)">+120 XP Quest</button>
+  <button class="btn btn-g" onclick="reset()">Reset</button>
+</div>
+
+<div class="div"><hr><span>Static variants</span><hr></div>
+
+<div class="variants">
+  <div>
+    <div class="vlabel">Low — LV 3, 22%</div>
+    <div class="xp-wrap" style="opacity:.55">
+      <div class="xp-row"><span class="lv">LV 3</span><span class="xp-txt"><b>180</b> / <b>820</b> XP</span></div>
+      <div class="track"><div class="fill" style="width:22%;transition:none"></div></div>
+    </div>
+  </div>
+  <div>
+    <div class="vlabel">Near level-up — LV 8, 94%</div>
+    <div class="xp-wrap" style="opacity:.55">
+      <div class="xp-row"><span class="lv">LV 8</span><span class="xp-txt"><b>1,880</b> / <b>2,000</b> XP</span></div>
+      <div class="track"><div class="fill" style="width:94%;transition:none"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="flash" id="flash"><span class="flash-box" id="fbox"></span></div>
+
+<script>
+  let xp=3240,mx=4000,lv=12;
+  function render(){
+    document.getElementById('fill').style.width=Math.min(100,xp/mx*100)+'%';
+    document.getElementById('cur').textContent=xp.toLocaleString();
+    document.getElementById('mx').textContent=mx.toLocaleString();
+    document.getElementById('lv').textContent='LV '+lv;
+  }
+  function add(n){
+    xp+=n;
+    if(xp>=mx){xp-=mx;lv++;mx=Math.round(mx*1.25);boom('⬆ LEVEL UP!');}
+    render();
+  }
+  function reset(){xp=3240;mx=4000;lv=12;document.getElementById('fill').style.width='0%';setTimeout(render,60);}
+  function boom(m){
+    const f=document.getElementById('flash');
+    document.getElementById('fbox').textContent=m;
+    f.classList.add('on');setTimeout(()=>f.classList.remove('on'),1100);
+  }
+  window.addEventListener('load',()=>setTimeout(render,100));
+</script>
+</body>
+</html>

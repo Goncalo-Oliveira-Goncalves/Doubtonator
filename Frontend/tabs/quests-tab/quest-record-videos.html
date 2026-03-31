@@ -1,1 +1,148 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Record Videos Quest</title></head><body><!-- TODO: info section, print it section (bento), script markdown, upload button --></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Record Videos — Doubtonator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#342e37; --surface:#3e3842; --surface-2:#4a4450; --primary:#9fd356; --info:#3c91e6; --danger:#e63c3c; --text:#fafffd; --text-sec:#858287; --border:rgba(255,255,255,.08); }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body { background:#1e1a21; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 16px; font-family:'Fredoka One',sans-serif; color:var(--text); }
+    .phone { width:390px; height:844px; background:var(--bg); border-radius:44px; overflow:hidden; border:1px solid rgba(255,255,255,.08); box-shadow:0 32px 80px rgba(0,0,0,.6); display:flex; flex-direction:column; position:relative; }
+    /* Header */
+    .hdr { padding:20px 24px 0; display:flex; align-items:center; justify-content:space-between; }
+    .close-btn { width:36px; height:36px; border-radius:12px; background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-sec); font-size:18px; }
+    /* Bento top area */
+    .bento { padding:16px 16px 0; display:flex; flex-direction:column; gap:8px; }
+    /* Info section */
+    .info-section { border-radius:20px; padding:20px; background:linear-gradient(135deg,#3c91e6,#1a5fa8); position:relative; overflow:hidden; }
+    .info-section::before { content:''; position:absolute; top:-30px; right:-30px; width:120px; height:120px; border-radius:50%; background:rgba(255,255,255,.08); }
+    .info-title { font-size:19px; margin-bottom:10px; }
+    .info-meta  { display:flex; align-items:center; gap:0; }
+    .meta-item  { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:rgba(255,255,255,.75); }
+    .meta-div   { width:1px; height:14px; background:rgba(255,255,255,.3); margin:0 10px; }
+    .meta-badge { background:rgba(255,255,255,.15); border-radius:8px; padding:2px 8px; font-family:'Nunito',sans-serif; font-weight:800; font-size:10px; letter-spacing:1px; text-transform:uppercase; color:rgba(255,255,255,.9); }
+    /* Print section */
+    .print-section { border-radius:20px; padding:18px 20px; background:linear-gradient(135deg,#ff9600,#e07800); display:flex; align-items:center; justify-content:space-between; cursor:pointer; transition:opacity .15s; }
+    .print-section:hover{opacity:.9}
+    .print-label { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; letter-spacing:1.5px; text-transform:uppercase; color:#fff; }
+    /* Script area */
+    .script-wrap { flex:1; overflow:hidden; position:relative; padding:0 16px; margin-top:8px; }
+    .script-content { height:100%; overflow-y:auto; padding:20px 4px 80px; }
+    .script-content h2 { font-size:16px; margin-bottom:12px; color:var(--text); }
+    .script-content p,li { font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-sec); line-height:1.7; margin-bottom:10px; }
+    .script-content strong { color:var(--text); font-weight:700; }
+    .script-content ul { padding-left:18px; }
+    .script-fade { position:absolute; bottom:0; left:16px; right:16px; height:80px; background:linear-gradient(to bottom,transparent,var(--bg)); pointer-events:none; }
+    /* Upload button */
+    .upload-area { position:absolute; bottom:0; left:0; right:0; padding:16px 24px 32px; display:flex; justify-content:center; }
+    .upload-btn { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; letter-spacing:2px; text-transform:uppercase; background:var(--primary); color:#342e37; border:none; border-radius:16px; padding:16px 32px; cursor:pointer; transition:opacity .15s, transform .12s; }
+    .upload-btn:hover{opacity:.92} .upload-btn:active{transform:scale(.97)}
+    /* Cancel popup */
+    .cancel-overlay { position:absolute; inset:0; background:rgba(20,18,22,.85); display:flex; align-items:center; justify-content:center; padding:32px; opacity:0; pointer-events:none; transition:opacity .2s; }
+    .cancel-overlay.show { opacity:1; pointer-events:all; }
+    .cancel-popup { background:var(--surface); border-radius:28px; padding:32px 24px; width:100%; display:flex; flex-direction:column; gap:16px; text-align:center; border:1px solid var(--border); }
+    .cp-title { font-size:20px; }
+    .cp-sub { font-family:'Nunito',sans-serif; font-size:14px; color:var(--text-sec); line-height:1.5; }
+    .cp-btns { display:flex; flex-direction:column; gap:8px; }
+    .cp-btn { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; padding:14px; border-radius:14px; border:none; cursor:pointer; }
+    .cp-back { background:var(--primary); color:#342e37; }
+    .cp-quit { background:rgba(230,60,60,.15); color:var(--danger); border:1px solid rgba(230,60,60,.2); }
+    /* AI Feedback popup */
+    .feedback-overlay { position:absolute; inset:0; background:rgba(20,18,22,.85); display:flex; align-items:flex-end; padding:24px; opacity:0; pointer-events:none; transition:opacity .2s; }
+    .feedback-overlay.show { opacity:1; pointer-events:all; }
+    .fb-panel { background:var(--surface); border-radius:28px; padding:24px; width:100%; display:flex; flex-direction:column; gap:12px; border:1px solid var(--border); }
+    .fb-title { font-size:18px; }
+    .fb-item { display:flex; align-items:flex-start; gap:10px; }
+    .fb-dot  { width:6px; height:6px; border-radius:50%; background:var(--warning); flex-shrink:0; margin-top:6px; }
+    .fb-text { font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-sec); line-height:1.5; }
+    .fb-close { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; background:var(--surface-2); color:var(--text-sec); border:1px solid var(--border); border-radius:14px; padding:12px; cursor:pointer; margin-top:4px; }
+  </style>
+</head>
+<body>
+<div class="phone">
+  <div class="hdr">
+    <div class="close-btn" onclick="document.getElementById('cancelOverlay').classList.add('show')">✕</div>
+    <div style="width:36px"></div>
+  </div>
+
+  <!-- Bento top -->
+  <div class="bento">
+    <!-- Info section -->
+    <div class="info-section">
+      <div class="info-title">Why You're Still Broke as a Coach</div>
+      <div class="info-meta">
+        <span class="meta-item">Wednesday</span>
+        <div class="meta-div"></div>
+        <span class="meta-badge">TOFU</span>
+      </div>
+    </div>
+    <!-- Print section -->
+    <div class="print-section" onclick="toast('Sending to printer…')">
+      <span class="print-label">Print Script</span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M5 12l14 0M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Script -->
+  <div class="script-wrap">
+    <div class="script-content">
+      <h2>Why You're Still Broke as a Coach</h2>
+      <p><strong>Hook:</strong> "If you've been coaching for more than a year and you're still not hitting $5k months consistently — this video is for you."</p>
+      <p><strong>Problem:</strong> Most coaches are stuck in a cycle of showing up, posting content, and hoping. They're treating social media like a slot machine instead of a system.</p>
+      <p><strong>Point 1:</strong> You're selling to the wrong awareness level. Your content is speaking to people who already know they need a coach — but those people are less than 5% of your audience.</p>
+      <ul>
+        <li>The other 95% don't even know they have the problem you solve</li>
+        <li>Start with hooks that speak to symptoms, not solutions</li>
+      </ul>
+      <p><strong>Point 2:</strong> You have no content funnel. Every video is a standalone piece with no intentional journey to guide the viewer from curious to convinced.</p>
+      <p><strong>Point 3:</strong> Your call to action is too big. Asking someone to book a call after a 60-second video is like proposing on a first date.</p>
+      <p><strong>CTA:</strong> "Link in bio — grab my free Content Funnel Blueprint. It maps the exact 5-video sequence I use to turn cold viewers into booked calls."</p>
+    </div>
+    <div class="script-fade"></div>
+  </div>
+
+  <!-- Upload button -->
+  <div class="upload-area">
+    <button class="upload-btn" onclick="document.getElementById('feedbackOverlay').classList.add('show')">UPLOAD RECORDINGS</button>
+  </div>
+
+  <!-- Cancel overlay -->
+  <div class="cancel-overlay" id="cancelOverlay">
+    <div class="cancel-popup">
+      <span class="cp-title">Leave this quest?</span>
+      <p class="cp-sub">Your progress won't be saved and you won't earn your XP or sparks.</p>
+      <div class="cp-btns">
+        <button class="cp-btn cp-back" onclick="document.getElementById('cancelOverlay').classList.remove('show')">BACK TO TASK</button>
+        <button class="cp-btn cp-quit" onclick="document.getElementById('cancelOverlay').classList.remove('show')">GIVE TASK UP</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Feedback overlay -->
+  <div class="feedback-overlay" id="feedbackOverlay">
+    <div class="fb-panel">
+      <span class="fb-title">AI Feedback</span>
+      <div class="fb-item"><div class="fb-dot"></div><p class="fb-text">Your hook landed well — the direct call-out gets attention immediately.</p></div>
+      <div class="fb-item"><div class="fb-dot"></div><p class="fb-text">Background is slightly out of focus. Consider re-recording with better lighting behind you.</p></div>
+      <div class="fb-item"><div class="fb-dot"></div><p class="fb-text">Pacing is great in the first 20 seconds, but there's a 3-second pause at 0:42 — trim this in editing.</p></div>
+      <button class="fb-close" onclick="document.getElementById('feedbackOverlay').classList.remove('show')">GOT IT</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toast(msg){
+    const t=document.createElement('div');
+    t.style.cssText='position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#3e3842;color:#fafffd;font-family:Nunito,sans-serif;font-weight:800;font-size:13px;padding:10px 20px;border-radius:12px;border:1px solid rgba(255,255,255,.1);white-space:nowrap;z-index:999;transition:opacity .3s';
+    t.textContent=msg;document.body.appendChild(t);
+    setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300)},1800);
+  }
+</script>
+</body>
+</html>

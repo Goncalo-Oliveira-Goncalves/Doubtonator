@@ -1,1 +1,200 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Answer Questions Quest</title></head><body><!-- TODO: progress bar, question heading, text area, talk button + answer button --></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Answer Questions — Doubtonator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#342e37; --surface:#3e3842; --surface-2:#4a4450; --primary:#9fd356; --danger:#e63c3c; --text:#fafffd; --text-sec:#858287; --border:rgba(255,255,255,.08); }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body { background:#1e1a21; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 16px; font-family:'Fredoka One',sans-serif; color:var(--text); }
+    .phone { width:390px; height:844px; background:var(--bg); border-radius:44px; overflow:hidden; border:1px solid rgba(255,255,255,.08); box-shadow:0 32px 80px rgba(0,0,0,.6); display:flex; flex-direction:column; position:relative; }
+
+    /* Header */
+    .hdr { padding:20px 24px 0; display:flex; align-items:center; justify-content:flex-start; }
+    .close-btn { width:36px; height:36px; border-radius:12px; background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background .15s; font-size:18px; color:var(--text-sec); }
+    .close-btn:hover { background:var(--surface-2); }
+
+    /* Progress */
+    .progress-area { padding:24px 24px 0; display:flex; flex-direction:column; align-items:center; gap:8px; }
+    .prog-bar { width:160px; height:6px; background:var(--surface-2); border-radius:3px; overflow:hidden; }
+    .prog-fill { height:100%; background:var(--primary); border-radius:3px; transition:width .4s; }
+    .prog-txt  { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; letter-spacing:.5px; color:var(--text-sec); }
+
+    /* Question */
+    .question { padding:28px 24px 12px; font-size:22px; line-height:1.3; }
+
+    /* Text area */
+    .answer-area { flex:1; padding:0 24px; overflow-y:auto; }
+    .answer-box {
+      width:100%; min-height:100px; background:transparent;
+      border:none; border-bottom:1px solid var(--border);
+      color:var(--text); font-family:'Fredoka One',sans-serif; font-size:16px;
+      line-height:1.6; resize:none; outline:none; padding:8px 0;
+    }
+    .answer-box::placeholder { color:var(--text-sec); opacity:.5; }
+
+    /* Bottom fade overlay + buttons */
+    .bottom-area {
+      position:absolute; bottom:0; left:0; right:0;
+      background:linear-gradient(to bottom, transparent 0%, var(--bg) 45%);
+      padding:32px 24px 36px;
+      display:flex; flex-direction:column; gap:10px;
+    }
+
+    /* TALK button */
+    .talk-btn { position:relative; height:60px; cursor:pointer; -webkit-tap-highlight-color:transparent; outline:none; }
+    .talk-shape { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+    .btn-fill { fill:var(--surface-2); }
+    .talk-btn.rec .btn-fill { stroke:var(--danger); stroke-width:4; stroke-linejoin:round; }
+    .talk-content { position:absolute; inset:0; display:flex; align-items:center; justify-content:space-between; padding:0 24px; pointer-events:none; }
+    .talk-label { font-family:'Nunito',sans-serif; font-weight:800; font-size:14px; letter-spacing:1.5px; text-transform:uppercase; }
+    .sw { display:flex; align-items:center; gap:4px; height:28px; }
+    .sw-bar { width:4px; border-radius:2px; background:var(--primary); transition:background .2s, height .08s; }
+    .sw-bar:nth-child(1){height:9px} .sw-bar:nth-child(2){height:16px} .sw-bar:nth-child(3){height:22px} .sw-bar:nth-child(4){height:16px} .sw-bar:nth-child(5){height:9px}
+    .talk-btn.rec .sw-bar { background:var(--danger); }
+    .talk-btn.rec .sw-bar:nth-child(1){--mn:5px;--mx:18px;animation:bar .55s ease-in-out infinite alternate 0s}
+    .talk-btn.rec .sw-bar:nth-child(2){--mn:9px;--mx:24px;animation:bar .55s ease-in-out infinite alternate .09s}
+    .talk-btn.rec .sw-bar:nth-child(3){--mn:14px;--mx:28px;animation:bar .55s ease-in-out infinite alternate .18s}
+    .talk-btn.rec .sw-bar:nth-child(4){--mn:9px;--mx:24px;animation:bar .55s ease-in-out infinite alternate .09s}
+    .talk-btn.rec .sw-bar:nth-child(5){--mn:5px;--mx:18px;animation:bar .55s ease-in-out infinite alternate 0s}
+    @keyframes bar{from{height:var(--mn)}to{height:var(--mx)}}
+    .glow { position:absolute; bottom:-12px; left:50%; transform:translateX(-50%); width:120px; height:16px; border-radius:50%; background:var(--primary); filter:blur(10px); opacity:.18; pointer-events:none; transition:background .3s,opacity .35s,width .35s; }
+    .talk-btn.rec .glow { background:var(--danger); opacity:.45; width:200px; }
+
+    /* Answer button */
+    .answer-btn { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; letter-spacing:1.5px; text-transform:uppercase; background:rgba(159,211,86,.15); color:var(--primary); border:1.5px solid rgba(159,211,86,.25); border-radius:14px; height:48px; cursor:pointer; transition:background .15s; }
+    .answer-btn:hover { background:rgba(159,211,86,.22); }
+
+    /* Cancel confirm popup */
+    .overlay { position:absolute; inset:0; background:rgba(20,18,22,.85); display:flex; align-items:center; justify-content:center; padding:32px; opacity:0; pointer-events:none; transition:opacity .2s; }
+    .overlay.show { opacity:1; pointer-events:all; }
+    .popup { background:var(--surface); border-radius:28px; padding:32px 24px; display:flex; flex-direction:column; gap:16px; text-align:center; max-width:320px; width:100%; border:1px solid rgba(255,255,255,.08); }
+    .popup-title { font-size:20px; }
+    .popup-sub { font-family:'Nunito',sans-serif; font-size:14px; color:var(--text-sec); line-height:1.5; }
+    .popup-btns { display:flex; flex-direction:column; gap:8px; }
+    .pbtn { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; padding:14px; border-radius:14px; border:none; cursor:pointer; transition:opacity .15s; }
+    .pbtn:active { opacity:.8; }
+    .pbtn-back { background:var(--primary); color:#342e37; }
+    .pbtn-quit { background:rgba(230,60,60,.15); color:var(--danger); border:1px solid rgba(230,60,60,.2); }
+  </style>
+</head>
+<body>
+<div class="phone">
+  <!-- Header -->
+  <div class="hdr">
+    <div class="close-btn" onclick="document.getElementById('cancelOverlay').classList.add('show')">✕</div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-area">
+    <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:40%"></div></div>
+    <span class="prog-txt" id="progTxt">2 / 5</span>
+  </div>
+
+  <!-- Question -->
+  <div class="question" id="questionText">What's your biggest challenge as a content creator right now?</div>
+
+  <!-- Text area -->
+  <div class="answer-area">
+    <textarea class="answer-box" id="answerBox" placeholder="Start typing, or use the Talk button below…" rows="4" oninput="autoGrow(this)"></textarea>
+  </div>
+
+  <!-- Bottom buttons -->
+  <div class="bottom-area">
+    <div class="talk-btn" id="talkBtn" onclick="toggleRec()">
+      <svg class="talk-shape" viewBox="0 0 342 60" xmlns="http://www.w3.org/2000/svg">
+        <path class="btn-fill" id="btnPath" d=""/>
+      </svg>
+      <div class="talk-content">
+        <span class="talk-label">Talk</span>
+        <div class="sw">
+          <div class="sw-bar"></div><div class="sw-bar"></div><div class="sw-bar"></div>
+          <div class="sw-bar"></div><div class="sw-bar"></div>
+        </div>
+      </div>
+      <div class="glow"></div>
+    </div>
+    <button class="answer-btn" onclick="nextQ()">ANSWER</button>
+  </div>
+
+  <!-- Cancel overlay -->
+  <div class="overlay" id="cancelOverlay">
+    <div class="popup">
+      <span class="popup-title">Leave this quest?</span>
+      <p class="popup-sub">Your progress won't be saved and you won't earn your sparks.</p>
+      <div class="popup-btns">
+        <button class="pbtn pbtn-back" onclick="document.getElementById('cancelOverlay').classList.remove('show')">BACK TO TASK</button>
+        <button class="pbtn pbtn-quit" onclick="document.getElementById('cancelOverlay').classList.remove('show')">GIVE TASK UP</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Path geometry ──────────────────────────────────────
+  const W=342,H=60,R=30,LX=R,RX=W-R,N=32;
+  const btnPath=document.getElementById('btnPath');
+  let isRec=false,t=0,vol=0,targetVol=0,raf=null;
+  let analyser=null,buf=null,stream=null,actx=null;
+
+  function idle(){return`M ${LX} 0 L ${RX} 0 A ${R} ${R} 0 0 1 ${RX} ${H} L ${LX} ${H} A ${R} ${R} 0 0 1 ${LX} 0 Z`;}
+  function wavy(v,time){
+    const top=[],bot=[];
+    for(let i=0;i<=N;i++){
+      const p=i/N,x=LX+p*(RX-LX),fade=Math.sin(p*Math.PI),amp=v*20*fade;
+      const w=Math.sin(p*Math.PI*3+time*2.5)*amp*.65+Math.sin(p*Math.PI*7+time*4+1)*amp*.35;
+      top.push([x,w]);bot.push([x,H-w]);
+    }
+    function ch(pts){let s=`Q ${f(pts[0][0])} ${f(pts[0][1])} ${f(pts[1][0])} ${f(pts[1][1])} `;for(let i=2;i<pts.length;i++)s+=`T ${f(pts[i][0])} ${f(pts[i][1])} `;return s;}
+    const rb=[...bot].reverse();
+    return`M ${f(top[0][0])} ${f(top[0][1])} `+ch(top)+`A ${R} ${R} 0 0 1 ${RX} ${H} L ${f(rb[0][0])} ${f(rb[0][1])} `+ch(rb)+`A ${R} ${R} 0 0 1 ${LX} 0 Z`;
+  }
+  function f(n){return n.toFixed(2);}
+  btnPath.setAttribute('d',idle());
+
+  function tick(){
+    if(!isRec)return;
+    t+=.018;
+    if(analyser&&buf){analyser.getFloatTimeDomainData(buf);let s=0;for(let v of buf)s+=v*v;targetVol=Math.min(1,Math.sqrt(s/buf.length)*5);}
+    else{targetVol=.32+Math.sin(t*1.4)*.16+Math.sin(t*3.1)*.07+Math.random()*.04;}
+    vol+=(targetVol-vol)*.12;
+    btnPath.setAttribute('d',wavy(vol,t));
+    raf=requestAnimationFrame(tick);
+  }
+  function fadeOut(){vol*=.82;if(vol>.008){btnPath.setAttribute('d',wavy(vol,t));raf=requestAnimationFrame(fadeOut);}else{btnPath.setAttribute('d',idle());}}
+
+  async function toggleRec(){
+    const btn=document.getElementById('talkBtn');
+    if(!isRec){
+      isRec=true;btn.classList.add('rec');
+      try{stream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});actx=new AudioContext();const src=actx.createMediaStreamSource(stream);analyser=actx.createAnalyser();analyser.fftSize=256;buf=new Float32Array(analyser.frequencyBinCount);src.connect(analyser);}catch(e){}
+      tick();
+    } else {
+      isRec=false;btn.classList.remove('rec');
+      cancelAnimationFrame(raf);raf=null;
+      if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+      if(actx){actx.close();actx=null;analyser=null;buf=null;}
+      fadeOut();
+    }
+  }
+
+  // Questions
+  const qs=['What\'s your biggest challenge as a content creator right now?','How much time do you spend on scripting per week?','What type of content gets you the most leads?','How do you currently track your content performance?','What would save you the most time in your workflow?'];
+  let qi=1;
+  function nextQ(){
+    if(qi>=qs.length){qi=0;}
+    document.getElementById('questionText').textContent=qs[qi];
+    document.getElementById('progFill').style.width=((qi+1)/qs.length*100)+'%';
+    document.getElementById('progTxt').textContent=(qi+1)+' / '+qs.length;
+    document.getElementById('answerBox').value='';
+    qi++;
+  }
+
+  function autoGrow(el){el.style.height='auto';el.style.height=el.scrollHeight+'px';}
+</script>
+</body>
+</html>

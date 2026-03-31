@@ -1,216 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Badge Display — Demo</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Badge Display — Doubtonator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    /* ── Semantic tokens from brand-guidelines.md ── */
     :root {
-      --color-background: #342e37;        /* Lava Black (dark mode) */
-      --color-surface: #5d585f;
-      --color-text-primary: #fafffd;
-      --color-text-secondary: #aeabaf;
-      --color-border: #5d585f;
-
-      /* Badge tier primary colors */
-      --badge-bronze:   #e6ae7e;
-      --badge-silver:   #e1f0ff;
-      --badge-gold:     #ffef38;
-      --badge-sapphire: #43c3fe;
-      --badge-ruby:     #fe4c4c;
-      --badge-emerald:  #87df05;
-      --badge-amethyst: #cf81ff;
-      --badge-pearl:    #feaade;
-      --badge-obsidian: #28282c;
-      --badge-diamond:  #87e9ea;
-
-      --badge-size-center: 96px;    /* Active/current badge */
-      --badge-size-side: 76px;      /* 80% of center */
+      --bg:#342e37; --surface:#3e3842; --surface-2:#4a4450; --text:#fafffd; --text-sec:#858287;
+      /* Badge tier colors */
+      --bronze:#e6ae7e; --silver:#e1f0ff; --gold:#ffef38;
+      --sapphire:#43c3fe; --ruby:#fe4c4c; --emerald:#87df05;
+      --amethyst:#cf81ff; --pearl:#feaade; --obsidian:#28282c; --diamond:#87e9ea;
     }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body { background:var(--bg); min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:40px; padding:40px 24px; font-family:'Fredoka One',sans-serif; color:var(--text); }
+    .eyebrow { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; letter-spacing:2.5px; text-transform:uppercase; color:#9fd356; opacity:.8; }
+    .sec-lbl { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--text-sec); opacity:.4; }
 
-    body {
-      margin: 0;
-      background: var(--color-background);
-      font-family: 'Fredoka One', sans-serif;
-      color: var(--color-text-primary);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      gap: 32px;
+    /* ── Badge strip ─────────────────────────────────────────────────────── */
+    .strip-wrap {
+      width:360px; overflow:hidden; position:relative;
     }
-
-    h2 {
-      font-size: 18px;
-      color: var(--color-text-secondary);
-      margin: 0;
-      letter-spacing: 0.5px;
+    .strip-wrap::after {
+      content:''; position:absolute; inset:0; pointer-events:none;
+      background:linear-gradient(to right, var(--bg) 0%, transparent 22%, transparent 78%, var(--bg) 100%);
+      z-index:2;
     }
+    .strip { display:flex; align-items:center; justify-content:center; gap:10px; padding:20px 4px; }
 
-    /* ── Badge Strip Container ── */
-    .badge-strip-wrapper {
-      position: relative;
-      width: 360px;
-      overflow: hidden;
-    }
+    /* Badge */
+    .badge { display:flex; flex-direction:column; align-items:center; gap:6px; flex-shrink:0; }
+    .badge-icon { position:relative; }
+    .badge-icon svg { display:block; }
+    .badge-lbl { font-family:'Nunito',sans-serif; font-weight:800; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; opacity:.55; }
+    .badge.current .badge-lbl { opacity:.85; color:inherit; }
 
-    /* Fade-out mask on left and right edges (from badge-display.md suggested edit) */
-    .badge-strip-wrapper::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: 2;
-      pointer-events: none;
-      mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
-      -webkit-mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
-      /* The mask reveals the background through the edges, creating the fade */
-      background: var(--color-background);
-    }
+    /* Shine overlay on badge icons */
+    .badge-shine { position:absolute; inset:0; border-radius:inherit; background:linear-gradient(140deg,rgba(255,255,255,.28) 0%,transparent 55%); pointer-events:none; }
 
-    .badge-strip {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      padding: 16px 8px;
-    }
+    /* Locked */
+    .badge.locked .badge-icon { opacity:.35; filter:saturate(0); }
+    .badge.locked .badge-lbl { opacity:.2; }
 
-    /* ── Individual Badge ── */
-    .badge {
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      /* TODO: Replace with actual SVG shapes per brand-guidelines.md Shape 1–4 */
-    }
-
-    .badge.center {
-      width: var(--badge-size-center);
-      height: var(--badge-size-center);
-    }
-
-    .badge.side {
-      width: var(--badge-size-side);
-      height: var(--badge-size-side);
-    }
-
-    /* Badge shape placeholder — implement real SVG shapes here */
-    .badge-shape {
-      width: 100%;
-      height: 100%;
-      border-radius: 8px;         /* Placeholder — replace with SVG */
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      font-weight: 800;
-      color: #342e37;
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* Shine layer — 20% white linear overlay (from brand-guidelines.md "Some Notes") */
-    .badge-shape::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 60%);
-      pointer-events: none;
-    }
-
-    /* Locked badge style */
-    .badge.locked .badge-shape {
-      background: #4a4a4a;
-      color: var(--color-text-secondary);
-    }
-
-    /* ── TODO: Badge shape implementations ─────────────────────────────────
-     *
-     * Per brand-guidelines.md, there are 4 shapes:
-     *   Shape 1 (Bronze, Silver, Gold)     — Shield/tombstone outline (ASCII: flat top, rounded bottom)
-     *   Shape 2 (Sapphire, Ruby, Emerald)  — Octagon outline
-     *   Shape 3 (Amethyst, Pearl, Obsidian)— Rounded rect with flat-cut corners
-     *   Shape 4 (Diamond)                  — Diamond/teardrop outline
-     *
-     * Each badge also has:
-     *   - "Simplified" variant (small sizes, used in bottom navbar)
-     *   - "Real" variant (large display, used here)
-     *   - Particle dots effect from Gold tier and above
-     *
-     * Implement the .badge-shape as an inline SVG or CSS clip-path.
-     * ──────────────────────────────────────────────────────────────────── -->
-
+    /* ── All badge scenarios demo ────────────────────────────────────────── */
+    .demos { display:flex; flex-direction:column; gap:24px; align-items:center; }
+    .demo-row { display:flex; align-items:center; gap:16px; }
+    .demo-lbl { font-family:'Nunito',sans-serif; font-size:11px; color:var(--text-sec); width:60px; text-align:right; }
   </style>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@800&display=swap" rel="stylesheet" />
 </head>
 <body>
 
-  <h2>Badge Display — Clan / Tournaments</h2>
+<span class="eyebrow">Component · Tournaments</span>
 
-  <!--
-    DEMO SCENARIO: User is currently in the Gold tier.
-    - Bronze and Silver are unlocked (previously participated).
-    - Gold is the active center badge.
-    - Sapphire+ are locked (greyed out, unknown).
-  -->
+<!-- MAIN DEMO: User is Gold (Bronze + Silver unlocked, Gold active, rest locked) -->
+<div class="strip-wrap">
+  <div class="strip">
 
-  <div class="badge-strip-wrapper">
-    <div class="badge-strip" id="badgeStrip">
-
-      <!-- UNLOCKED: Bronze (Shape 1) -->
-      <div class="badge side unlocked" data-tier="bronze">
-        <div class="badge-shape" style="background: var(--badge-bronze);">
-          <!-- TODO: Shape 1 SVG -->
-          BRZ
-        </div>
+    <!-- Bronze — unlocked, side -->
+    <div class="badge unlocked">
+      <div class="badge-icon">
+        <svg width="68" height="68" viewBox="0 0 68 68">
+          <!-- Shape 1: Shield (flat top, rounded bottom) -->
+          <path d="M8 8 L60 8 L60 44 Q60 62 34 62 Q8 62 8 44 Z" fill="var(--bronze)"/>
+          <path d="M8 8 L60 8 L60 44 Q60 62 34 62 Q8 62 8 44 Z" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
+          <path d="M8 8 L60 8 L60 44 Q60 62 34 62 Q8 62 8 44 Z" fill="url(#shine-bz)" opacity=".5"/>
+          <defs><linearGradient id="shine-bz" x1="0" y1="0" x2="1" y2="1"><stop stop-color="white" stop-opacity=".3"/><stop offset="0.55" stop-color="white" stop-opacity="0"/></linearGradient></defs>
+          <!-- Rank I -->
+          <text x="34" y="42" text-anchor="middle" font-family="'Fredoka One'" font-size="22" fill="rgba(52,46,55,.7)">I</text>
+        </svg>
       </div>
-
-      <!-- UNLOCKED: Silver (Shape 1) -->
-      <div class="badge side unlocked" data-tier="silver">
-        <div class="badge-shape" style="background: var(--badge-silver);">
-          <!-- TODO: Shape 1 SVG -->
-          SLV
-        </div>
-      </div>
-
-      <!-- ACTIVE CENTER: Gold (Shape 1) -->
-      <div class="badge center unlocked active" data-tier="gold">
-        <div class="badge-shape" style="background: var(--badge-gold);">
-          <!-- TODO: Shape 1 SVG + particle dots (Gold+ requirement) -->
-          GLD
-        </div>
-      </div>
-
-      <!-- LOCKED: Sapphire (Shape 2) -->
-      <div class="badge side locked" data-tier="sapphire">
-        <div class="badge-shape">
-          <!-- TODO: Locked icon from assets folder -->
-          🔒
-        </div>
-      </div>
-
-      <!-- LOCKED: Ruby (Shape 2) -->
-      <div class="badge side locked" data-tier="ruby">
-        <div class="badge-shape">
-          🔒
-        </div>
-      </div>
-
+      <span class="badge-lbl" style="color:var(--bronze)">Bronze</span>
     </div>
+
+    <!-- Silver — unlocked, side -->
+    <div class="badge unlocked">
+      <div class="badge-icon">
+        <svg width="68" height="68" viewBox="0 0 68 68">
+          <path d="M8 8 L60 8 L60 44 Q60 62 34 62 Q8 62 8 44 Z" fill="var(--silver)"/>
+          <path d="M8 8 L60 8 L60 44 Q60 62 34 62 Q8 62 8 44 Z" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.5"/>
+          <path d="M8 8 L60 8 L60 44 Q60 62 34 62 Q8 62 8 44 Z" fill="url(#shine-sv)" opacity=".5"/>
+          <defs><linearGradient id="shine-sv" x1="0" y1="0" x2="1" y2="1"><stop stop-color="white" stop-opacity=".4"/><stop offset="0.55" stop-color="white" stop-opacity="0"/></linearGradient></defs>
+          <text x="34" y="42" text-anchor="middle" font-family="'Fredoka One'" font-size="22" fill="rgba(52,46,55,.6)">II</text>
+        </svg>
+      </div>
+      <span class="badge-lbl" style="color:var(--silver)">Silver</span>
+    </div>
+
+    <!-- Gold — CENTER, active -->
+    <div class="badge current unlocked">
+      <div class="badge-icon">
+        <svg width="88" height="88" viewBox="0 0 88 88">
+          <path d="M10 10 L78 10 L78 57 Q78 80 44 80 Q10 80 10 57 Z" fill="var(--gold)"/>
+          <path d="M10 10 L78 10 L78 57 Q78 80 44 80 Q10 80 10 57 Z" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2"/>
+          <path d="M10 10 L78 10 L78 57 Q78 80 44 80 Q10 80 10 57 Z" fill="url(#shine-gd)" opacity=".6"/>
+          <defs><linearGradient id="shine-gd" x1="0" y1="0" x2="1" y2="1"><stop stop-color="white" stop-opacity=".45"/><stop offset="0.55" stop-color="white" stop-opacity="0"/></linearGradient></defs>
+          <!-- Particle dots -->
+          <circle cx="22" cy="22" r="2.5" fill="rgba(255,255,255,.5)"/>
+          <circle cx="66" cy="18" r="2" fill="rgba(255,255,255,.4)"/>
+          <circle cx="74" cy="36" r="1.8" fill="rgba(255,255,255,.35)"/>
+          <circle cx="14" cy="44" r="2" fill="rgba(255,255,255,.4)"/>
+          <text x="44" y="55" text-anchor="middle" font-family="'Fredoka One'" font-size="28" fill="rgba(52,46,55,.75)">III</text>
+        </svg>
+      </div>
+      <span class="badge-lbl" style="color:var(--gold)">Gold</span>
+    </div>
+
+    <!-- Sapphire — locked -->
+    <div class="badge locked">
+      <div class="badge-icon">
+        <svg width="68" height="68" viewBox="0 0 68 68">
+          <!-- Shape 2: Octagon -->
+          <path d="M22 6 L46 6 L62 22 L62 46 L46 62 L22 62 L6 46 L6 22 Z" fill="#4a4450"/>
+          <path d="M22 6 L46 6 L62 22 L62 46 L46 62 L22 62 L6 46 L6 22 Z" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1.5"/>
+          <text x="34" y="39" text-anchor="middle" font-size="18" fill="rgba(255,255,255,.2)">🔒</text>
+        </svg>
+      </div>
+      <span class="badge-lbl">???</span>
+    </div>
+
+    <!-- Ruby — locked -->
+    <div class="badge locked">
+      <div class="badge-icon">
+        <svg width="68" height="68" viewBox="0 0 68 68">
+          <path d="M22 6 L46 6 L62 22 L62 46 L46 62 L22 62 L6 46 L6 22 Z" fill="#4a4450"/>
+          <path d="M22 6 L46 6 L62 22 L62 46 L46 62 L22 62 L6 46 L6 22 Z" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1.5"/>
+          <text x="34" y="39" text-anchor="middle" font-size="18" fill="rgba(255,255,255,.2)">🔒</text>
+        </svg>
+      </div>
+      <span class="badge-lbl">???</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ALL TIER SHAPES reference (unlocked) -->
+<span class="sec-lbl">All Tier Shapes</span>
+<div class="demos">
+
+  <!-- Shape 1 tiers -->
+  <div class="demo-row">
+    <span class="demo-lbl" style="font-family:'Nunito',sans-serif;font-size:11px;color:var(--text-sec)">Shape 1</span>
+    <!-- Bronze -->
+    <svg width="48" height="48" viewBox="0 0 68 68"><path d="M8 8 L60 8 L60 44 Q60 62 34 62 Q8 62 8 44 Z" fill="var(--bronze)"/><text x="34" y="42" text-anchor="middle" font-family="'Fredoka One'" font-size="16" fill="rgba(52,46,55,.7)">I</text></svg>
+    <!-- Silver -->
+    <svg width="48" height="48" viewBox="0 0 68 68"><path d="M8 8 L60 8 L60 44 Q60 62 34 62 Q8 62 8 44 Z" fill="var(--silver)"/><text x="34" y="42" text-anchor="middle" font-family="'Fredoka One'" font-size="16" fill="rgba(52,46,55,.7)">II</text></svg>
+    <!-- Gold -->
+    <svg width="48" height="48" viewBox="0 0 68 68"><path d="M8 8 L60 8 L60 44 Q60 62 34 62 Q8 62 8 44 Z" fill="var(--gold)"/><circle cx="17" cy="17" r="2" fill="rgba(255,255,255,.5)"/><circle cx="51" cy="14" r="1.6" fill="rgba(255,255,255,.4)"/><text x="34" y="42" text-anchor="middle" font-family="'Fredoka One'" font-size="16" fill="rgba(52,46,55,.7)">III</text></svg>
   </div>
 
-  <!--
-    TODO items for you to implement:
-    1. Draw real SVG badge shapes for Shape 1, 2, 3, 4 (replace placeholder divs above)
-    2. Add particle dots effect to Gold, Sapphire, Ruby, Emerald, Amethyst, Pearl, Obsidian, Diamond
-    3. Add the locked grey badge icon from assets/ instead of the emoji placeholder
-    4. Adjust the strip to show all 10 tiers, centered on whichever is active
-    5. Confirm: does the fade wrapper approach below work, or should it be a CSS mask on the strip itself?
-  -->
+  <!-- Shape 2 tiers -->
+  <div class="demo-row">
+    <span class="demo-lbl" style="font-family:'Nunito',sans-serif;font-size:11px;color:var(--text-sec)">Shape 2</span>
+    <svg width="48" height="48" viewBox="0 0 68 68"><path d="M22 6 L46 6 L62 22 L62 46 L46 62 L22 62 L6 46 L6 22 Z" fill="var(--sapphire)"/><text x="34" y="38" text-anchor="middle" font-family="'Fredoka One'" font-size="12" fill="rgba(52,46,55,.7)">SAPH</text></svg>
+    <svg width="48" height="48" viewBox="0 0 68 68"><path d="M22 6 L46 6 L62 22 L62 46 L46 62 L22 62 L6 46 L6 22 Z" fill="var(--ruby)"/><text x="34" y="38" text-anchor="middle" font-family="'Fredoka One'" font-size="12" fill="rgba(255,255,255,.8)">RUBY</text></svg>
+    <svg width="48" height="48" viewBox="0 0 68 68"><path d="M22 6 L46 6 L62 22 L62 46 L46 62 L22 62 L6 46 L6 22 Z" fill="var(--emerald)"/><text x="34" y="38" text-anchor="middle" font-family="'Fredoka One'" font-size="11" fill="rgba(52,46,55,.7)">EMRD</text></svg>
+  </div>
+
+  <!-- Shape 3 tiers -->
+  <div class="demo-row">
+    <span class="demo-lbl" style="font-family:'Nunito',sans-serif;font-size:11px;color:var(--text-sec)">Shape 3</span>
+    <svg width="48" height="48" viewBox="0 0 68 68"><path d="M20 4 L48 4 L64 20 L64 48 L48 64 L20 64 L4 48 L4 20 Z" fill="var(--amethyst)"/><text x="34" y="38" text-anchor="middle" font-family="'Fredoka One'" font-size="11" fill="rgba(52,46,55,.7)">AMTH</text></svg>
+    <svg width="48" height="48" viewBox="0 0 68 68"><path d="M20 4 L48 4 L64 20 L64 48 L48 64 L20 64 L4 48 L4 20 Z" fill="var(--pearl)"/><text x="34" y="38" text-anchor="middle" font-family="'Fredoka One'" font-size="12" fill="rgba(52,46,55,.7)">PERL</text></svg>
+    <svg width="48" height="48" viewBox="0 0 68 68"><path d="M20 4 L48 4 L64 20 L64 48 L48 64 L20 64 L4 48 L4 20 Z" fill="var(--obsidian)"/><path d="M20 4 L48 4 L64 20 L64 48 L48 64 L20 64 L4 48 L4 20 Z" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="1.5"/><text x="34" y="38" text-anchor="middle" font-family="'Fredoka One'" font-size="11" fill="rgba(255,255,255,.6)">OBSD</text></svg>
+  </div>
+
+  <!-- Shape 4 tier -->
+  <div class="demo-row">
+    <span class="demo-lbl" style="font-family:'Nunito',sans-serif;font-size:11px;color:var(--text-sec)">Shape 4</span>
+    <svg width="48" height="68" viewBox="0 0 68 88">
+      <!-- Diamond/kite -->
+      <path d="M34 4 L64 38 L34 84 L4 38 Z" fill="var(--diamond)"/>
+      <path d="M34 4 L64 38 L34 84 L4 38 Z" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+      <!-- Sparkle lines -->
+      <line x1="34" y1="16" x2="34" y2="8"  stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="30" y1="20" x2="26" y2="16" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="38" y1="20" x2="42" y2="16" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      <text x="34" y="52" text-anchor="middle" font-family="'Fredoka One'" font-size="14" fill="rgba(52,46,55,.7)">DIAM</text>
+    </svg>
+  </div>
+
+</div>
 
 </body>
 </html>

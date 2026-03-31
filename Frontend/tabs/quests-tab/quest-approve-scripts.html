@@ -1,1 +1,490 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Approve Scripts Quest</title></head><body><!-- TODO: swipe-to-approve tinder-style cards, feedback form on reject, progress bar --></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Approve Scripts — Doubtonator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#342e37; --surface:#3e3842; --surface-2:#4a4450; --primary:#9fd356; --danger:#e63c3c; --text:#fafffd; --text-sec:#858287; --border:rgba(255,255,255,.08); }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body { background:#1e1a21; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 16px; font-family:'Fredoka One',sans-serif; color:var(--text); }
+    .phone { width:390px; height:844px; background:var(--bg); border-radius:44px; overflow:hidden; border:1px solid rgba(255,255,255,.08); box-shadow:0 32px 80px rgba(0,0,0,.6); display:flex; flex-direction:column; position:relative; }
+
+    /* Header */
+    .hdr { padding:20px 24px 0; display:flex; align-items:center; justify-content:flex-start; flex-shrink:0; }
+    .close-btn { width:36px; height:36px; border-radius:12px; background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px; color:var(--text-sec); transition:background .15s; }
+    .close-btn:hover { background:var(--surface-2); }
+
+    /* Title */
+    .screen-title { padding:20px 24px 8px; font-size:22px; flex-shrink:0; }
+    .screen-sub { padding:0 24px 16px; font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-sec); flex-shrink:0; }
+
+    /* Card stack area */
+    .stack-area { flex:1; position:relative; overflow:hidden; }
+    .card-wrap { position:absolute; inset:16px 24px 0; }
+
+    /* Individual swipe card */
+    .scard {
+      position:absolute; inset:0;
+      background:var(--surface); border-radius:24px;
+      border:1px solid var(--border);
+      display:flex; flex-direction:column;
+      cursor:grab; user-select:none;
+      touch-action:none;
+      transition:box-shadow .2s;
+      will-change:transform;
+    }
+    .scard:active { cursor:grabbing; }
+
+    /* Card stacking visual — back cards slightly scaled down */
+    .scard:nth-child(2) { transform:scale(.97) translateY(10px); z-index:1; }
+    .scard:nth-child(3) { transform:scale(.94) translateY(20px); z-index:0; }
+    .scard:nth-child(n+4) { transform:scale(.91) translateY(30px); z-index:-1; opacity:.4; }
+    .scard:first-child { z-index:10; box-shadow:0 8px 32px rgba(0,0,0,.4); }
+
+    /* Card header */
+    .scard-hdr { padding:20px 20px 12px; border-bottom:1px solid var(--border); flex-shrink:0; }
+    .scard-tag { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+    .scard-badge { font-family:'Nunito',sans-serif; font-weight:800; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; padding:3px 10px; border-radius:20px; }
+    .badge-tofu { background:rgba(60,145,230,.18); color:#3c91e6; }
+    .badge-mofu { background:rgba(159,211,86,.15); color:var(--primary); }
+    .badge-bofu { background:rgba(255,150,0,.15); color:#ff9600; }
+    .scard-day { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; letter-spacing:1px; color:var(--text-sec); }
+    .scard-title { font-size:18px; line-height:1.2; }
+
+    /* Card body — scrollable script */
+    .scard-body { flex:1; overflow:hidden; position:relative; padding:0 20px; }
+    .scard-scroll { height:100%; overflow-y:auto; padding:14px 0 60px; }
+    .scard-scroll::-webkit-scrollbar { display:none; }
+
+    /* Markdown-like text */
+    .md-p { font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-sec); line-height:1.7; margin-bottom:10px; }
+    .md-strong { color:var(--text); font-weight:700; }
+    .md-li { font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-sec); line-height:1.7; margin-bottom:6px; padding-left:16px; position:relative; }
+    .md-li::before { content:'•'; position:absolute; left:4px; color:var(--text-sec); }
+
+    /* Fade overlay at bottom of card body */
+    .scard-fade { position:absolute; bottom:0; left:0; right:0; height:70px; background:linear-gradient(to bottom,transparent,var(--surface)); pointer-events:none; border-radius:0 0 24px 24px; }
+
+    /* Approve / Reject indicators */
+    .scard-indicator { position:absolute; top:24px; padding:8px 16px; border-radius:12px; display:flex; align-items:center; gap:8px; font-family:'Nunito',sans-serif; font-weight:800; font-size:14px; letter-spacing:1.5px; text-transform:uppercase; opacity:0; pointer-events:none; transition:opacity .05s; z-index:20; }
+    .ind-approve { right:16px; background:rgba(159,211,86,.2); border:2px solid var(--primary); color:var(--primary); }
+    .ind-reject  { left:16px;  background:rgba(230,60,60,.2);  border:2px solid var(--danger);  color:var(--danger); }
+
+    /* Bottom progress bar */
+    .bottom-bar { flex-shrink:0; padding:16px 24px 32px; display:flex; flex-direction:column; gap:8px; }
+    .prog-row { display:flex; align-items:center; justify-content:space-between; }
+    .prog-lbl { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; letter-spacing:1px; color:var(--text-sec); text-transform:uppercase; }
+    .prog-count { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; color:var(--text); }
+    .prog-track { height:6px; background:var(--surface-2); border-radius:3px; overflow:hidden; }
+    .prog-fill  { height:100%; background:linear-gradient(90deg,var(--primary),#b2dc78); border-radius:3px; transition:width .4s cubic-bezier(.22,1,.36,1); }
+
+    /* Feedback overlay */
+    .overlay { position:absolute; inset:0; background:rgba(20,18,22,.9); display:flex; align-items:flex-end; padding:20px; opacity:0; pointer-events:none; transition:opacity .25s; z-index:50; }
+    .overlay.show { opacity:1; pointer-events:all; }
+    .fb-panel { background:var(--surface); border-radius:28px; padding:24px; width:100%; display:flex; flex-direction:column; gap:14px; border:1px solid var(--border); }
+    .fb-eyebrow { font-family:'Nunito',sans-serif; font-weight:800; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--danger); opacity:.7; }
+    .fb-title { font-size:20px; line-height:1.2; }
+    .fb-sub { font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-sec); line-height:1.5; font-style:italic; }
+    .fb-textarea { background:var(--surface-2); border:1px solid var(--border); border-radius:14px; padding:14px; color:var(--text); font-family:'Nunito',sans-serif; font-size:13px; line-height:1.6; resize:none; outline:none; min-height:80px; width:100%; }
+    .fb-textarea::placeholder { color:var(--text-sec); opacity:.5; }
+    .fb-textarea:focus { border-color:rgba(230,60,60,.4); }
+    .fb-btn { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; letter-spacing:1.5px; text-transform:uppercase; background:var(--danger); color:#fff; border:none; border-radius:14px; padding:14px; cursor:pointer; transition:opacity .15s; }
+    .fb-btn:hover { opacity:.9; }
+    .fb-cancel { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; letter-spacing:1px; text-transform:uppercase; background:transparent; color:var(--text-sec); border:none; cursor:pointer; padding:6px; }
+
+    /* Done overlay */
+    .done-overlay { position:absolute; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:20px; padding:32px; opacity:0; pointer-events:none; transition:opacity .4s; z-index:60; }
+    .done-overlay.show { opacity:1; pointer-events:all; }
+    .done-icon { width:80px; height:80px; border-radius:28px; background:rgba(159,211,86,.15); display:flex; align-items:center; justify-content:center; }
+    .done-title { font-size:26px; text-align:center; }
+    .done-sub { font-family:'Nunito',sans-serif; font-size:14px; color:var(--text-sec); line-height:1.5; text-align:center; }
+    .done-btn { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; letter-spacing:2px; text-transform:uppercase; background:var(--primary); color:#342e37; border:none; border-radius:16px; padding:16px 40px; cursor:pointer; }
+
+    /* Cancel overlay */
+    .cancel-overlay { position:absolute; inset:0; background:rgba(20,18,22,.85); display:flex; align-items:center; justify-content:center; padding:32px; opacity:0; pointer-events:none; transition:opacity .2s; z-index:70; }
+    .cancel-overlay.show { opacity:1; pointer-events:all; }
+    .cancel-popup { background:var(--surface); border-radius:28px; padding:32px 24px; width:100%; display:flex; flex-direction:column; gap:16px; text-align:center; border:1px solid var(--border); }
+    .cp-title { font-size:20px; }
+    .cp-sub { font-family:'Nunito',sans-serif; font-size:14px; color:var(--text-sec); line-height:1.5; }
+    .cp-btns { display:flex; flex-direction:column; gap:8px; }
+    .cp-btn { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; padding:14px; border-radius:14px; border:none; cursor:pointer; }
+    .cp-back { background:var(--primary); color:#342e37; }
+    .cp-quit { background:rgba(230,60,60,.15); color:var(--danger); border:1px solid rgba(230,60,60,.2); }
+  </style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- Header -->
+  <div class="hdr">
+    <div class="close-btn" onclick="document.getElementById('cancelOverlay').classList.add('show')">✕</div>
+  </div>
+
+  <div class="screen-title">Approve Scripts</div>
+  <div class="screen-sub">Swipe right to approve · Swipe left to reject</div>
+
+  <!-- Card stack -->
+  <div class="stack-area">
+    <div class="card-wrap" id="cardWrap">
+      <!-- Cards injected via JS (safe DOM only) -->
+    </div>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="bottom-bar">
+    <div class="prog-row">
+      <span class="prog-lbl">Scripts Left</span>
+      <span class="prog-count" id="progCount">1 / 7</span>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- Feedback overlay (shown on reject) -->
+  <div class="overlay" id="fbOverlay">
+    <div class="fb-panel">
+      <span class="fb-eyebrow">Rejected</span>
+      <span class="fb-title">What needs fixing?</span>
+      <p class="fb-sub">"Please respond honestly! What's the point of completing this quest if you send us gibberish, brota? Come on."</p>
+      <textarea class="fb-textarea" id="fbText" placeholder="Tell us what's wrong and what to say instead…" rows="3"></textarea>
+      <button class="fb-btn" onclick="submitFeedback()">SUBMIT FEEDBACK</button>
+      <button class="fb-cancel" onclick="cancelFeedback()">Go back (undo reject)</button>
+    </div>
+  </div>
+
+  <!-- Done overlay -->
+  <div class="done-overlay" id="doneOverlay">
+    <div class="done-icon">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+        <path d="M5 13l4 4L19 7" stroke="#9fd356" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <span class="done-title">All Done!</span>
+    <p class="done-sub">You reviewed all 7 scripts. Time to collect your reward.</p>
+    <button class="done-btn" onclick="showRewards()">CLAIM REWARDS</button>
+  </div>
+
+  <!-- Cancel overlay -->
+  <div class="cancel-overlay" id="cancelOverlay">
+    <div class="cancel-popup">
+      <span class="cp-title">Leave this quest?</span>
+      <p class="cp-sub">Your progress won't be saved and you won't earn your XP or sparks.</p>
+      <div class="cp-btns">
+        <button class="cp-btn cp-back" onclick="document.getElementById('cancelOverlay').classList.remove('show')">BACK TO TASK</button>
+        <button class="cp-btn cp-quit" onclick="document.getElementById('cancelOverlay').classList.remove('show')">GIVE TASK UP</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Script data (hardcoded demo content) ─────────────────────────────────────
+const SCRIPTS = [
+  {
+    title: "Why You're Still Broke as a Coach",
+    day: 'Wednesday',
+    funnel: 'TOFU',
+    funnelClass: 'badge-tofu',
+    sections: [
+      { label: 'Hook', text: '"If you\'ve been coaching for more than a year and you\'re still not hitting $5k months consistently — this video is for you."' },
+      { label: 'Problem', text: 'Most coaches are stuck in a cycle of showing up, posting content, and hoping. They\'re treating social media like a slot machine instead of a system.' },
+      { label: 'Point 1', text: 'You\'re selling to the wrong awareness level. Your content speaks to people who already know they need a coach — that\'s less than 5% of your audience.' },
+      { label: 'Point 2', text: 'You have no content funnel. Every video is a standalone piece with no intentional journey from curious to convinced.' },
+      { label: 'CTA', text: '"Link in bio — grab my free Content Funnel Blueprint."' }
+    ]
+  },
+  {
+    title: '3 Reasons Clients Ghost You After Discovery',
+    day: 'Thursday',
+    funnel: 'MOFU',
+    funnelClass: 'badge-mofu',
+    sections: [
+      { label: 'Hook', text: '"You had a great discovery call. They said they\'d think about it. And then… silence. Here\'s exactly what went wrong."' },
+      { label: 'Reason 1', text: 'You pitched the program before they felt fully understood. People don\'t buy coaching, they buy the feeling of being seen.' },
+      { label: 'Reason 2', text: 'Your follow-up was too salesy. One email with a Calendly link isn\'t a follow-up — it\'s a push.' },
+      { label: 'Reason 3', text: 'You talked about transformation but never helped them feel the pain of staying stuck. No urgency, no decision.' }
+    ]
+  },
+  {
+    title: 'The $0 to $10k Coaching Roadmap',
+    day: 'Friday',
+    funnel: 'TOFU',
+    funnelClass: 'badge-tofu',
+    sections: [
+      { label: 'Hook', text: '"I went from zero to $10k/month in 4 months. No ads. No huge following. Just this exact sequence."' },
+      { label: 'Step 1', text: 'Pick one niche and one transformation. Not "I help people live their best life." Try: "I help ex-corporate moms hit 10k/month doing what they love."' },
+      { label: 'Step 2', text: 'Create TOFU content daily around the symptoms of the problem your niche has — not the solution you sell.' },
+      { label: 'Step 3', text: 'DM every engaged follower personally. Not "Hey, just checking in!" but a genuine question about their situation.' }
+    ]
+  },
+  {
+    title: 'Stop Charging by the Hour',
+    day: 'Monday',
+    funnel: 'MOFU',
+    funnelClass: 'badge-mofu',
+    sections: [
+      { label: 'Hook', text: '"If you\'re still charging $100/hour for coaching sessions, this video will completely change how you think about your pricing."' },
+      { label: 'Core idea', text: 'Hourly pricing caps your income and signals low value. You\'re not selling time — you\'re selling transformation.' },
+      { label: 'Framework', text: 'Package your offer around a specific outcome over a specific timeframe. "90 days to your first 5 clients" beats "10 x 1-hour sessions."' }
+    ]
+  },
+  {
+    title: 'How I Get 30 Leads From One Video',
+    day: 'Tuesday',
+    funnel: 'TOFU',
+    funnelClass: 'badge-tofu',
+    sections: [
+      { label: 'Hook', text: '"One video. 30 qualified leads in my DMs. Here\'s the exact framework."' },
+      { label: 'Key 1', text: 'The video speaks to a symptom so specific that only your ideal client watches past 3 seconds.' },
+      { label: 'Key 2', text: 'Mid-video: "If this sounds like you, I made something free — link in bio." That\'s it. No hard sell.' },
+      { label: 'Key 3', text: 'The free resource collects email + answers 2 qualifying questions. You only DM people who say yes to both.' }
+    ]
+  },
+  {
+    title: 'Why Your Testimonials Aren\'t Converting',
+    day: 'Wednesday',
+    funnel: 'BOFU',
+    funnelClass: 'badge-bofu',
+    sections: [
+      { label: 'Hook', text: '"You have great client results. So why isn\'t anyone buying? The problem isn\'t your results — it\'s how you\'re showing them."' },
+      { label: 'Mistake 1', text: 'Your testimonials are about feelings, not numbers. "Amazing experience!" doesn\'t move people. "Went from 2 to 12 clients in 6 weeks" does.' },
+      { label: 'Mistake 2', text: 'You\'re showing them to cold audiences who don\'t trust you yet. Testimonials are BOFU content — they belong at the end of the funnel.' }
+    ]
+  },
+  {
+    title: 'The Content Mistake Killing Your Reach',
+    day: 'Thursday',
+    funnel: 'TOFU',
+    funnelClass: 'badge-tofu',
+    sections: [
+      { label: 'Hook', text: '"Your content isn\'t bad. But one structural mistake is making the algorithm bury it every single time."' },
+      { label: 'The mistake', text: 'You\'re burying the hook. The first line should make someone stop scrolling — not set up context, not introduce yourself.' },
+      { label: 'Fix', text: 'Lead with the most surprising or painful thing first. Context comes after. Watch your reach double within a week.' }
+    ]
+  }
+];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let currentIndex = 0;     // which card is on top
+let pendingReject = false; // waiting for feedback before removing
+
+// ── Build cards via safe DOM ──────────────────────────────────────────────────
+function buildCards() {
+  const wrap = document.getElementById('cardWrap');
+  wrap.textContent = ''; // clear safely
+
+  // Render from last to first so first card is on top (z-index handles it)
+  for (let i = SCRIPTS.length - 1; i >= currentIndex; i--) {
+    const card = createCard(SCRIPTS[i], i);
+    wrap.appendChild(card);
+  }
+  updateProgress();
+  attachDrag(wrap.lastElementChild); // top card is last appended (first in data)
+}
+
+function createCard(data, idx) {
+  const card = document.createElement('div');
+  card.className = 'scard';
+  card.dataset.idx = idx;
+
+  // Header
+  const hdr = document.createElement('div');
+  hdr.className = 'scard-hdr';
+
+  const tagRow = document.createElement('div');
+  tagRow.className = 'scard-tag';
+
+  const badge = document.createElement('span');
+  badge.className = 'scard-badge ' + data.funnelClass;
+  badge.textContent = data.funnel;
+
+  const day = document.createElement('span');
+  day.className = 'scard-day';
+  day.textContent = data.day;
+
+  tagRow.appendChild(badge);
+  tagRow.appendChild(day);
+
+  const title = document.createElement('div');
+  title.className = 'scard-title';
+  title.textContent = data.title;
+
+  hdr.appendChild(tagRow);
+  hdr.appendChild(title);
+
+  // Body
+  const body = document.createElement('div');
+  body.className = 'scard-body';
+
+  const scroll = document.createElement('div');
+  scroll.className = 'scard-scroll';
+
+  data.sections.forEach(sec => {
+    const p = document.createElement('p');
+    p.className = 'md-p';
+
+    const strong = document.createElement('strong');
+    strong.className = 'md-strong';
+    strong.textContent = sec.label + ': ';
+
+    p.appendChild(strong);
+    p.appendChild(document.createTextNode(sec.text));
+    scroll.appendChild(p);
+  });
+
+  const fade = document.createElement('div');
+  fade.className = 'scard-fade';
+
+  body.appendChild(scroll);
+  body.appendChild(fade);
+
+  // Approve / Reject indicators
+  const indApprove = document.createElement('div');
+  indApprove.className = 'scard-indicator ind-approve';
+  indApprove.textContent = 'Approve ›';
+
+  const indReject = document.createElement('div');
+  indReject.className = 'scard-indicator ind-reject';
+  indReject.textContent = '‹ Reject';
+
+  card.appendChild(hdr);
+  card.appendChild(body);
+  card.appendChild(indApprove);
+  card.appendChild(indReject);
+
+  return card;
+}
+
+// ── Drag / swipe logic ────────────────────────────────────────────────────────
+function attachDrag(card) {
+  if (!card) return;
+  let startX = 0, startY = 0, dx = 0;
+  let dragging = false;
+
+  function onDown(e) {
+    dragging = true;
+    startX = e.touches ? e.touches[0].clientX : e.clientX;
+    startY = e.touches ? e.touches[0].clientY : e.clientY;
+    card.style.transition = 'none';
+    e.preventDefault();
+  }
+
+  function onMove(e) {
+    if (!dragging) return;
+    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+    dx = cx - startX;
+    const dy = (e.touches ? e.touches[0].clientY : e.clientY) - startY;
+    const rotate = dx * 0.08;
+    card.style.transform = `translateX(${dx}px) translateY(${dy * 0.3}px) rotate(${rotate}deg)`;
+
+    const ratio = Math.min(1, Math.abs(dx) / 80);
+    const indApprove = card.querySelector('.ind-approve');
+    const indReject  = card.querySelector('.ind-reject');
+    indApprove.style.opacity = dx > 20  ? ratio : 0;
+    indReject.style.opacity  = dx < -20 ? ratio : 0;
+  }
+
+  function onUp() {
+    if (!dragging) return;
+    dragging = false;
+    card.style.transition = 'transform .4s cubic-bezier(.22,1,.36,1)';
+
+    if (dx > 80) {
+      flyOut(card, 'right');
+    } else if (dx < -80) {
+      flyOut(card, 'left');
+    } else {
+      card.style.transform = '';
+      card.querySelector('.ind-approve').style.opacity = 0;
+      card.querySelector('.ind-reject').style.opacity  = 0;
+    }
+  }
+
+  card.addEventListener('pointerdown', onDown, { passive: false });
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup', onUp);
+  card.addEventListener('touchstart', onDown, { passive: false });
+  window.addEventListener('touchmove', onMove);
+  window.addEventListener('touchend', onUp);
+}
+
+function flyOut(card, direction) {
+  const xTarget = direction === 'right' ? 600 : -600;
+  card.style.transition = 'transform .4s cubic-bezier(.4,0,1,1), opacity .4s';
+  card.style.transform = `translateX(${xTarget}px) rotate(${direction === 'right' ? 25 : -25}deg)`;
+  card.style.opacity = '0';
+
+  setTimeout(() => {
+    card.remove();
+    currentIndex++;
+
+    if (direction === 'left') {
+      pendingReject = true;
+      document.getElementById('fbOverlay').classList.add('show');
+      document.getElementById('fbText').value = '';
+    } else {
+      advanceAfterApprove();
+    }
+  }, 380);
+}
+
+function advanceAfterApprove() {
+  updateProgress();
+  if (currentIndex >= SCRIPTS.length) {
+    setTimeout(() => document.getElementById('doneOverlay').classList.add('show'), 200);
+    return;
+  }
+  const topCard = document.getElementById('cardWrap').lastElementChild;
+  if (topCard) {
+    // Animate remaining cards into position
+    topCard.style.transition = 'transform .35s cubic-bezier(.22,1,.36,1)';
+    topCard.style.transform = '';
+    attachDrag(topCard);
+  }
+}
+
+// ── Feedback ──────────────────────────────────────────────────────────────────
+function submitFeedback() {
+  const text = document.getElementById('fbText').value.trim();
+  if (!text) {
+    document.getElementById('fbText').style.borderColor = 'rgba(230,60,60,.6)';
+    return;
+  }
+  document.getElementById('fbText').style.borderColor = '';
+  document.getElementById('fbOverlay').classList.remove('show');
+  pendingReject = false;
+  advanceAfterApprove();
+}
+
+function cancelFeedback() {
+  document.getElementById('fbOverlay').classList.remove('show');
+  pendingReject = false;
+  // Put the rejected card back by rebuilding from current index (undo)
+  currentIndex--;
+  buildCards();
+}
+
+// ── Progress ──────────────────────────────────────────────────────────────────
+function updateProgress() {
+  const done = currentIndex;
+  const total = SCRIPTS.length;
+  const pct = (done / total) * 100;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progCount').textContent = (done + 1 > total ? total : done + 1) + ' / ' + total;
+}
+
+// ── Rewards ───────────────────────────────────────────────────────────────────
+function showRewards() {
+  document.getElementById('doneOverlay').classList.remove('show');
+  // In production: trigger the quest-rewards-popup
+  alert('Quest complete! +14 XP, +14 Sparks');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+buildCards();
+</script>
+</body>
+</html>

@@ -1,1 +1,161 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Quest Board</title></head><body><!-- TODO: quest board — ordered card list, heading/description/button structure --></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Quest Board — Doubtonator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#342e37; --surface:#3e3842; --surface-2:#4a4450; --primary:#9fd356; --info:#3c91e6; --warning:#ff9600; --text:#fafffd; --text-sec:#858287; --border:rgba(255,255,255,.08); }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body { background:#1e1a21; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 16px; font-family:'Fredoka One',sans-serif; color:var(--text); }
+    /* Phone frame */
+    .phone { width:390px; min-height:844px; background:var(--bg); border-radius:44px; overflow:hidden; border:1px solid rgba(255,255,255,.08); box-shadow:0 32px 80px rgba(0,0,0,.6); display:flex; flex-direction:column; }
+    /* Top nav */
+    .top-nav { padding:20px 24px 12px; display:flex; align-items:center; justify-content:space-between; }
+    .top-nav-title { font-size:22px; }
+    .top-nav-filter { width:36px; height:36px; border-radius:12px; background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+    /* XP bar */
+    .xp-section { padding:0 24px 16px; }
+    .xp-wrap { background:var(--surface); border-radius:16px; padding:12px 16px 10px; display:flex; flex-direction:column; gap:7px; }
+    .xp-row  { display:flex; align-items:center; justify-content:space-between; }
+    .lv { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--primary); background:rgba(159,211,86,.12); padding:2px 9px; border-radius:20px; }
+    .xp-txt { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; color:var(--text-sec); }
+    .xp-txt b { color:var(--text); }
+    .track { height:7px; background:var(--surface-2); border-radius:4px; overflow:hidden; }
+    .fill  { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--primary),#b2dc78); transition:width 1s cubic-bezier(.22,1,.36,1); }
+    /* Section label */
+    .section-lbl { font-family:'Nunito',sans-serif; font-weight:800; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--text-sec); opacity:.5; padding:0 24px 10px; }
+    /* Quest cards */
+    .quests { padding:0 16px; display:flex; flex-direction:column; gap:12px; flex:1; padding-bottom:24px; }
+    .quest-card { background:var(--surface); border-radius:20px; padding:20px; display:flex; flex-direction:column; gap:12px; cursor:pointer; transition:background .15s, transform .12s; border:1px solid var(--border); }
+    .quest-card:hover { background:var(--surface-2); }
+    .quest-card:active { transform:scale(.98); }
+    .card-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+    .card-badge { width:42px; height:42px; border-radius:14px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .card-title { font-size:18px; line-height:1.2; flex:1; }
+    .card-desc  { font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-sec); line-height:1.5; }
+    /* Button row */
+    .btn-row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .accept-btn { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; background:var(--primary); color:#342e37; padding:11px 20px; border-radius:12px; border:none; cursor:pointer; transition:opacity .15s; flex:1; }
+    .accept-btn.film { background:var(--info); color:#fff; }
+    .accept-btn:hover { opacity:.9; }
+    .time-chip { display:flex; align-items:center; gap:5px; font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; color:var(--text-sec); white-space:nowrap; }
+    /* toast */
+    .toast { position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--surface-2); border:1px solid var(--border); border-radius:14px; padding:10px 20px; font-family:'Nunito',sans-serif; font-size:13px; font-weight:600; white-space:nowrap; opacity:0; transition:opacity .25s, transform .25s; pointer-events:none; }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- Top nav -->
+  <div class="top-nav">
+    <span class="top-nav-title">Quests</span>
+    <div class="top-nav-filter">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M4 6h16M7 12h10M10 18h4" stroke="#858287" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- XP bar -->
+  <div class="xp-section">
+    <div class="xp-wrap">
+      <div class="xp-row">
+        <span class="lv">LV 12</span>
+        <span class="xp-txt"><b>3,240</b> / <b>4,000</b> XP</span>
+      </div>
+      <div class="track"><div class="fill" id="xpFill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="section-lbl">Today's Quests</div>
+
+  <!-- Quest cards (sorted: most important first) -->
+  <div class="quests">
+
+    <!-- 1. Record a Video — highest priority -->
+    <div class="quest-card" onclick="go('Record Videos')">
+      <div class="card-head">
+        <div class="card-badge" style="background:rgba(60,145,230,.18)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="6" width="14" height="12" rx="3" stroke="#3c91e6" stroke-width="1.8"/>
+            <path d="M16 10l5-3v10l-5-3V10z" stroke="#3c91e6" stroke-width="1.8" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="card-title">Record a Video</span>
+      </div>
+      <p class="card-desc">Your AI has a script ready and waiting. Film your video this week to keep your content pipeline moving.</p>
+      <div class="btn-row">
+        <button class="accept-btn film">FILM</button>
+        <div class="time-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#858287" stroke-width="1.6"/><path d="M12 7v5l3 3" stroke="#858287" stroke-width="1.6" stroke-linecap="round"/></svg>
+          15 min
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Approve Scripts -->
+    <div class="quest-card" onclick="go('Approve Scripts')">
+      <div class="card-head">
+        <div class="card-badge" style="background:rgba(159,211,86,.15)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M9 12l2 2 4-4" stroke="#9fd356" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="3" y="3" width="18" height="18" rx="4" stroke="#9fd356" stroke-width="1.8"/>
+          </svg>
+        </div>
+        <span class="card-title">Approve Scripts</span>
+      </div>
+      <p class="card-desc">7 new AI-generated scripts are waiting for your review. Swipe through and approve or reject each one.</p>
+      <div class="btn-row">
+        <button class="accept-btn">ACCEPT QUEST</button>
+        <div class="time-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#858287" stroke-width="1.6"/><path d="M12 7v5l3 3" stroke="#858287" stroke-width="1.6" stroke-linecap="round"/></svg>
+          10 min
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Help Us Out -->
+    <div class="quest-card" onclick="go('Answer Questions')">
+      <div class="card-head">
+        <div class="card-badge" style="background:rgba(255,150,0,.15)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="#ff9600" stroke-width="1.8"/>
+            <path d="M12 8a2.5 2.5 0 011 4.8V14" stroke="#ff9600" stroke-width="1.8" stroke-linecap="round"/>
+            <circle cx="12" cy="17" r="1" fill="#ff9600"/>
+          </svg>
+        </div>
+        <span class="card-title">Help Us Out</span>
+      </div>
+      <p class="card-desc">Answer 5 short questions to help us improve the app. Voice answers are welcome — the more detail, the more sparks.</p>
+      <div class="btn-row">
+        <button class="accept-btn" style="background:rgba(255,150,0,.2);color:#ff9600">ACCEPT QUEST</button>
+        <div class="time-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#858287" stroke-width="1.6"/><path d="M12 7v5l3 3" stroke="#858287" stroke-width="1.6" stroke-linecap="round"/></svg>
+          5 min
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  document.getElementById('xpFill').style.width='0%';
+  setTimeout(()=>document.getElementById('xpFill').style.width='81%',100);
+
+  function go(name){
+    const t=document.getElementById('toast');
+    t.textContent='Opening: '+name+' quest…';
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),2000);
+  }
+</script>
+</body>
+</html>

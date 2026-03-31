@@ -1,1 +1,338 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Home Canvas</title></head><body><!-- TODO: canvas with dot-grid, nodes, spline links --></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Home Canvas — Doubtonator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#342e37; --surface:#3e3842; --primary:#9fd356; --warning:#ff9600; --text:#fafffd; --text-sec:#858287; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body { background:#1e1a21; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 16px; font-family:'Fredoka One',sans-serif; color:var(--text); }
+    .phone { width:390px; height:844px; background:#f5f2f7; border-radius:44px; overflow:hidden; border:1px solid rgba(255,255,255,.08); box-shadow:0 32px 80px rgba(0,0,0,.6); display:flex; flex-direction:column; position:relative; }
+
+    /* Navbar — dark, gradient fade into canvas */
+    .navbar {
+      position:absolute; top:0; left:0; right:0; z-index:20;
+      padding:20px 24px 32px;
+      background:linear-gradient(to bottom, var(--bg) 55%, rgba(52,46,55,0) 100%);
+      display:flex; align-items:center; justify-content:space-between;
+      pointer-events:none;
+    }
+    .navbar > * { pointer-events:all; }
+
+    /* Settings gear */
+    .nav-gear { width:36px; height:36px; border-radius:12px; background:rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background .15s; }
+    .nav-gear:hover { background:rgba(255,255,255,.14); }
+
+    /* Streak + Sparks chips */
+    .nav-right { display:flex; align-items:center; gap:10px; }
+    .nav-chip { display:flex; align-items:center; gap:6px; background:rgba(255,255,255,.1); border-radius:20px; padding:6px 12px; cursor:pointer; transition:background .15s; backdrop-filter:blur(4px); }
+    .nav-chip:hover { background:rgba(255,255,255,.16); }
+    .nav-chip-val { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; color:var(--text); }
+
+    /* Canvas fills full phone */
+    #cvs { position:absolute; inset:0; width:390px; height:844px; touch-action:none; }
+
+    /* Toast */
+    .toast { position:absolute; bottom:100px; left:50%; transform:translateX(-50%) translateY(10px); background:#3e3842; color:#fafffd; font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; padding:10px 20px; border-radius:12px; border:1px solid rgba(255,255,255,.1); white-space:nowrap; opacity:0; transition:opacity .25s, transform .25s; pointer-events:none; z-index:30; }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+<div class="phone">
+  <canvas id="cvs" width="390" height="844"></canvas>
+
+  <!-- Navbar overlay -->
+  <div class="navbar">
+    <div class="nav-gear" onclick="toast('Settings')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="#fafffd" stroke-width="1.8"/>
+        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="#fafffd" stroke-width="1.8"/>
+      </svg>
+    </div>
+    <div class="nav-right">
+      <!-- Streak -->
+      <div class="nav-chip" onclick="toast('Streak: 18 days')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2C8 7 6 10 6 14a6 6 0 0012 0c0-2-.8-4-2-6-1 2-2 3-4 3 0-3 1-6 3-9z" fill="#ff9600"/>
+        </svg>
+        <span class="nav-chip-val" style="color:#ff9600">18</span>
+      </div>
+      <!-- Sparks -->
+      <div class="nav-chip" onclick="toast('Rewards Store')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2l2.5 6H21l-5.5 4 2 6.5L12 15l-5.5 3.5 2-6.5L3 8h6.5L12 2z" fill="#9fd356"/>
+        </svg>
+        <span class="nav-chip-val" style="color:#9fd356">248</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+const canvas = document.getElementById('cvs');
+const ctx = canvas.getContext('2d');
+const W = 390, H = 844;
+
+// ── Canvas config ─────────────────────────────────────────────────────────────
+const GRID_STEP    = 22;
+const DOT_RADIUS   = 1.8;
+const BASE_OPACITY = 0.05;
+const MAX_OPACITY  = 0.38;
+const INFLUENCE_R  = 110;  // px — heat map influence radius per node
+
+// ── Node data ────────────────────────────────────────────────────────────────
+const nodes = [
+  { id:0, type:'agent',    label:'Doubtonator AI',   x:195, y:360, color:'#3c91e6', sub:'Core orchestrator' },
+  { id:1, type:'agent',    label:'Script Generator', x:295, y:240, color:'#9fd356', sub:'Content creation' },
+  { id:2, type:'agent',    label:'Video Analyzer',   x:100, y:490, color:'#b06cff', sub:'Recording review' },
+  { id:3, type:'database', label:'Content DB',       x:305, y:490, color:'#9fd356', sub:'12 tables · 4.2k rows' },
+  { id:4, type:'database', label:'Audience Data',    x:90,  y:230, color:'#ff9600', sub:'8 tables · 1.1k rows' },
+];
+
+// ── Connections (from, to) ────────────────────────────────────────────────────
+const edges = [
+  { from:4, to:0 },
+  { from:0, to:1 },
+  { from:0, to:2 },
+  { from:1, to:3 },
+];
+
+// ── Node geometry ────────────────────────────────────────────────────────────
+const NODE_R = 28; // radius for agent circles; half-size for db rects
+
+// ── Drag state ───────────────────────────────────────────────────────────────
+let dragging = null, dragOffX = 0, dragOffY = 0;
+
+// ── Hit testing ──────────────────────────────────────────────────────────────
+function hitNode(x, y) {
+  for (const n of nodes) {
+    const dx = x - n.x, dy = y - n.y;
+    if (Math.sqrt(dx*dx + dy*dy) < NODE_R + 8) return n;
+  }
+  return null;
+}
+
+// ── Draw ─────────────────────────────────────────────────────────────────────
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = '#f5f2f7';
+  ctx.fillRect(0, 0, W, H);
+
+  // Dot grid with heat map
+  for (let gx = GRID_STEP/2; gx < W; gx += GRID_STEP) {
+    for (let gy = GRID_STEP/2; gy < H; gy += GRID_STEP) {
+      let influence = 0;
+      for (const n of nodes) {
+        const dist = Math.sqrt((gx - n.x)**2 + (gy - n.y)**2);
+        if (dist < INFLUENCE_R) {
+          const t = 1 - dist / INFLUENCE_R;
+          influence = Math.max(influence, t * t * t); // exponential falloff
+        }
+      }
+      const opacity = BASE_OPACITY + influence * (MAX_OPACITY - BASE_OPACITY);
+      ctx.fillStyle = `rgba(52,46,55,${opacity.toFixed(3)})`;
+      ctx.beginPath();
+      ctx.arc(gx, gy, DOT_RADIUS, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Edges (spline bezier)
+  for (const e of edges) {
+    const from = nodes[e.from], to = nodes[e.to];
+    const x1 = from.x, y1 = from.y + NODE_R;
+    const x2 = to.x,   y2 = to.y - NODE_R;
+    const cpDy = Math.abs(y2 - y1) * 0.55 + 40;
+
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.bezierCurveTo(x1, y1 + cpDy, x2, y2 - cpDy, x2, y2);
+    ctx.strokeStyle = 'rgba(100,90,110,0.18)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([]);
+    ctx.stroke();
+
+    // Arrowhead
+    const angle = Math.atan2(y2 - (y2 - cpDy*0.3), x2 - x2);
+    drawArrow(x2, y2, Math.PI / 2, 'rgba(100,90,110,0.35)');
+
+    // Animated data dot
+    drawDataDot(x1, y1, x1, y1 + cpDy, x2, y2 - cpDy, x2, y2, from.color);
+  }
+
+  // Nodes
+  for (const n of nodes) {
+    drawNode(n);
+  }
+
+  requestAnimationFrame(draw);
+}
+
+function drawArrow(x, y, angle, color) {
+  const size = 7;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.beginPath();
+  ctx.moveTo(0, -size);
+  ctx.lineTo(-size * 0.6, size * 0.2);
+  ctx.lineTo(size * 0.6, size * 0.2);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.restore();
+}
+
+// Animated dot moving along bezier
+const dataDots = {};
+function drawDataDot(x1,y1, cx1,cy1, cx2,cy2, x2,y2, color) {
+  const key = `${x1},${y1}-${x2},${y2}`;
+  if (!dataDots[key]) dataDots[key] = Math.random();
+  dataDots[key] = (dataDots[key] + 0.003) % 1;
+  const t = dataDots[key];
+  const mt = 1 - t;
+  const bx = mt*mt*mt*x1 + 3*mt*mt*t*cx1 + 3*mt*t*t*cx2 + t*t*t*x2;
+  const by = mt*mt*mt*y1 + 3*mt*mt*t*cy1 + 3*mt*t*t*cy2 + t*t*t*y2;
+
+  ctx.beginPath();
+  ctx.arc(bx, by, 4, 0, Math.PI*2);
+  ctx.fillStyle = color + 'cc';
+  ctx.fill();
+  // Glow
+  ctx.beginPath();
+  ctx.arc(bx, by, 8, 0, Math.PI*2);
+  ctx.fillStyle = color + '22';
+  ctx.fill();
+}
+
+function drawNode(n) {
+  const { x, y, color, label, sub, type } = n;
+
+  if (type === 'agent') {
+    // Circle node
+    // Outer glow
+    const grad = ctx.createRadialGradient(x, y, NODE_R*0.5, x, y, NODE_R*1.6);
+    grad.addColorStop(0, color + '22');
+    grad.addColorStop(1, 'transparent');
+    ctx.beginPath();
+    ctx.arc(x, y, NODE_R * 1.6, 0, Math.PI*2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Node circle
+    ctx.beginPath();
+    ctx.arc(x, y, NODE_R, 0, Math.PI*2);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // Icon dot
+    ctx.beginPath();
+    ctx.arc(x, y, 9, 0, Math.PI*2);
+    ctx.fillStyle = color;
+    ctx.fill();
+
+  } else {
+    // Database node — rounded rect
+    const rw = NODE_R * 1.5, rh = NODE_R * 1.1, rr = 10;
+
+    // Glow
+    const grad = ctx.createRadialGradient(x, y, rw*0.3, x, y, rw*1.8);
+    grad.addColorStop(0, color + '22');
+    grad.addColorStop(1, 'transparent');
+    ctx.beginPath();
+    ctx.ellipse(x, y, rw*1.5, rh*1.8, 0, 0, Math.PI*2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Rect
+    roundRect(ctx, x - rw, y - rh, rw*2, rh*2, rr);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // Stack lines (DB symbol)
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(x - 12, y - 4); ctx.lineTo(x + 12, y - 4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x - 12, y);     ctx.lineTo(x + 12, y);     ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x - 12, y + 4); ctx.lineTo(x + 12, y + 4); ctx.stroke();
+  }
+
+  // Label below node
+  ctx.font = '600 11px Nunito, sans-serif';
+  ctx.fillStyle = '#342e37';
+  ctx.textAlign = 'center';
+  ctx.fillText(label, x, y + NODE_R + 16);
+
+  ctx.font = '400 10px Nunito, sans-serif';
+  ctx.fillStyle = 'rgba(52,46,55,0.45)';
+  ctx.fillText(sub, x, y + NODE_R + 28);
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+}
+
+// ── Pointer events ────────────────────────────────────────────────────────────
+canvas.addEventListener('pointerdown', e => {
+  const rect = canvas.getBoundingClientRect();
+  const sx = (e.clientX - rect.left) * (W / rect.width);
+  const sy = (e.clientY - rect.top)  * (H / rect.height);
+  const n = hitNode(sx, sy);
+  if (n) { dragging = n; dragOffX = sx - n.x; dragOffY = sy - n.y; }
+});
+
+canvas.addEventListener('pointermove', e => {
+  if (!dragging) return;
+  const rect = canvas.getBoundingClientRect();
+  dragging.x = (e.clientX - rect.left) * (W / rect.width) - dragOffX;
+  dragging.y = (e.clientY - rect.top)  * (H / rect.height) - dragOffY;
+});
+
+canvas.addEventListener('pointerup', e => {
+  const rect = canvas.getBoundingClientRect();
+  const sx = (e.clientX - rect.left) * (W / rect.width);
+  const sy = (e.clientY - rect.top)  * (H / rect.height);
+  if (dragging && Math.abs(sx - (dragging.x + dragOffX)) < 4 && Math.abs(sy - (dragging.y + dragOffY)) < 4) {
+    showToast('Opening: ' + dragging.label);
+  }
+  dragging = null;
+});
+
+// ── Toast ────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => t.classList.remove('show'), 2000);
+}
+function toast(msg) { showToast(msg); }
+
+draw();
+</script>
+</body>
+</html>

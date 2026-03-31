@@ -1,1 +1,199 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Quest Rewards Popup</title></head><body><!-- TODO: quest rewards popup — eyebrow text, spark animation, counter, HURRAY button --></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Quest Rewards Popup — Doubtonator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#342e37; --surface:#3e3842; --surface-2:#4a4450; --primary:#9fd356; --warning:#ff9600; --text:#fafffd; --text-sec:#858287; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body { background:#1e1a21; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 16px; font-family:'Fredoka One',sans-serif; color:var(--text); flex-direction:column; gap:24px; }
+    /* Trigger buttons */
+    .triggers { display:flex; gap:12px; }
+    .btn { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; letter-spacing:1px; text-transform:uppercase; padding:10px 20px; border-radius:12px; border:none; cursor:pointer; transition:transform .12s; }
+    .btn:active{transform:scale(.95)}
+    .btn-p{background:var(--primary);color:#342e37}
+    .btn-g{background:var(--surface-2);color:var(--text-sec);border:1px solid rgba(255,255,255,.08)}
+    .eyebrow { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; letter-spacing:2.5px; text-transform:uppercase; color:var(--primary); opacity:.8; }
+
+    /* Phone frame */
+    .phone { width:390px; height:500px; background:var(--bg); border-radius:44px; overflow:hidden; border:1px solid rgba(255,255,255,.08); box-shadow:0 32px 80px rgba(0,0,0,.6); position:relative; }
+
+    /* Overlay backdrop */
+    .backdrop { position:absolute; inset:0; background:rgba(20,18,22,.8); display:flex; align-items:center; justify-content:center; padding:24px; opacity:0; transition:opacity .3s; }
+    .backdrop.show { opacity:1; }
+
+    /* Popup card */
+    .popup { background:var(--surface); border-radius:32px; padding:32px 24px 28px; width:100%; display:flex; flex-direction:column; align-items:center; gap:20px; border:1px solid rgba(255,255,255,.1); transform:scale(.8) translateY(30px); transition:transform .45s cubic-bezier(.34,1.4,.64,1), opacity .3s; opacity:0; position:relative; overflow:hidden; }
+    .backdrop.show .popup { transform:scale(1) translateY(0); opacity:1; }
+
+    /* Glow ring */
+    .popup::before { content:''; position:absolute; top:-60px; left:50%; transform:translateX(-50%); width:200px; height:120px; background:var(--primary); border-radius:50%; filter:blur(50px); opacity:.12; }
+
+    .popup-eyebrow { font-family:'Nunito',sans-serif; font-weight:800; font-size:10px; letter-spacing:2.5px; text-transform:uppercase; color:var(--primary); opacity:.7; }
+    .popup-title { font-size:26px; text-align:center; }
+
+    /* Rewards row */
+    .rewards { display:flex; gap:20px; align-items:center; justify-content:center; }
+    .reward-item { display:flex; flex-direction:column; align-items:center; gap:6px; }
+    .reward-icon { width:64px; height:64px; border-radius:20px; display:flex; align-items:center; justify-content:center; position:relative; }
+    .reward-val { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; letter-spacing:-.5px; }
+    .reward-lbl { font-family:'Nunito',sans-serif; font-weight:800; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--text-sec); opacity:.6; }
+    .reward-divider { width:1px; height:60px; background:rgba(255,255,255,.08); }
+
+    /* XP bar mini */
+    .xp-mini { width:100%; background:var(--surface-2); border-radius:12px; padding:12px 16px; display:flex; flex-direction:column; gap:6px; }
+    .xp-row  { display:flex; align-items:center; justify-content:space-between; }
+    .lv      { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--primary); }
+    .xp-amt  { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; color:var(--text-sec); }
+    .xp-amt b { color:var(--primary); }
+    .track   { height:6px; background:rgba(255,255,255,.08); border-radius:3px; overflow:hidden; }
+    .fill    { height:100%; background:linear-gradient(90deg,var(--primary),#b2dc78); border-radius:3px; transition:width 1s cubic-bezier(.22,1,.36,1) .5s; }
+
+    /* Claim button */
+    .claim-btn { width:100%; font-family:'Nunito',sans-serif; font-weight:800; font-size:14px; letter-spacing:2px; text-transform:uppercase; background:var(--primary); color:#342e37; border:none; border-radius:16px; padding:16px; cursor:pointer; transition:opacity .15s, transform .12s; }
+    .claim-btn:hover{opacity:.92} .claim-btn:active{transform:scale(.97)}
+
+    /* Confetti canvas */
+    #confetti { position:absolute; inset:0; pointer-events:none; }
+
+    /* Counter animation */
+    @keyframes countUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .counting { animation:countUp .4s ease forwards; }
+  </style>
+</head>
+<body>
+
+<span class="eyebrow">Component · Quest Completion</span>
+
+<div class="triggers">
+  <button class="btn btn-p" onclick="show(false)">Quest Complete</button>
+  <button class="btn btn-g" onclick="show(true)">Level Up!</button>
+</div>
+
+<div class="phone">
+  <canvas id="confetti" width="390" height="500"></canvas>
+  <div class="backdrop" id="backdrop">
+    <div class="popup" id="popup">
+      <span class="popup-eyebrow">Quest Complete</span>
+      <div class="popup-title" id="popupTitle">🎉 Nicely Done!</div>
+
+      <!-- Rewards -->
+      <div class="rewards">
+        <div class="reward-item">
+          <div class="reward-icon" style="background:rgba(159,211,86,.15)">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2l2.5 5.5H21l-5 3.5 1.9 5.5L12 13l-5.9 3.5 1.9-5.5-5-3.5h6.5L12 2z" fill="#9fd356"/>
+            </svg>
+          </div>
+          <span class="reward-val" id="xpVal" style="color:var(--primary)">0</span>
+          <span class="reward-lbl">XP</span>
+        </div>
+        <div class="reward-divider"></div>
+        <div class="reward-item">
+          <div class="reward-icon" style="background:rgba(255,150,0,.15)">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+              <path d="M13 2l-2 6h-6l5 3.5-2 6 5-3.5 5 3.5-2-6 5-3.5h-6L13 2z" fill="#ff9600"/>
+            </svg>
+          </div>
+          <span class="reward-val" id="sparkVal" style="color:var(--warning)">0</span>
+          <span class="reward-lbl">Sparks</span>
+        </div>
+      </div>
+
+      <!-- XP progress -->
+      <div class="xp-mini">
+        <div class="xp-row">
+          <span class="lv" id="lvLabel">LV 12</span>
+          <span class="xp-amt"><b id="xpCount">3,240</b> / 4,000 XP</span>
+        </div>
+        <div class="track"><div class="fill" id="xpBarFill" style="width:81%"></div></div>
+      </div>
+
+      <!-- Level up badge (hidden by default) -->
+      <div id="lvupBadge" style="display:none;background:rgba(159,211,86,.12);border:1.5px solid rgba(159,211,86,.3);border-radius:16px;padding:10px 20px;font-size:18px;text-align:center">
+        ⬆ LEVEL UP — LV 13!
+      </div>
+
+      <button class="claim-btn" onclick="close()">CLAIM REWARD</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const canvas=document.getElementById('confetti');
+  const ctx=canvas.getContext('2d');
+  let particles=[];
+
+  function spawnConfetti(){
+    particles=[];
+    const colors=['#9fd356','#ff9600','#3c91e6','#fafffd','#f5c842'];
+    for(let i=0;i<80;i++){
+      particles.push({
+        x:Math.random()*390, y:-10,
+        vx:(Math.random()-.5)*4, vy:Math.random()*3+2,
+        w:Math.random()*8+4, h:Math.random()*4+2,
+        rot:Math.random()*360, vrot:(Math.random()-.5)*8,
+        color:colors[Math.floor(Math.random()*colors.length)],
+        alpha:1
+      });
+    }
+    animConf();
+  }
+  function animConf(){
+    ctx.clearRect(0,0,390,500);
+    particles.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.rot+=p.vrot; p.vy+=.05;
+      if(p.y>460)p.alpha-=.04;
+      ctx.save();ctx.globalAlpha=Math.max(0,p.alpha);
+      ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.restore();
+    });
+    particles=particles.filter(p=>p.alpha>0);
+    if(particles.length)requestAnimationFrame(animConf);
+    else ctx.clearRect(0,0,390,500);
+  }
+
+  function countTo(el,target,suffix,duration){
+    const start=Date.now(),from=0;
+    function tick(){
+      const p=Math.min(1,(Date.now()-start)/duration);
+      const ease=1-Math.pow(1-p,3);
+      el.textContent=Math.round(from+(target-from)*ease)+(suffix||'');
+      if(p<1)requestAnimationFrame(tick);
+    }
+    tick();
+  }
+
+  let isLvUp=false;
+  function show(lvUp){
+    isLvUp=lvUp;
+    const b=document.getElementById('backdrop');
+    b.classList.add('show');
+    // Reset
+    document.getElementById('xpBarFill').style.width='81%';
+    document.getElementById('lvupBadge').style.display='none';
+    document.getElementById('lvLabel').textContent='LV 12';
+    document.getElementById('popupTitle').textContent=lvUp?'🏆 Level Up!':'🎉 Nicely Done!';
+
+    setTimeout(()=>{
+      spawnConfetti();
+      countTo(document.getElementById('xpVal'),30,'',600);
+      countTo(document.getElementById('sparkVal'),14,'',800);
+      // animate XP bar
+      const newPct=lvUp?5:94;
+      setTimeout(()=>{
+        document.getElementById('xpBarFill').style.width=newPct+'%';
+        if(lvUp){setTimeout(()=>{document.getElementById('lvupBadge').style.display='block';document.getElementById('lvLabel').textContent='LV 13';},1000);}
+      },500);
+    },300);
+  }
+
+  function close(){document.getElementById('backdrop').classList.remove('show');}
+</script>
+</body>
+</html>
