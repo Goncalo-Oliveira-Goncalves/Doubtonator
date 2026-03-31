@@ -230,7 +230,6 @@ Even thought there are primary colors, we might use different tones.
 #### Shapes
 None in scale.
 
-> **[DOUBT]:** Shapes 1–4 are defined only as ASCII art. Before implementing SVGs, what are the exact shapes? Shape 1 reads as a tombstone/shield (flat top, curved bottom). Shape 2 reads as a regular octagon. Shape 3 reads as a rounded rectangle with flat cut corners. Shape 4 reads as a teardrop or narrowing diamond. Are these correct? A reference image or Figma frame would eliminate ambiguity entirely.
 
 ##### SHAPE 1
 Shield
