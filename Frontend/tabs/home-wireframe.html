@@ -1,1 +1,78 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Home Tab — Wireframe</title></head><body><!-- TODO: home tab wireframe --></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Frontend Preview Entrypoint</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#fafffd; --surface:#d6d5d7; --primary:#9fd356; --text:#342e37; --text-sec:#5d585f; --line:rgba(52,46,55,.16); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { background:var(--bg); min-height:100vh; display:grid; place-items:center; font-family:'Nunito',sans-serif; color:var(--text); padding:20px; }
+    .phone { width:390px; height:844px; border-radius:36px; border:1px solid var(--line); overflow:hidden; background:var(--bg); box-shadow:0 18px 40px rgba(0,0,0,.15); display:grid; grid-template-rows:auto 1fr auto; }
+    .nav { padding:16px; display:flex; justify-content:space-between; align-items:center; background:linear-gradient(to bottom, rgba(250,255,253,.96), rgba(250,255,253,0)); }
+    .right { display:flex; gap:8px; }
+    .chip, .icon-btn { border:1px solid var(--line); border-radius:14px; padding:8px 10px; background:#fff; text-decoration:none; color:var(--text); font-weight:800; display:flex; align-items:center; gap:6px; }
+    .top-note { margin-bottom:8px; font-size:11px; letter-spacing:.8px; color:var(--text-sec); }
+    .status { border-radius:999px; border:1px solid var(--line); padding:4px 8px; font-size:11px; font-weight:800; }
+    .canvas { margin:0 14px; border:1px dashed rgba(52,46,55,.25); border-radius:16px; background:linear-gradient(180deg, #fafffd, #eef6e1); position:relative; }
+    .node { position:absolute; width:76px; height:48px; border:1px solid var(--line); border-radius:12px; background:#fff; display:grid; place-items:center; font-weight:800; font-size:12px; }
+    .n1 { left:36px; top:66px; } .n2 { right:30px; top:120px; } .n3 { left:110px; bottom:120px; }
+    .fab { position:absolute; right:16px; bottom:16px; border-radius:999px; border:none; background:var(--primary); color:#fff; font:800 13px 'Nunito',sans-serif; padding:10px 14px; }
+    .menu { height:86px; border-top:1px solid var(--line); background:var(--surface); display:flex; align-items:center; justify-content:space-around; }
+    .m { width:42px; height:42px; border:1px solid transparent; border-radius:12px; display:grid; place-items:center; font-weight:800; color:var(--text-sec); }
+    .m.active { background:#fff; border-color:var(--line); color:var(--text); }
+    .links { display:grid; gap:8px; position:absolute; left:16px; bottom:16px; }
+    .link { background:#fff; border:1px solid var(--line); border-radius:10px; padding:7px 10px; text-decoration:none; color:var(--text); font-size:12px; font-weight:800; }
+  </style>
+</head>
+<body>
+  <section class="phone">
+    <header class="nav">
+      <a class="icon-btn" href="home-tab/navbar/settings-page.html">⚙</a>
+      <div class="right">
+        <a class="chip" href="home-tab/navbar/streak-status-popup.html"><img src="../../assets/streak/orange-fire.svg" width="14" height="14" alt="">67</a>
+        <a class="chip" href="home-tab/navbar/rewards-store.html"><img src="../../assets/spark-2d.svg" width="14" height="14" alt="">248</a>
+      </div>
+    </header>
+    <main class="canvas">
+      <div class="node n1">Scraper</div>
+      <div class="node n2">Scripts</div>
+      <div class="node n3">Feedback</div>
+      <button class="fab" id="flowBtn">Center Flow</button>
+      <nav class="links">
+        <span class="top-note">Preview Entry</span>
+        <span class="status" id="apiStatus">API checking…</span>
+        <a class="link" href="home-tab/home-canvas.html">Home Canvas (live graph)</a>
+        <a class="link" href="home-tab/navbar/rewards-store/catalog-popup.html">Catalog Popup</a>
+        <a class="link" href="home-tab/navbar/rewards-store/item-popup.html">Item Popup</a>
+        <a class="link" href="home-tab/navbar/commemorative-popup.html">Commemorative</a>
+      </nav>
+    </main>
+    <footer class="menu">
+      <div class="m active">H</div><div class="m">C</div><div class="m">G</div><div class="m">Q</div><div class="m">P</div>
+    </footer>
+  </section>
+  <script>
+    const API_BASE = window.__API_BASE__ || 'http://localhost:3001';
+    const apiStatus = document.getElementById('apiStatus');
+    document.getElementById('flowBtn').addEventListener('click', () => {
+      window.alert('Demo action: canvas viewport centered.');
+    });
+    fetch(`${API_BASE}/health`)
+      .then((res) => {
+        if (!res.ok) throw new Error('bad status');
+        apiStatus.textContent = 'API online';
+        apiStatus.style.color = '#7fa945';
+        apiStatus.style.background = '#ecf6dd';
+      })
+      .catch(() => {
+        apiStatus.textContent = 'API offline';
+        apiStatus.style.color = '#e63c3c';
+        apiStatus.style.background = '#fad8d8';
+      });
+  </script>
+</body>
+</html>

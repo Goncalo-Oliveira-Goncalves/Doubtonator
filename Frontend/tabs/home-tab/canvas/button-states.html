@@ -1,1 +1,38 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Button States</title></head><body><!-- TODO: button default / pressed (down) states, no CSS transitions --></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Node Button States</title>
+  <style>
+    :root { --bg:#fafffd; --surface:#d6d5d7; --text:#342e37; --muted:#5d585f; --primary:#9fd356; --border:#aeabaf; }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg);font-family:'Nunito',system-ui,sans-serif;color:var(--text)}
+    .card{width:min(420px,92vw);background:#fff;border:1px solid var(--border);border-radius:18px;padding:18px}
+    h1{margin:0 0 6px;font:700 18px 'Fredoka One',system-ui}
+    p{margin:0 0 16px;color:var(--muted);font-size:13px}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    .btn{
+      appearance:none;border:1px solid var(--border);background:var(--surface);color:var(--text);
+      border-radius:12px;padding:10px 14px;font:800 11px 'Nunito',system-ui;letter-spacing:1px;text-transform:uppercase;
+      box-shadow:0 4px 0 #aeabaf; cursor:pointer;
+    }
+    .btn.primary{background:var(--primary);box-shadow:0 4px 0 #7fa945}
+    .btn.pressed{transform:translateY(3px);box-shadow:0 1px 0 #7fa945}
+    .note{margin-top:14px;font-size:12px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Button States</h1>
+    <p>No animated transition. Instant state switch between default and pressed.</p>
+    <div class="row">
+      <button class="btn">Default</button>
+      <button class="btn pressed">Pressed</button>
+      <button class="btn primary">Primary</button>
+      <button class="btn primary pressed">Primary Pressed</button>
+    </div>
+    <div class="note">Spec: press state goes visually down with hard switch (no tween).</div>
+  </div>
+</body>
+</html>

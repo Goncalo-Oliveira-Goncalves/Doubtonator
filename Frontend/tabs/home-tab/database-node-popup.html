@@ -7,19 +7,20 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/pixi.js@8/dist/pixi.min.js"></script>
   <style>
-    :root { --bg:#342e37; --surface:#3e3842; --surface-2:#4a4450; --primary:#9fd356; --info:#3c91e6; --warning:#ff9600; --text:#fafffd; --text-sec:#858287; --border:rgba(255,255,255,.08); }
+    :root { --bg:#fafffd; --surface:#d6d5d7; --surface-2:#ecebed; --primary:#9fd356; --info:#3c91e6; --warning:#ff9600; --text:#342e37; --text-sec:#5d585f; --border:rgba(52,46,55,.18); }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body { background:#1e1a21; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 16px; font-family:'Fredoka One',sans-serif; color:var(--text); }
-    .phone { width:390px; height:844px; background:var(--bg); border-radius:44px; overflow:hidden; border:1px solid rgba(255,255,255,.08); box-shadow:0 32px 80px rgba(0,0,0,.6); display:flex; flex-direction:column; }
+    body { background:#fafffd; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 16px; font-family:'Fredoka One',sans-serif; color:var(--text); }
+    .phone { width:390px; height:844px; background:var(--bg); border-radius:44px; overflow:hidden; border:1px solid rgba(52,46,55,.18); box-shadow:0 22px 48px rgba(0,0,0,.16); display:flex; flex-direction:column; }
 
     /* Header */
     .hdr { padding:20px 24px 0; flex-shrink:0; }
     .back-btn { width:36px; height:36px; border-radius:12px; background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px; color:var(--text-sec); }
 
     /* DB Node Stage */
-    .node-stage { height:160px; position:relative; flex-shrink:0; overflow:hidden; }
-    #nodeCanvas { position:absolute; inset:0; }
+    .node-stage { height:180px; position:relative; flex-shrink:0; overflow:hidden; background:linear-gradient(180deg,#fafffd 0%, #ecebed 100%); }
+    #pixiNode { position:absolute; inset:0; }
 
     /* Node name */
     .node-name { padding:0 24px 2px; font-size:24px; flex-shrink:0; }
@@ -29,7 +30,7 @@
     /* Tabs */
     .tabs { display:flex; padding:0 24px; gap:4px; border-bottom:1px solid var(--border); flex-shrink:0; }
     .tab { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; padding:10px 14px; cursor:pointer; color:var(--text-sec); border-bottom:2px solid transparent; margin-bottom:-1px; transition:color .15s, border-color .15s; }
-    .tab.active { color:var(--primary); border-color:var(--primary); }
+    .tab.active { color:var(--text); border-color:var(--text); }
 
     /* Panels */
     .panel { flex:1; overflow:hidden; display:none; flex-direction:column; }
@@ -97,7 +98,7 @@
 
   <!-- DB Node Stage -->
   <div class="node-stage">
-    <canvas id="nodeCanvas" width="390" height="160"></canvas>
+    <div id="pixiNode"></div>
   </div>
 
   <div class="node-name">Content DB</div>
@@ -225,89 +226,158 @@ function switchTab(id, el) {
   document.getElementById('panel-' + id).classList.add('active');
 }
 
-// ── DB Node Canvas ─────────────────────────────────────────────────────────────
-const canvas = document.getElementById('nodeCanvas');
-const ctx = canvas.getContext('2d');
-const CW = 390, CH = 160;
-let t = 0;
+// ── DB Node Preview (Pixi, matching other node preview/canvas style) ─────────
+async function initDBNodePreview() {
+  const host = document.getElementById('pixiNode');
+  const app = new PIXI.Application();
+  await app.init({ resizeTo: host, backgroundAlpha: 0, antialias: true });
+  host.appendChild(app.canvas);
 
-function drawDBNode() {
-  ctx.clearRect(0, 0, CW, CH);
-  ctx.fillStyle = '#2a252d';
-  ctx.fillRect(0, 0, CW, CH);
+  const g = new PIXI.Graphics();
+  app.stage.addChild(g);
 
-  const nx = CW/2, ny = 100;
+  const YSCALE = 0.58;
+  const GRID_SPACING = 22;
+  const NODE_POINTS_RAW = [
+    [315.283,7.155],[387.227,7.155],[569.134,82.504],[620.007,133.376],
+    [695.355,315.283],[695.355,387.227],[620.007,569.134],[569.134,620.007],
+    [387.227,695.355],[315.283,695.355],[133.376,620.007],[82.504,569.134],
+    [7.155,387.227],[7.155,315.283],[82.504,133.376],[133.376,82.504],
+  ];
 
-  // Input wire
-  drawWire(nx - 40, 0, nx, ny - 36, t, '#9fd356');
-  // Output wire
-  drawWire(nx, ny + 36, nx + 40, CH, t + 0.4, '#9fd356');
+  const buildPts = (size) => {
+    const xs = NODE_POINTS_RAW.map((p) => p[0]);
+    const ys = NODE_POINTS_RAW.map((p) => p[1]);
+    const minX = Math.min(...xs), maxX = Math.max(...xs);
+    const minY = Math.min(...ys), maxY = Math.max(...ys);
+    const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+    const scale = size / Math.max(maxX - minX, maxY - minY);
+    return NODE_POINTS_RAW.map(([x, y]) => ({ x: (x - cx) * scale, y: (y - cy) * scale * YSCALE }));
+  };
 
-  // Node shadow glow
-  ctx.save();
-  ctx.shadowColor = '#9fd356';
-  ctx.shadowBlur = 18;
-  ctx.beginPath();
-  ctx.arc(nx, ny, 38, 0, Math.PI*2);
-  ctx.fillStyle = 'rgba(159,211,86,.06)';
-  ctx.fill();
-  ctx.restore();
+  const cubicPt = (t, p0, c0, c1, p1) => {
+    const u = 1 - t;
+    return {
+      x: u*u*u*p0.x + 3*u*u*t*c0.x + 3*u*t*t*c1.x + t*t*t*p1.x,
+      y: u*u*u*p0.y + 3*u*u*t*c0.y + 3*u*t*t*c1.y + t*t*t*p1.y,
+    };
+  };
 
-  // Rounded rect node
-  const rw = 46, rh = 32, rr = 10;
-  roundRect(nx - rw, ny - rh, rw*2, rh*2, rr);
-  ctx.fillStyle = '#3e3842';
-  ctx.fill();
-  ctx.strokeStyle = '#9fd356';
-  ctx.lineWidth = 2.5;
-  ctx.stroke();
+  const norm = (ax, ay) => {
+    const l = Math.hypot(ax, ay) || 1;
+    return { x: ax / l, y: ay / l };
+  };
 
-  // DB lines
-  ctx.strokeStyle = '#9fd356';
-  ctx.lineWidth = 1.8;
-  [ny - 8, ny, ny + 8].forEach(ly => {
-    ctx.beginPath();
-    ctx.moveTo(nx - 18, ly);
-    ctx.lineTo(nx + 18, ly);
-    ctx.stroke();
+  const axisConnection = (cx, cy, rx, ry, tx, ty) => {
+    const dx = tx - cx;
+    const dy = ty - cy;
+    if (Math.abs(dx) >= Math.abs(dy)) return { x: cx + (dx >= 0 ? rx : -rx), y: cy };
+    return { x: cx, y: cy + (dy >= 0 ? ry : -ry) };
+  };
+
+  const wireFromTo = (from, to) => {
+    const p0 = axisConnection(from.x, from.y, from.rx, from.ry, to.x, to.y);
+    const p1 = axisConnection(to.x, to.y, to.rx, to.ry, from.x, from.y);
+    const t0 = norm(p0.x - from.x, p0.y - from.y);
+    const t1 = norm(p1.x - to.x, p1.y - to.y);
+    const s = 0.45 * Math.hypot(p1.x - p0.x, p1.y - p0.y);
+    return { p0, c0: { x: p0.x + s*t0.x, y: p0.y + s*t0.y }, c1: { x: p1.x + s*t1.x, y: p1.y + s*t1.y }, p1 };
+  };
+
+  app.ticker.add((ticker) => {
+    const t = ticker.lastTime * 0.0015;
+    const w = app.renderer.width;
+    const h = app.renderer.height;
+    const cx = w * 0.5;
+    const cy = h * 0.58;
+    const nodeSize = Math.min(w, h) * 0.35;
+    const thickness = nodeSize * 0.17;
+    const pts = buildPts(nodeSize);
+
+    g.clear();
+
+    // Dot grid
+    const vpY = -h * 0.25;
+    const rows = Math.ceil(h / GRID_SPACING) + 2;
+    const cols = Math.ceil(w / GRID_SPACING) + 6;
+    const halfCols = (cols - 1) / 2;
+    for (let r = 0; r < rows; r++) {
+      const y = r * GRID_SPACING;
+      const pF = Math.pow(Math.max(0.02, (y - vpY) / (h - vpY)), 0.70);
+      for (let c = 0; c < cols; c++) {
+        const x = w / 2 + (c - halfCols) * GRID_SPACING * pF;
+        if (x < -GRID_SPACING || x > w + GRID_SPACING) continue;
+        const dist = Math.hypot(x - cx, y - cy);
+        const heat = Math.max(0, 1 - dist / (nodeSize * 2.3));
+        const radius = pF * (0.45 + heat * 0.8);
+        const alpha = pF * (0.04 + heat * 0.32);
+        if (radius < 0.08 || alpha < 0.005) continue;
+        g.circle(x, y, radius).fill({ color: 0x342e37, alpha });
+      }
+    }
+
+    const nodeTopY = cy - nodeSize * 0.5 * YSCALE;
+    const nodeBotY = cy + nodeSize * 0.5 * YSCALE + thickness;
+    const nodeRef = { x: cx, y: cy, rx: nodeSize * 0.52, ry: nodeSize * 0.52 * YSCALE };
+
+    const topLeft = { x: cx - 120, y: -4, rx: 0.1, ry: 0.1 };
+    const topRight = { x: cx + 120, y: -4, rx: 0.1, ry: 0.1 };
+    const botMid = { x: cx + 8, y: h + 8, rx: 0.1, ry: 0.1 };
+
+    const wires = [
+      { data: wireFromTo(topLeft, { ...nodeRef, y: nodeTopY }), phase: 0.0 },
+      { data: wireFromTo(topRight, { ...nodeRef, y: nodeTopY }), phase: 0.35 },
+      { data: wireFromTo({ ...nodeRef, y: nodeBotY }, botMid), phase: 0.65 },
+    ];
+
+    // Wires: soft green tube + moving brighter flow
+    for (const wData of wires) {
+      g.setStrokeStyle({ width: 8, color: 0x9fd356, alpha: 0.14, cap: "round", join: "round" });
+      g.moveTo(wData.data.p0.x, wData.data.p0.y);
+      g.bezierCurveTo(wData.data.c0.x, wData.data.c0.y, wData.data.c1.x, wData.data.c1.y, wData.data.p1.x, wData.data.p1.y);
+      g.stroke();
+
+      const p = (t * 1.4 + wData.phase) % 1;
+      const spread = 0.06;
+      const t0 = Math.max(0, p - spread);
+      const t1 = Math.min(1, p + spread);
+      const ptsFlow = [];
+      for (let i = 0; i <= 10; i++) ptsFlow.push(cubicPt(t0 + ((t1 - t0) * i) / 10, wData.data.p0, wData.data.c0, wData.data.c1, wData.data.p1));
+
+      g.setStrokeStyle({ width: 8, color: 0x9fd356, alpha: 0.09, cap: "round", join: "round" });
+      g.moveTo(ptsFlow[0].x, ptsFlow[0].y);
+      for (let i = 1; i < ptsFlow.length; i++) g.lineTo(ptsFlow[i].x, ptsFlow[i].y);
+      g.stroke();
+      g.setStrokeStyle({ width: 4.2, color: 0x9fd356, alpha: 0.24, cap: "round", join: "round" });
+      g.moveTo(ptsFlow[0].x, ptsFlow[0].y);
+      for (let i = 1; i < ptsFlow.length; i++) g.lineTo(ptsFlow[i].x, ptsFlow[i].y);
+      g.stroke();
+      g.setStrokeStyle({ width: 2.3, color: 0x9fd356, alpha: 0.62, cap: "round", join: "round" });
+      g.moveTo(ptsFlow[0].x, ptsFlow[0].y);
+      for (let i = 1; i < ptsFlow.length; i++) g.lineTo(ptsFlow[i].x, ptsFlow[i].y);
+      g.stroke();
+    }
+
+    // Node shadow
+    g.ellipse(cx, cy + nodeSize * 0.5 * YSCALE + thickness * 0.56, nodeSize * 0.52, nodeSize * 0.17)
+      .fill({ color: 0x1f1c21, alpha: 0.18 });
+
+    // Node body
+    const n = pts.length;
+    for (let i = 0; i < n; i++) {
+      const a = pts[i], b = pts[(i + 1) % n];
+      if ((a.y + b.y) / 2 < 0) continue;
+      g.poly([cx + a.x, cy + a.y, cx + b.x, cy + b.y, cx + b.x, cy + b.y + thickness, cx + a.x, cy + a.y + thickness])
+        .fill({ color: 0x2a252c, alpha: 0.96 });
+    }
+    const topPoly = [];
+    pts.forEach((p) => { topPoly.push(cx + p.x, cy + p.y); });
+    g.poly(topPoly).fill({ color: 0xf4f3f6, alpha: 1 });
+    g.poly(topPoly).stroke({ width: 2.2, color: 0x9fd356, alpha: 0.9 });
   });
-
-  t += 0.015;
-  requestAnimationFrame(drawDBNode);
 }
 
-function roundRect(x, y, w, h, r) {
-  ctx.beginPath();
-  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y);
-  ctx.arcTo(x+w,y,x+w,y+r,r);
-  ctx.lineTo(x+w,y+h-r);
-  ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
-  ctx.lineTo(x+r,y+h);
-  ctx.arcTo(x,y+h,x,y+h-r,r);
-  ctx.lineTo(x,y+r);
-  ctx.arcTo(x,y,x+r,y,r);
-  ctx.closePath();
-}
-
-function drawWire(x1, y1, x2, y2, offset, color) {
-  const cpY = y1 + (y2-y1)*0.5;
-  ctx.beginPath();
-  ctx.moveTo(x1,y1); ctx.bezierCurveTo(x1,cpY,x2,cpY,x2,y2);
-  ctx.strokeStyle = 'rgba(133,130,135,.2)';
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-
-  const p = ((offset * 0.8) % 1 + 1) % 1;
-  const mt = 1-p;
-  const bx = mt*mt*mt*x1+3*mt*mt*p*x1+3*mt*p*p*x2+p*p*p*x2;
-  const by = mt*mt*mt*y1+3*mt*mt*p*cpY+3*mt*p*p*cpY+p*p*p*y2;
-  ctx.beginPath(); ctx.arc(bx,by,4,0,Math.PI*2);
-  ctx.fillStyle = color; ctx.fill();
-  ctx.beginPath(); ctx.arc(bx,by,8,0,Math.PI*2);
-  ctx.fillStyle = color+'33'; ctx.fill();
-}
-
-drawDBNode();
+initDBNodePreview();
 
 // ── Calendar ──────────────────────────────────────────────────────────────────
 const EVENT_DAYS = [3, 7, 10, 14, 17, 21, 24, 28]; // days with events (hardcoded)

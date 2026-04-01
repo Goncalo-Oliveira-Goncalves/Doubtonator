@@ -40,9 +40,13 @@
     /* Bottom fade overlay + buttons */
     .bottom-area {
       position:absolute; bottom:0; left:0; right:0;
-      background:linear-gradient(to bottom, transparent 0%, var(--bg) 45%);
+      background:linear-gradient(to bottom, rgba(52,46,55,.98) 0%, rgba(52,46,55,0) 100%);
       padding:32px 24px 36px;
       display:flex; flex-direction:column; gap:10px;
+      -webkit-backdrop-filter:blur(0px);
+      backdrop-filter:blur(0px);
+      mask-image:linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+      -webkit-mask-image:linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
     }
 
     /* TALK button */
@@ -110,7 +114,7 @@
         <path class="btn-fill" id="btnPath" d=""/>
       </svg>
       <div class="talk-content">
-        <span class="talk-label">Talk</span>
+        <span class="talk-label">TALK</span>
         <div class="sw">
           <div class="sw-bar"></div><div class="sw-bar"></div><div class="sw-bar"></div>
           <div class="sw-bar"></div><div class="sw-bar"></div>
@@ -118,17 +122,27 @@
       </div>
       <div class="glow"></div>
     </div>
-    <button class="answer-btn" onclick="nextQ()">ANSWER</button>
+    <button class="answer-btn" onclick="nextQ()">ANSWERS</button>
   </div>
 
   <!-- Cancel overlay -->
   <div class="overlay" id="cancelOverlay">
     <div class="popup">
-      <span class="popup-title">Leave this quest?</span>
-      <p class="popup-sub">Your progress won't be saved and you won't earn your sparks.</p>
+      <span class="popup-title">Are you sure you want to cancel this task?</span>
+      <p class="popup-sub">Your progress won't be saved.</p>
       <div class="popup-btns">
         <button class="pbtn pbtn-back" onclick="document.getElementById('cancelOverlay').classList.remove('show')">BACK TO TASK</button>
         <button class="pbtn pbtn-quit" onclick="document.getElementById('cancelOverlay').classList.remove('show')">GIVE TASK UP</button>
+      </div>
+    </div>
+  </div>
+  <div class="overlay" id="rewardsOverlay">
+    <div class="popup">
+      <span class="popup-title">Quest Complete</span>
+      <p class="popup-sub" style="text-transform:uppercase;letter-spacing:1.4px;color:var(--primary);font-weight:800">Your hard work has rewarded you with...</p>
+      <p class="popup-sub"><strong style="color:var(--text)">+20 XP</strong> and <strong style="color:#ff9600">+10 Sparks</strong></p>
+      <div class="popup-btns">
+        <button class="pbtn pbtn-back" onclick="document.getElementById('rewardsOverlay').classList.remove('show')">HURRAY</button>
       </div>
     </div>
   </div>
@@ -186,7 +200,10 @@
   const qs=['What\'s your biggest challenge as a content creator right now?','How much time do you spend on scripting per week?','What type of content gets you the most leads?','How do you currently track your content performance?','What would save you the most time in your workflow?'];
   let qi=1;
   function nextQ(){
-    if(qi>=qs.length){qi=0;}
+    if(qi>=qs.length){
+      document.getElementById('rewardsOverlay').classList.add('show');
+      return;
+    }
     document.getElementById('questionText').textContent=qs[qi];
     document.getElementById('progFill').style.width=((qi+1)/qs.length*100)+'%';
     document.getElementById('progTxt').textContent=(qi+1)+' / '+qs.length;

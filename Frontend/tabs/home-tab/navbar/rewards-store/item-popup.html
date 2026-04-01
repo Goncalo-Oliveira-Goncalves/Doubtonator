@@ -1,1 +1,49 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Item Popup</title></head><body><!-- TODO: item popup — vivid display section, markdown section, sticky purchase button --></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Item Popup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#fafffd; --surface:#d6d5d7; --primary:#9fd356; --text:#342e37; --text-sec:#5d585f; --line:rgba(52,46,55,.16); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Nunito',sans-serif; background:rgba(52,46,55,.88); min-height:100vh; display:grid; place-items:center; color:var(--text); }
+    .modal { width:360px; border-radius:24px; background:var(--bg); border:1px solid var(--line); overflow:hidden; position:relative; }
+    .art { padding:18px; background:radial-gradient(circle at 70% 20%, rgba(60,145,230,.4), transparent 48%), radial-gradient(circle at 30% 80%, rgba(159,211,86,.45), transparent 42%), #f1f8e7; }
+    .token { width:120px; height:120px; margin:auto; border-radius:24px; border:1px solid rgba(52,46,55,.2); background:#fff; display:grid; place-items:center; font:400 48px 'Fredoka One',sans-serif; }
+    .body { padding:14px 16px 78px; display:grid; gap:10px; }
+    h1 { font:400 21px 'Fredoka One',sans-serif; }
+    .price { color:#ffb800; font-weight:800; }
+    .md { border:1px solid var(--line); border-radius:14px; background:#fff; padding:10px; color:var(--text-sec); line-height:1.45; }
+    .sticky { position:absolute; left:0; right:0; bottom:0; display:flex; gap:8px; padding:12px; border-top:1px solid var(--line); background:var(--bg); }
+    .btn { flex:1; border-radius:12px; border:1px solid var(--line); background:#fff; color:var(--text); font-weight:800; padding:10px; text-align:center; text-decoration:none; }
+    .btn.buy { background:var(--primary); border-color:transparent; color:#fff; }
+  </style>
+</head>
+<body>
+  <article class="modal">
+    <div class="art"><div class="token">HX</div></div>
+    <div class="body">
+      <h1>Neon Hex Avatar Ring</h1>
+      <p class="price">120 sparks</p>
+      <section class="md">
+        <p><strong>Rarity:</strong> Epic</p>
+        <p><strong>Effect:</strong> Adds a rotating glow ring around your home avatar.</p>
+        <p><strong>Compatibility:</strong> Home tab canvas profile node and clan badge card.</p>
+      </section>
+    </div>
+    <footer class="sticky">
+      <a class="btn" href="catalog-popup.html">Back</a>
+      <button class="btn buy" id="purchaseBtn">Purchase</button>
+    </footer>
+  </article>
+  <script>
+    document.getElementById('purchaseBtn').addEventListener('click', () => {
+      window.alert('Demo purchase successful. Item added to inventory.');
+    });
+  </script>
+</body>
+</html>

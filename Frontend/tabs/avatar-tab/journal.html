@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avatar - Journal</title>
+  <style>
+    :root { --bg:#fafffd; --surface:#fff; --surface-2:#f2f8e8; --text:#342e37; --muted:#5d585f; --border:#aeabaf; --primary:#9fd356; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:var(--bg); font-family:'Nunito',system-ui,sans-serif; display:grid; place-items:center; padding:20px; color:var(--text); }
+    .phone { width:min(390px,96vw); border:1px solid var(--border); border-radius:28px; overflow:hidden; background:var(--surface); box-shadow:0 16px 40px rgba(0,0,0,.12); }
+    .top { padding:14px 16px 10px; border-bottom:1px solid var(--border); }
+    .seg { display:flex; gap:8px; background:var(--surface-2); border-radius:12px; padding:4px; }
+    .seg button { flex:1; border:0; border-radius:9px; padding:9px 0; font:800 11px 'Nunito',sans-serif; letter-spacing:.8px; text-transform:uppercase; color:var(--muted); background:transparent; }
+    .seg .active { background:var(--surface); color:var(--text); box-shadow:0 2px 0 rgba(0,0,0,.08); }
+    .list { padding:12px; display:grid; gap:8px; }
+    .note { border:1px solid var(--border); border-radius:12px; padding:10px; background:var(--surface); }
+    .note h3 { margin:0 0 6px; font-size:13px; }
+    .note p { margin:0; font-size:12px; color:var(--muted); line-height:1.4; }
+  </style>
+</head>
+<body>
+  <section class="phone">
+    <header class="top">
+      <div class="seg">
+        <button>Node Tree</button>
+        <button>Card</button>
+        <button class="active">Journal</button>
+      </div>
+    </header>
+    <main class="list">
+      <article class="note"><h3>Day 12 - Momentum restored</h3><p>Completed the habit loop before noon and reviewed the tracker stats in one pass.</p></article>
+      <article class="note"><h3>Reflection - Friction points</h3><p>Context switching causes drag. Keeping tasks in 2 focused blocks improved throughput.</p></article>
+      <article class="note"><h3>Next action</h3><p>Open note popup and add one measurable target for tomorrow.</p></article>
+    </main>
+  </section>
+</body>
+</html>

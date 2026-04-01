@@ -1,1 +1,64 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Evolution Dashboard</title></head><body><!-- TODO: evolution dashboard — canvas-like tracker node view --></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avatar - Profile Evolution</title>
+  <style>
+    :root { --bg:#fafffd; --surface:#fff; --surface-2:#f2f8e8; --text:#342e37; --muted:#5d585f; --border:#aeabaf; --primary:#9fd356; --info:#3c91e6; --warning:#ff9600; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:var(--bg); font-family:'Nunito',system-ui,sans-serif; display:grid; place-items:center; padding:20px; color:var(--text); }
+    .shell { width:min(980px,96vw); border:1px solid var(--border); border-radius:24px; background:var(--surface); overflow:hidden; box-shadow:0 16px 40px rgba(0,0,0,.12); }
+    .head { padding:16px 18px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .title { margin:0; font:700 22px 'Fredoka One',system-ui; }
+    .sub { margin:4px 0 0; font-size:12px; color:var(--muted); }
+    .actions { display:flex; gap:8px; }
+    .btn { border:1px solid var(--border); border-radius:10px; padding:8px 10px; font:800 10px 'Nunito',sans-serif; letter-spacing:1px; text-transform:uppercase; background:var(--surface); color:var(--text); }
+    .btn.primary { background:var(--primary); }
+    .grid { display:grid; grid-template-columns:1.3fr .9fr; gap:0; }
+    .canvas { min-height:460px; border-right:1px solid var(--border); padding:16px; position:relative; background-image:radial-gradient(circle, rgba(52,46,55,.12) 1px, transparent 1px); background-size:24px 24px; }
+    .node { position:absolute; width:120px; border:1px solid var(--border); border-radius:14px; padding:10px; background:var(--surface); }
+    .node h3 { margin:0 0 6px; font-size:12px; }
+    .node p { margin:0; color:var(--muted); font-size:11px; line-height:1.3; }
+    .n1 { left:52px; top:72px; }
+    .n2 { left:262px; top:168px; }
+    .n3 { left:486px; top:86px; }
+    .line { position:absolute; height:2px; background:var(--border); transform-origin:left center; }
+    .l1 { left:172px; top:122px; width:124px; transform:rotate(23deg); }
+    .l2 { left:382px; top:192px; width:122px; transform:rotate(-25deg); }
+    .side { padding:16px; display:grid; gap:10px; background:var(--surface-2); }
+    .panel { border:1px solid var(--border); background:var(--surface); border-radius:12px; padding:10px; }
+    .panel h4 { margin:0 0 8px; font:800 10px 'Nunito',sans-serif; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
+    .meter { height:10px; background:var(--surface-2); border-radius:999px; overflow:hidden; }
+    .fill { height:100%; background:var(--info); }
+  </style>
+</head>
+<body>
+  <section class="shell">
+    <header class="head">
+      <div>
+        <h1 class="title">Evolution Dashboard</h1>
+        <p class="sub">Canvas-like tracker node view with quick stats</p>
+      </div>
+      <div class="actions">
+        <button class="btn">Tracker Window</button>
+        <button class="btn primary">Refresh</button>
+      </div>
+    </header>
+    <div class="grid">
+      <div class="canvas">
+        <div class="line l1" aria-hidden="true"></div>
+        <div class="line l2" aria-hidden="true"></div>
+        <article class="node n1"><h3>Skill Audit</h3><p>Baseline capture and confidence sweep.</p></article>
+        <article class="node n2"><h3>Habit Engine</h3><p>Streak stabilized for 12 days.</p></article>
+        <article class="node n3"><h3>Creator Loop</h3><p>Publishing cycle reduced to 48h.</p></article>
+      </div>
+      <aside class="side">
+        <article class="panel"><h4>Weekly Growth</h4><div class="meter"><div class="fill" style="width:76%"></div></div></article>
+        <article class="panel"><h4>Consistency</h4><div class="meter"><div class="fill" style="width:88%;background:var(--primary)"></div></div></article>
+        <article class="panel"><h4>Risk Flags</h4><div class="meter"><div class="fill" style="width:21%;background:var(--warning)"></div></div></article>
+      </aside>
+    </div>
+  </section>
+</body>
+</html>

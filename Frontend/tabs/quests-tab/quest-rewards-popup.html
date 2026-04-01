@@ -78,8 +78,8 @@
   <canvas id="confetti" width="390" height="500"></canvas>
   <div class="backdrop" id="backdrop">
     <div class="popup" id="popup">
-      <span class="popup-eyebrow">Quest Complete</span>
-      <div class="popup-title" id="popupTitle">🎉 Nicely Done!</div>
+      <span class="popup-eyebrow">Your hard work has rewarded you with...</span>
+      <div class="popup-title" id="popupTitle">Quest Complete</div>
 
       <!-- Rewards -->
       <div class="rewards">
@@ -118,7 +118,7 @@
         ⬆ LEVEL UP — LV 13!
       </div>
 
-      <button class="claim-btn" onclick="close()">CLAIM REWARD</button>
+      <button class="claim-btn" onclick="close()">HURRAY</button>
     </div>
   </div>
 </div>
@@ -178,7 +178,7 @@
     document.getElementById('xpBarFill').style.width='81%';
     document.getElementById('lvupBadge').style.display='none';
     document.getElementById('lvLabel').textContent='LV 12';
-    document.getElementById('popupTitle').textContent=lvUp?'🏆 Level Up!':'🎉 Nicely Done!';
+    document.getElementById('popupTitle').textContent=lvUp?'Level Up!':'Quest Complete';
 
     setTimeout(()=>{
       spawnConfetti();

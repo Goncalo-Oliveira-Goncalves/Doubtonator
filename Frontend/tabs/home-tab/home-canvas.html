@@ -7,322 +7,654 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/8.2.2/pixi.min.js"></script>
   <style>
-    :root { --bg:#342e37; --surface:#3e3842; --primary:#9fd356; --warning:#ff9600; --text:#fafffd; --text-sec:#858287; }
+    :root { --bg:#fafffd; --surface:#d6d5d7; --primary:#9fd356; --text:#342e37; --text-sec:#5d585f; --muted:#aeabaf; }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body { background:#1e1a21; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 16px; font-family:'Fredoka One',sans-serif; color:var(--text); }
-    .phone { width:390px; height:844px; background:#f5f2f7; border-radius:44px; overflow:hidden; border:1px solid rgba(255,255,255,.08); box-shadow:0 32px 80px rgba(0,0,0,.6); display:flex; flex-direction:column; position:relative; }
+    body { background:#fafffd; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 16px; font-family:'Fredoka One',sans-serif; color:var(--text); }
+    .phone { width:390px; height:844px; background:#fafffd; border-radius:44px; overflow:hidden; border:1px solid rgba(52,46,55,.18); box-shadow:0 20px 44px rgba(0,0,0,.16); display:flex; flex-direction:column; position:relative; }
 
     /* Navbar — dark, gradient fade into canvas */
     .navbar {
       position:absolute; top:0; left:0; right:0; z-index:20;
       padding:20px 24px 32px;
-      background:linear-gradient(to bottom, var(--bg) 55%, rgba(52,46,55,0) 100%);
+      background:linear-gradient(to bottom, rgba(250,255,253,0.96) 60%, rgba(250,255,253,0) 100%);
       display:flex; align-items:center; justify-content:space-between;
       pointer-events:none;
     }
     .navbar > * { pointer-events:all; }
 
     /* Settings gear */
-    .nav-gear { width:36px; height:36px; border-radius:12px; background:rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background .15s; }
-    .nav-gear:hover { background:rgba(255,255,255,.14); }
+    .nav-gear { width:36px; height:36px; border-radius:12px; background:transparent; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background .15s; border:none; }
+    .nav-gear:hover { background:rgba(0,0,0,.06); }
 
     /* Streak + Sparks chips */
     .nav-right { display:flex; align-items:center; gap:10px; }
-    .nav-chip { display:flex; align-items:center; gap:6px; background:rgba(255,255,255,.1); border-radius:20px; padding:6px 12px; cursor:pointer; transition:background .15s; backdrop-filter:blur(4px); }
-    .nav-chip:hover { background:rgba(255,255,255,.16); }
+    .nav-chip { display:flex; align-items:center; gap:6px; background:transparent; border-radius:20px; padding:8px 14px; cursor:pointer; transition:background .15s; border:none; }
+    .nav-chip:hover { background:rgba(0,0,0,.06); }
     .nav-chip-val { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; color:var(--text); }
+    .chip-icon { width:16px; height:16px; object-fit:contain; }
 
     /* Canvas fills full phone */
-    #cvs { position:absolute; inset:0; width:390px; height:844px; touch-action:none; }
+    #pixi-host { position:absolute; inset:0; width:390px; height:844px; touch-action:none; }
+    #pixi-host canvas { width:100%; height:100%; display:block; }
 
+    /* Bottom menu (home canvas integration) */
+    .bottom-nav {
+      position:absolute; left:0; right:0; bottom:0; z-index:25;
+      height:88px; background:#ffffff; border-top:1px solid rgba(52,46,55,.15);
+      display:flex; align-items:center; justify-content:space-between; padding:0 14px; gap:8px;
+    }
+    .nav-item {
+      flex:0 0 auto; width:50px; aspect-ratio:1/1;
+      display:flex; align-items:center; justify-content:center;
+      border-radius:14px; cursor:pointer; border:1.5px solid transparent;
+    }
+    .nav-item.active { background:var(--bg); border-color:rgba(52,46,55,.2); }
+    .nav-icon { width:22px; height:22px; display:flex; align-items:center; justify-content:center; }
+    .nav-icon img { width:22px; height:22px; object-fit:contain; }
     /* Toast */
-    .toast { position:absolute; bottom:100px; left:50%; transform:translateX(-50%) translateY(10px); background:#3e3842; color:#fafffd; font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; padding:10px 20px; border-radius:12px; border:1px solid rgba(255,255,255,.1); white-space:nowrap; opacity:0; transition:opacity .25s, transform .25s; pointer-events:none; z-index:30; }
+    .toast { position:absolute; bottom:92px; left:50%; transform:translateX(-50%) translateY(10px); background:#342e37; color:#fafffd; font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; padding:10px 20px; border-radius:12px; border:1px solid rgba(255,255,255,.1); white-space:nowrap; opacity:0; transition:opacity .25s, transform .25s; pointer-events:none; z-index:30; }
     .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
 <div class="phone">
-  <canvas id="cvs" width="390" height="844"></canvas>
+  <div id="pixi-host"></div>
 
   <!-- Navbar overlay -->
   <div class="navbar">
     <div class="nav-gear" onclick="toast('Settings')">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="#fafffd" stroke-width="1.8"/>
-        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="#fafffd" stroke-width="1.8"/>
+        <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="#5d585f" stroke-width="1.8"/>
+        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="#5d585f" stroke-width="1.8"/>
       </svg>
     </div>
     <div class="nav-right">
       <!-- Streak -->
       <div class="nav-chip" onclick="toast('Streak: 18 days')">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2C8 7 6 10 6 14a6 6 0 0012 0c0-2-.8-4-2-6-1 2-2 3-4 3 0-3 1-6 3-9z" fill="#ff9600"/>
-        </svg>
+        <img class="chip-icon" src="../../../assets/streak/orange-fire.svg" alt="Streak">
         <span class="nav-chip-val" style="color:#ff9600">18</span>
       </div>
       <!-- Sparks -->
       <div class="nav-chip" onclick="toast('Rewards Store')">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2l2.5 6H21l-5.5 4 2 6.5L12 15l-5.5 3.5 2-6.5L3 8h6.5L12 2z" fill="#9fd356"/>
-        </svg>
+        <img class="chip-icon" src="../../../assets/spark-2d.svg" alt="Sparks">
         <span class="nav-chip-val" style="color:#9fd356">248</span>
       </div>
     </div>
   </div>
 
   <div class="toast" id="toast"></div>
+
+  <nav class="bottom-nav">
+    <div class="nav-item active" onclick="toast('Home tab')">
+      <div class="nav-icon"><img src="../../../assets/bottom-menu/home-tab-map.svg" alt="Home"></div>
+    </div>
+    <div class="nav-item" onclick="toast('Calendar tab')">
+      <div class="nav-icon"><img src="../../../assets/bottom-menu/calendar-tab-calendar.svg" alt="Calendar"></div>
+    </div>
+    <div class="nav-item" onclick="toast('Clan tab')">
+      <div class="nav-icon"><img src="../../../assets/badges/simplified/simplified-gold-badge.svg" alt="Clan"></div>
+    </div>
+    <div class="nav-item" onclick="toast('Quests tab')">
+      <div class="nav-icon"><img src="../../../assets/bottom-menu/quests-tab-treasure-chest.svg" alt="Quests"></div>
+    </div>
+    <div class="nav-item" onclick="toast('Profile tab')">
+      <div class="nav-icon"><img src="../../../assets/bottom-menu/avatar-tab-avatar.svg" alt="Profile"></div>
+    </div>
+  </nav>
 </div>
 
 <script>
-const canvas = document.getElementById('cvs');
-const ctx = canvas.getContext('2d');
 const W = 390, H = 844;
-
-// ── Canvas config ─────────────────────────────────────────────────────────────
-const GRID_STEP    = 22;
-const DOT_RADIUS   = 1.8;
+const GRID_STEP = 22;
+const DOT_RADIUS = 1.8;
 const BASE_OPACITY = 0.05;
-const MAX_OPACITY  = 0.38;
-const INFLUENCE_R  = 110;  // px — heat map influence radius per node
+const MAX_OPACITY = 0.4;
+const INFLUENCE_R = 110;
+const NODE_R = 28;
+const NODE_YSCALE = 0.58;
+const NODE_DEPTH = NODE_R * 0.34;
+const HEXAGON_SVG_PATH = '../../../assets/canvas-nodes/node-shape-hexagon.svg';
+const POPUP_W = 220;
+const POPUP_H = 116;
+const POPUP_PAD = 12;
+const WORLD_W = 1280;
+const WORLD_H = 980;
+const MIN_ZOOM = 0.65;
+const MAX_ZOOM = 1.45;
+const DPR = Math.min(window.devicePixelRatio || 1, 3);
+const PAN_TOP_OVERSCROLL = 120;
+const PAN_BOTTOM_OVERSCROLL = 80;
+const PAN_SIDE_OVERSCROLL = 40;
 
-// ── Node data ────────────────────────────────────────────────────────────────
-const nodes = [
-  { id:0, type:'agent',    label:'Doubtonator AI',   x:195, y:360, color:'#3c91e6', sub:'Core orchestrator' },
-  { id:1, type:'agent',    label:'Script Generator', x:295, y:240, color:'#9fd356', sub:'Content creation' },
-  { id:2, type:'agent',    label:'Video Analyzer',   x:100, y:490, color:'#b06cff', sub:'Recording review' },
-  { id:3, type:'database', label:'Content DB',       x:305, y:490, color:'#9fd356', sub:'12 tables · 4.2k rows' },
-  { id:4, type:'database', label:'Audience Data',    x:90,  y:230, color:'#ff9600', sub:'8 tables · 1.1k rows' },
+// Integrated from AI Workflow/workflow-map.mermaid
+const fallbackNodes = [
+  { id:'scrapper', label:'Trend-Scrapper AI', x:120, y:250, color:0x3c91e6, sub:'AI node', route:'agent-node-popup.html' },
+  { id:'trends', label:'Trends DB', x:290, y:250, color:0x9fd356, sub:'Database node', route:'database-node-popup.html' },
+  { id:'groupCalls', label:'Group Calls DB', x:120, y:390, color:0xff9600, sub:'Database node', route:'database-node-popup.html' },
+  { id:'icpEnricher', label:'ICP Enricher', x:300, y:390, color:0x3c91e6, sub:'AI node', route:'agent-node-popup.html' },
+  { id:'scripter', label:'Scripting AI', x:490, y:320, color:0x3c91e6, sub:'AI node', route:'agent-node-popup.html' },
+  { id:'scripts', label:'Videos DB', x:690, y:320, color:0x9fd356, sub:'Database node', route:'database-node-popup.html' },
+  { id:'filmed', label:'Filmed (Human)', x:690, y:175, color:0xb06cff, sub:'Human node', route:'agent-node-popup.html' },
+  { id:'zernio', label:'Zernio API', x:865, y:320, color:0xff9600, sub:'API node', route:'agent-node-popup.html' },
+  { id:'instagram', label:'Instagram', x:1010, y:215, color:0x9fd356, sub:'Channel node', route:'agent-node-popup.html' },
+  { id:'threads', label:'Threads', x:1010, y:320, color:0x9fd356, sub:'Channel node', route:'agent-node-popup.html' },
+  { id:'linkedin', label:'LinkedIn', x:1010, y:425, color:0x9fd356, sub:'Channel node', route:'agent-node-popup.html' },
+  { id:'igFetcher', label:'IG Page Fetcher', x:1160, y:320, color:0x3c91e6, sub:'Fetcher node', route:'agent-node-popup.html' },
+  { id:'otherData', label:'Other Data', x:1160, y:210, color:0xff9600, sub:'Data node', route:'database-node-popup.html' },
+  { id:'videoData', label:'Video Data DB', x:1160, y:430, color:0x9fd356, sub:'Database node', route:'database-node-popup.html' },
+  { id:'igScore', label:'Instagram Scorecard', x:960, y:160, color:0x3c91e6, sub:'Analytics node', route:'agent-node-popup.html' },
+  { id:'autoFeedback', label:'Auto-Feedback System', x:960, y:500, color:0x3c91e6, sub:'AI feedback', route:'agent-node-popup.html' },
 ];
 
-// ── Connections (from, to) ────────────────────────────────────────────────────
-const edges = [
-  { from:4, to:0 },
-  { from:0, to:1 },
-  { from:0, to:2 },
-  { from:1, to:3 },
+const fallbackEdges = [
+  { id:'e0', from:'scrapper', to:'trends', speed:1.1 },
+  { id:'e1', from:'groupCalls', to:'icpEnricher', speed:1.0 },
+  { id:'e2', from:'icpEnricher', to:'scripter', speed:1.2 },
+  { id:'e3', from:'trends', to:'scripter', speed:1.1 },
+  { id:'e4', from:'scripter', to:'scripts', speed:1.3 },
+  { id:'e5', from:'scripts', to:'filmed', speed:0.9 },
+  { id:'e6', from:'filmed', to:'scripts', speed:0.9 },
+  { id:'e7', from:'scripts', to:'zernio', speed:1.1 },
+  { id:'e8', from:'zernio', to:'instagram', speed:1.05 },
+  { id:'e9', from:'zernio', to:'threads', speed:1.0 },
+  { id:'e10', from:'zernio', to:'linkedin', speed:1.0 },
+  { id:'e11', from:'instagram', to:'igFetcher', speed:1.2 },
+  { id:'e12', from:'threads', to:'igFetcher', speed:1.15 },
+  { id:'e13', from:'linkedin', to:'igFetcher', speed:1.1 },
+  { id:'e14', from:'igFetcher', to:'otherData', speed:0.95 },
+  { id:'e15', from:'igFetcher', to:'videoData', speed:1.15 },
+  { id:'e16', from:'otherData', to:'igScore', speed:0.95 },
+  { id:'e17', from:'videoData', to:'autoFeedback', speed:1.2 },
+  { id:'e18', from:'autoFeedback', to:'scripts', speed:1.25 },
 ];
 
-// ── Node geometry ────────────────────────────────────────────────────────────
-const NODE_R = 28; // radius for agent circles; half-size for db rects
+const NODE_POINTS_RAW = [
+  [315.283,7.155],[387.227,7.155],[569.134,82.504],[620.007,133.376],
+  [695.355,315.283],[695.355,387.227],[620.007,569.134],[569.134,620.007],
+  [387.227,695.355],[315.283,695.355],[133.376,620.007],[82.504,569.134],
+  [7.155,387.227],[7.155,315.283],[82.504,133.376],[133.376,82.504],
+];
 
-// ── Drag state ───────────────────────────────────────────────────────────────
-let dragging = null, dragOffX = 0, dragOffY = 0;
+const app = new PIXI.Application();
+const flowOffsets = {};
+const pointers = new Map();
+let dragging = null;
+let dragDelta = { x:0, y:0 };
+let panning = false;
+let panStart = { x:0, y:0, wx:0, wy:0 };
+let pinchState = null;
+let popupEl = null;
+let world;
+let bgLayer;
+let backgroundDirty = false;
+let lastBgRedrawAt = 0;
+let nodes = [...fallbackNodes];
+let edges = [...fallbackEdges];
+const API_BASE = window.__API_BASE__ || "http://localhost:3001";
 
-// ── Hit testing ──────────────────────────────────────────────────────────────
-function hitNode(x, y) {
+async function init() {
+  await app.init({
+    width: W,
+    height: H,
+    background: '#fafffd',
+    antialias: true,
+    resolution: DPR,
+    autoDensity: true,
+  });
+  document.getElementById('pixi-host').appendChild(app.canvas);
+
+  world = new PIXI.Container();
+  bgLayer = new PIXI.Container();
+  const edgeLayer = new PIXI.Container();
+  const flowLayer = new PIXI.Container();
+  const nodeShadowLayer = new PIXI.Container();
+  const nodeLayer = new PIXI.Container();
+  const labelLayer = new PIXI.Container();
+  const uiHitLayer = new PIXI.Container();
+  world.addChild(bgLayer, edgeLayer, flowLayer, nodeShadowLayer, nodeLayer, labelLayer, uiHitLayer);
+  app.stage.addChild(world);
+
+  const hexTex = await PIXI.Assets.load({
+    src: HEXAGON_SVG_PATH,
+    data: { resolution: DPR },
+  }).catch(() => null);
+  const nodeMap = Object.fromEntries(nodes.map((n) => [n.id, n]));
+  const nodeViews = {};
+  const labelViews = {};
+  const edgeViews = {};
+
+  setInitialCamera();
+  redrawBackground();
+
   for (const n of nodes) {
-    const dx = x - n.x, dy = y - n.y;
-    if (Math.sqrt(dx*dx + dy*dy) < NODE_R + 8) return n;
+    nodeViews[n.id] = createNodeView(n, hexTex, nodeShadowLayer, nodeLayer, uiHitLayer);
+    labelViews[n.id] = createLabelView(n, labelLayer);
   }
-  return null;
+  edges.forEach((e, idx) => {
+    edgeViews[e.id] = createEdgeView(edgeLayer, flowLayer);
+    flowOffsets[e.id] = (idx * 0.23) % 1;
+  });
+
+  app.stage.eventMode = 'static';
+  app.stage.hitArea = app.screen;
+  app.stage.on('pointerdown', onStagePointerDown);
+  app.stage.on('pointermove', onStagePointerMove);
+  app.stage.on('pointerup', onStagePointerUp);
+  app.stage.on('pointerupoutside', onStagePointerUp);
+
+  app.canvas.addEventListener('wheel', onWheelZoom, { passive:false });
+
+  app.ticker.add((ticker) => {
+    if (backgroundDirty && (performance.now() - lastBgRedrawAt > 33)) {
+      redrawBackground();
+      backgroundDirty = false;
+      lastBgRedrawAt = performance.now();
+    }
+    const t = ticker.lastTime * 0.0015;
+    for (const e of edges) {
+      const wire = buildWire(nodeMap[e.from], nodeMap[e.to], e.id);
+      drawEdge(edgeViews[e.id].wire, wire, 8.0, 0x9fd356, 0.14);
+      const phase = (t * 1.4 + flowOffsets[e.id]) % 1;
+      drawFlow(edgeViews[e.id].flowSoft, edgeViews[e.id].flowMid, edgeViews[e.id].flowCore, wire, phase);
+    }
+    for (const n of nodes) {
+      syncNodeView(nodeViews[n.id], n);
+      syncLabelView(labelViews[n.id], n);
+    }
+  });
 }
 
-// ── Draw ─────────────────────────────────────────────────────────────────────
-function draw() {
-  ctx.clearRect(0, 0, W, H);
+async function loadGraphFromBackend() {
+  try {
+    const res = await fetch(`${API_BASE}/api/v1/canvas/graph`, {
+      credentials: "include",
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) return;
+    const payload = await res.json();
+    const graph = payload?.data;
+    if (!graph?.nodes || !graph?.edges) return;
 
-  // Background
-  ctx.fillStyle = '#f5f2f7';
-  ctx.fillRect(0, 0, W, H);
+    nodes = graph.nodes.map((n) => ({
+      ...n,
+      color: typeof n.color === "string" ? Number.parseInt(n.color.replace("#", "0x"), 16) : n.color,
+    }));
+    edges = graph.edges.map((e) => ({ ...e, speed: e.speed ?? 1 }));
+  } catch (err) {
+    // Keep fallback graph for demo preview when backend is offline.
+  }
+}
 
-  // Dot grid with heat map
-  for (let gx = GRID_STEP/2; gx < W; gx += GRID_STEP) {
-    for (let gy = GRID_STEP/2; gy < H; gy += GRID_STEP) {
+function setInitialCamera() {
+  world.scale.set(0.78);
+  world.position.set(-40, 120);
+  clampWorldPosition();
+}
+
+function drawBackground(layer, nodeList) {
+  const g = new PIXI.Graphics();
+  for (let gx = GRID_STEP / 2; gx < WORLD_W; gx += GRID_STEP) {
+    for (let gy = GRID_STEP / 2; gy < WORLD_H; gy += GRID_STEP) {
       let influence = 0;
-      for (const n of nodes) {
-        const dist = Math.sqrt((gx - n.x)**2 + (gy - n.y)**2);
+      for (const n of nodeList) {
+        const dist = Math.hypot(gx - n.x, gy - n.y);
         if (dist < INFLUENCE_R) {
           const t = 1 - dist / INFLUENCE_R;
-          influence = Math.max(influence, t * t * t); // exponential falloff
+          influence = Math.max(influence, t * t * t);
         }
       }
       const opacity = BASE_OPACITY + influence * (MAX_OPACITY - BASE_OPACITY);
-      ctx.fillStyle = `rgba(52,46,55,${opacity.toFixed(3)})`;
-      ctx.beginPath();
-      ctx.arc(gx, gy, DOT_RADIUS, 0, Math.PI * 2);
-      ctx.fill();
+      g.circle(gx, gy, DOT_RADIUS).fill({ color:0x342e37, alpha: opacity });
     }
   }
-
-  // Edges (spline bezier)
-  for (const e of edges) {
-    const from = nodes[e.from], to = nodes[e.to];
-    const x1 = from.x, y1 = from.y + NODE_R;
-    const x2 = to.x,   y2 = to.y - NODE_R;
-    const cpDy = Math.abs(y2 - y1) * 0.55 + 40;
-
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.bezierCurveTo(x1, y1 + cpDy, x2, y2 - cpDy, x2, y2);
-    ctx.strokeStyle = 'rgba(100,90,110,0.18)';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([]);
-    ctx.stroke();
-
-    // Arrowhead
-    const angle = Math.atan2(y2 - (y2 - cpDy*0.3), x2 - x2);
-    drawArrow(x2, y2, Math.PI / 2, 'rgba(100,90,110,0.35)');
-
-    // Animated data dot
-    drawDataDot(x1, y1, x1, y1 + cpDy, x2, y2 - cpDy, x2, y2, from.color);
-  }
-
-  // Nodes
-  for (const n of nodes) {
-    drawNode(n);
-  }
-
-  requestAnimationFrame(draw);
+  layer.addChild(g);
 }
 
-function drawArrow(x, y, angle, color) {
-  const size = 7;
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(angle);
-  ctx.beginPath();
-  ctx.moveTo(0, -size);
-  ctx.lineTo(-size * 0.6, size * 0.2);
-  ctx.lineTo(size * 0.6, size * 0.2);
-  ctx.closePath();
-  ctx.fillStyle = color;
-  ctx.fill();
-  ctx.restore();
+function redrawBackground() {
+  bgLayer.removeChildren();
+  drawBackground(bgLayer, nodes);
 }
 
-// Animated dot moving along bezier
-const dataDots = {};
-function drawDataDot(x1,y1, cx1,cy1, cx2,cy2, x2,y2, color) {
-  const key = `${x1},${y1}-${x2},${y2}`;
-  if (!dataDots[key]) dataDots[key] = Math.random();
-  dataDots[key] = (dataDots[key] + 0.003) % 1;
-  const t = dataDots[key];
+function buildAgentPts(size) {
+  const xs = NODE_POINTS_RAW.map((p) => p[0]);
+  const ys = NODE_POINTS_RAW.map((p) => p[1]);
+  const minX = Math.min(...xs), maxX = Math.max(...xs);
+  const minY = Math.min(...ys), maxY = Math.max(...ys);
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+  const scale = size / Math.max(maxX - minX, maxY - minY);
+  return NODE_POINTS_RAW.map(([x, y]) => ({ x:(x - cx) * scale, y:(y - cy) * scale * NODE_YSCALE }));
+}
+
+function createNodeView(node, hexTex, shadowLayer, nodeLayer, hitLayer) {
+  const shadowWrap = new PIXI.Container();
+  shadowLayer.addChild(shadowWrap);
+  const nodeWrap = new PIXI.Container();
+  nodeLayer.addChild(nodeWrap);
+  const body = new PIXI.Graphics();
+  nodeWrap.addChild(body);
+  if (hexTex) {
+    const icon = new PIXI.Sprite(hexTex);
+    icon.anchor.set(0.5);
+    icon.texture.source.scaleMode = 'linear';
+    icon.scale.set((NODE_R * 0.72) / Math.max(icon.width, icon.height));
+    nodeWrap.addChild(icon);
+  }
+
+  const hit = new PIXI.Graphics();
+  hit.eventMode = 'static';
+  hit.cursor = 'pointer';
+  hitLayer.addChild(hit);
+  hit.on('pointerdown', (e) => onNodeDown(e, node));
+  hit.on('pointertap', () => openPopup(node));
+
+  return { shadowWrap, nodeWrap, body, hit };
+}
+
+function createLabelView(node, layer) {
+  const title = new PIXI.Text({
+    text: node.label,
+    style: { fontFamily:'Nunito', fontWeight:'600', fontSize:11, fill:0x342e37, align:'center' },
+    anchor: { x:0.5, y:0 },
+  });
+  const sub = new PIXI.Text({
+    text: node.sub,
+    style: { fontFamily:'Nunito', fontWeight:'400', fontSize:10, fill:0x342e37, align:'center' },
+    alpha: 0.45,
+    anchor: { x:0.5, y:0 },
+  });
+  layer.addChild(title, sub);
+  return { title, sub };
+}
+
+function syncNodeView(v, node) {
+  v.shadowWrap.position.set(node.x, node.y);
+  v.nodeWrap.position.set(node.x, node.y);
+  v.hit.position.set(node.x, node.y);
+
+  v.shadowWrap.removeChildren();
+  const sh = new PIXI.Graphics();
+  sh.ellipse(0, NODE_R * 0.95, NODE_R * 0.95, NODE_R * 0.28).fill({ color:0x342e37, alpha:0.14 });
+  v.shadowWrap.addChild(sh);
+
+  drawProjectedNode(v.body, node);
+  drawHitArea(v.hit);
+}
+
+function syncLabelView(v, node) {
+  v.title.position.set(node.x, node.y + NODE_R + 16);
+  v.sub.position.set(node.x, node.y + NODE_R + 28);
+}
+
+function drawProjectedNode(g, node) {
+  g.clear();
+  const pts = buildAgentPts(NODE_R * 2.1);
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[i], b = pts[(i + 1) % pts.length];
+    if ((a.y + b.y) / 2 < 0) continue;
+    g.poly([a.x,a.y, b.x,b.y, b.x,b.y + NODE_DEPTH, a.x,a.y + NODE_DEPTH], true).fill({ color:0x2a252c, alpha:0.96 });
+  }
+  g.poly(pts.flatMap((p) => [p.x, p.y]), true).fill(0xf4f3f6).stroke({ color: node.color, width:2.2 });
+}
+
+function drawHitArea(hit) {
+  hit.clear();
+  hit.circle(0, 0, NODE_R * 1.2).fill({ color:0xffffff, alpha:0.001 });
+}
+
+function createEdgeView(edgeLayer, flowLayer) {
+  const wire = new PIXI.Graphics();
+  const flowSoft = new PIXI.Graphics();
+  const flowMid = new PIXI.Graphics();
+  const flowCore = new PIXI.Graphics();
+  wire.eventMode = 'static';
+  wire.cursor = 'pointer';
+  wire.on('pointertap', () => showToast('Link details'));
+  edgeLayer.addChild(wire);
+  flowLayer.addChild(flowSoft, flowMid, flowCore);
+  return { wire, flowSoft, flowMid, flowCore };
+}
+
+function drawEdge(g, wire, width, color, alpha) {
+  g.clear();
+  g.moveTo(wire.p0.x, wire.p0.y).bezierCurveTo(wire.c0.x, wire.c0.y, wire.c1.x, wire.c1.y, wire.p1.x, wire.p1.y)
+   .stroke({ color, width, alpha, cap:'round', join:'round' });
+}
+
+function drawFlow(soft, mid, core, wire, phase) {
+  const spread = 0.06;
+  const t0 = Math.max(0, phase - spread);
+  const t1 = Math.min(1, phase + spread);
+  const points = [];
+  for (let i = 0; i <= 10; i++) {
+    const t = t0 + ((t1 - t0) * i / 10);
+    points.push(cubicPt(t, wire.p0, wire.c0, wire.c1, wire.p1));
+  }
+  soft.clear(); mid.clear(); core.clear();
+  soft.moveTo(points[0].x, points[0].y);
+  mid.moveTo(points[0].x, points[0].y);
+  core.moveTo(points[0].x, points[0].y);
+  for (let i = 1; i < points.length; i++) {
+    soft.lineTo(points[i].x, points[i].y);
+    mid.lineTo(points[i].x, points[i].y);
+    core.lineTo(points[i].x, points[i].y);
+  }
+  // Match node-preview style: soft tube + brighter moving inner streak.
+  soft.stroke({ color:0x9fd356, width:9, alpha:0.09, cap:'round', join:'round' });
+  mid.stroke({ color:0x9fd356, width:4.2, alpha:0.24, cap:'round', join:'round' });
+  core.stroke({ color:0x9fd356, width:2.3, alpha:0.62, cap:'round', join:'round' });
+}
+
+function buildWire(from, to, edgeId) {
+  const p0 = connectionPointFromAxis(from, to);
+  const p1 = connectionPointFromAxis(to, from);
+  const s = 0.45 * Math.hypot(p1.x - p0.x, p1.y - p0.y);
+  // links.md formula:
+  // T = normalize(connectionPoint - nodeCenter)
+  // C0 = P0 + s*T0
+  // C1 = P1 + s*T1
+  const t0 = unit(p0.x - from.x, p0.y - from.y);
+  const t1 = unit(p1.x - to.x, p1.y - to.y);
+  return { p0, p1, c0:{ x:p0.x + s * t0.x, y:p0.y + s * t0.y }, c1:{ x:p1.x + s * t1.x, y:p1.y + s * t1.y } };
+}
+
+function connectionPointFromAxis(from, to) {
+  // Axis-intersection boundary rule from links.md:
+  // choose horizontal or vertical axis from center, then intersect border.
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const rx = NODE_R * 1.05;
+  const ry = NODE_R * NODE_YSCALE;
+  if (Math.abs(dx) >= Math.abs(dy)) {
+    return { x: from.x + (dx >= 0 ? rx : -rx), y: from.y };
+  }
+  return { x: from.x, y: from.y + (dy >= 0 ? ry : -ry) };
+}
+
+function cubicPt(t, p0, c0, c1, p1) {
   const mt = 1 - t;
-  const bx = mt*mt*mt*x1 + 3*mt*mt*t*cx1 + 3*mt*t*t*cx2 + t*t*t*x2;
-  const by = mt*mt*mt*y1 + 3*mt*mt*t*cy1 + 3*mt*t*t*cy2 + t*t*t*y2;
-
-  ctx.beginPath();
-  ctx.arc(bx, by, 4, 0, Math.PI*2);
-  ctx.fillStyle = color + 'cc';
-  ctx.fill();
-  // Glow
-  ctx.beginPath();
-  ctx.arc(bx, by, 8, 0, Math.PI*2);
-  ctx.fillStyle = color + '22';
-  ctx.fill();
+  return { x: mt*mt*mt*p0.x + 3*mt*mt*t*c0.x + 3*mt*t*t*c1.x + t*t*t*p1.x, y: mt*mt*mt*p0.y + 3*mt*mt*t*c0.y + 3*mt*t*t*c1.y + t*t*t*p1.y };
 }
 
-function drawNode(n) {
-  const { x, y, color, label, sub, type } = n;
+function unit(dx, dy) {
+  const len = Math.hypot(dx, dy) || 1;
+  return { x: dx / len, y: dy / len };
+}
 
-  if (type === 'agent') {
-    // Circle node
-    // Outer glow
-    const grad = ctx.createRadialGradient(x, y, NODE_R*0.5, x, y, NODE_R*1.6);
-    grad.addColorStop(0, color + '22');
-    grad.addColorStop(1, 'transparent');
-    ctx.beginPath();
-    ctx.arc(x, y, NODE_R * 1.6, 0, Math.PI*2);
-    ctx.fillStyle = grad;
-    ctx.fill();
+function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 
-    // Node circle
-    ctx.beginPath();
-    ctx.arc(x, y, NODE_R, 0, Math.PI*2);
-    ctx.fillStyle = '#fff';
-    ctx.fill();
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
+function clampWorldPosition() {
+  // Intentionally no clamping: free roam with no canvas walls.
+}
 
-    // Icon dot
-    ctx.beginPath();
-    ctx.arc(x, y, 9, 0, Math.PI*2);
-    ctx.fillStyle = color;
-    ctx.fill();
+function screenToWorld(x, y) {
+  return { x: (x - world.position.x) / world.scale.x, y: (y - world.position.y) / world.scale.y };
+}
 
-  } else {
-    // Database node — rounded rect
-    const rw = NODE_R * 1.5, rh = NODE_R * 1.1, rr = 10;
+function worldToScreen(x, y) {
+  return { x: x * world.scale.x + world.position.x, y: y * world.scale.y + world.position.y };
+}
 
-    // Glow
-    const grad = ctx.createRadialGradient(x, y, rw*0.3, x, y, rw*1.8);
-    grad.addColorStop(0, color + '22');
-    grad.addColorStop(1, 'transparent');
-    ctx.beginPath();
-    ctx.ellipse(x, y, rw*1.5, rh*1.8, 0, 0, Math.PI*2);
-    ctx.fillStyle = grad;
-    ctx.fill();
+function onNodeDown(e, node) {
+  e.stopPropagation();
+  closePopup();
+  dragging = node;
+  const p = screenToWorld(e.global.x, e.global.y);
+  dragDelta = { x: p.x - node.x, y: p.y - node.y };
+}
 
-    // Rect
-    roundRect(ctx, x - rw, y - rh, rw*2, rh*2, rr);
-    ctx.fillStyle = '#fff';
-    ctx.fill();
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
+function onStagePointerDown(e) {
+  pointers.set(e.pointerId, { x:e.global.x, y:e.global.y });
+  if (pointers.size === 1 && !dragging) {
+    panning = true;
+    panStart = { x:e.global.x, y:e.global.y, wx:world.position.x, wy:world.position.y };
+  } else if (pointers.size === 2) {
+    panning = false;
+    const [a, b] = Array.from(pointers.values());
+    pinchState = { dist: Math.hypot(a.x - b.x, a.y - b.y), scale: world.scale.x };
+  }
+}
 
-    // Stack lines (DB symbol)
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(x - 12, y - 4); ctx.lineTo(x + 12, y - 4); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(x - 12, y);     ctx.lineTo(x + 12, y);     ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(x - 12, y + 4); ctx.lineTo(x + 12, y + 4); ctx.stroke();
+function onStagePointerMove(e) {
+  if (pointers.has(e.pointerId)) pointers.set(e.pointerId, { x:e.global.x, y:e.global.y });
+
+  if (dragging) {
+    const p = screenToWorld(e.global.x, e.global.y);
+    dragging.x = clamp(p.x - dragDelta.x, 60, WORLD_W - 60);
+    dragging.y = clamp(p.y - dragDelta.y, 80, WORLD_H - 120);
+    backgroundDirty = true;
+    return;
   }
 
-  // Label below node
-  ctx.font = '600 11px Nunito, sans-serif';
-  ctx.fillStyle = '#342e37';
-  ctx.textAlign = 'center';
-  ctx.fillText(label, x, y + NODE_R + 16);
-
-  ctx.font = '400 10px Nunito, sans-serif';
-  ctx.fillStyle = 'rgba(52,46,55,0.45)';
-  ctx.fillText(sub, x, y + NODE_R + 28);
-}
-
-function roundRect(ctx, x, y, w, h, r) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.arcTo(x + w, y, x + w, y + r, r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
-  ctx.lineTo(x + r, y + h);
-  ctx.arcTo(x, y + h, x, y + h - r, r);
-  ctx.lineTo(x, y + r);
-  ctx.arcTo(x, y, x + r, y, r);
-  ctx.closePath();
-}
-
-// ── Pointer events ────────────────────────────────────────────────────────────
-canvas.addEventListener('pointerdown', e => {
-  const rect = canvas.getBoundingClientRect();
-  const sx = (e.clientX - rect.left) * (W / rect.width);
-  const sy = (e.clientY - rect.top)  * (H / rect.height);
-  const n = hitNode(sx, sy);
-  if (n) { dragging = n; dragOffX = sx - n.x; dragOffY = sy - n.y; }
-});
-
-canvas.addEventListener('pointermove', e => {
-  if (!dragging) return;
-  const rect = canvas.getBoundingClientRect();
-  dragging.x = (e.clientX - rect.left) * (W / rect.width) - dragOffX;
-  dragging.y = (e.clientY - rect.top)  * (H / rect.height) - dragOffY;
-});
-
-canvas.addEventListener('pointerup', e => {
-  const rect = canvas.getBoundingClientRect();
-  const sx = (e.clientX - rect.left) * (W / rect.width);
-  const sy = (e.clientY - rect.top)  * (H / rect.height);
-  if (dragging && Math.abs(sx - (dragging.x + dragOffX)) < 4 && Math.abs(sy - (dragging.y + dragOffY)) < 4) {
-    showToast('Opening: ' + dragging.label);
+  if (pointers.size === 2 && pinchState) {
+    if (popupEl) closePopup();
+    const [a, b] = Array.from(pointers.values());
+    const dist = Math.hypot(a.x - b.x, a.y - b.y) || pinchState.dist;
+    const center = { x:(a.x + b.x) / 2, y:(a.y + b.y) / 2 };
+    zoomAround(center.x, center.y, pinchState.scale * (dist / pinchState.dist));
+    return;
   }
-  dragging = null;
-});
 
-// ── Toast ────────────────────────────────────────────────────────────────────
+  if (panning) {
+    if (popupEl) closePopup();
+    world.position.x = panStart.wx + (e.global.x - panStart.x);
+    world.position.y = panStart.wy + (e.global.y - panStart.y);
+    clampWorldPosition();
+  }
+}
+
+function onStagePointerUp(e) {
+  pointers.delete(e.pointerId);
+  if (dragging) dragging = null;
+  if (pointers.size < 2) pinchState = null;
+  if (pointers.size === 0) panning = false;
+}
+
+function onWheelZoom(evt) {
+  evt.preventDefault();
+  if (popupEl) closePopup();
+  const rect = app.canvas.getBoundingClientRect();
+  const x = evt.clientX - rect.left;
+  const y = evt.clientY - rect.top;
+  const next = world.scale.x * (evt.deltaY < 0 ? 1.08 : 0.92);
+  zoomAround(x, y, next);
+}
+
+function zoomAround(screenX, screenY, targetScale) {
+  const nextScale = clamp(targetScale, MIN_ZOOM, MAX_ZOOM);
+  const worldX = (screenX - world.position.x) / world.scale.x;
+  const worldY = (screenY - world.position.y) / world.scale.y;
+  world.scale.set(nextScale);
+  world.position.set(screenX - worldX * nextScale, screenY - worldY * nextScale);
+  clampWorldPosition();
+}
+
+function openPopup(node) {
+  closePopup();
+  const screenNode = worldToScreen(node.x, node.y);
+  const { box, anchor } = placePopup(screenNode);
+  const el = document.createElement('div');
+  el.style.position = 'absolute';
+  el.style.left = `${box.x}px`;
+  el.style.top = `${box.y}px`;
+  el.style.width = `${POPUP_W}px`;
+  el.style.height = `${POPUP_H}px`;
+  el.style.background = '#fafffd';
+  el.style.border = '1px solid rgba(52,46,55,.2)';
+  el.style.borderRadius = '16px';
+  el.style.boxShadow = '0 12px 28px rgba(0,0,0,.14)';
+  el.style.padding = '12px';
+  el.style.zIndex = '40';
+  el.innerHTML = `<div style="font:800 13px Nunito,sans-serif;color:#342e37;">${node.label}</div>
+    <div style="font:600 11px Nunito,sans-serif;color:#5d585f;margin-top:4px;">${node.sub}</div>
+    <div style="display:flex;gap:8px;margin-top:12px;">
+      <button id="go-popup" style="font:800 11px Nunito,sans-serif;border:none;border-radius:10px;padding:8px 10px;background:#9fd356;color:#fff;cursor:pointer;">Open node</button>
+      <button id="close-popup" style="font:800 11px Nunito,sans-serif;border:1px solid rgba(52,46,55,.2);border-radius:10px;padding:8px 10px;background:#fff;color:#342e37;cursor:pointer;">Close</button>
+    </div>`;
+  const arrow = document.createElement('div');
+  arrow.style.position = 'absolute';
+  arrow.style.width = '0';
+  arrow.style.height = '0';
+  arrow.style.borderTop = '8px solid transparent';
+  arrow.style.borderBottom = '8px solid transparent';
+  arrow.style.borderLeft = '13px solid #fafffd';
+  arrow.style.filter = 'drop-shadow(0 0 0 rgba(52,46,55,.2))';
+  const dir = unit(screenNode.x - anchor.x, screenNode.y - anchor.y);
+  const arrowCenterX = (anchor.x - box.x) + dir.x * 8;
+  const arrowCenterY = (anchor.y - box.y) + dir.y * 8;
+  arrow.style.left = `${arrowCenterX}px`;
+  arrow.style.top = `${arrowCenterY}px`;
+  const angleDeg = Math.atan2(dir.y, dir.x) * 180 / Math.PI;
+  arrow.style.transform = `translate(-50%, -50%) rotate(${angleDeg}deg)`;
+  arrow.style.transformOrigin = '50% 50%';
+  el.appendChild(arrow);
+  document.querySelector('.phone').appendChild(el);
+  el.querySelector('#go-popup').addEventListener('click', () => { window.location.href = node.route; });
+  el.querySelector('#close-popup').addEventListener('click', closePopup);
+  popupEl = el;
+}
+
+function placePopup(screenNode) {
+  const dirs = [
+    { side:'top', x:screenNode.x - POPUP_W / 2, y:screenNode.y - NODE_R - POPUP_H - 20 },
+    { side:'right', x:screenNode.x + NODE_R + 18, y:screenNode.y - POPUP_H / 2 },
+    { side:'left', x:screenNode.x - NODE_R - POPUP_W - 18, y:screenNode.y - POPUP_H / 2 },
+    { side:'bottom', x:screenNode.x - POPUP_W / 2, y:screenNode.y + NODE_R + 20 },
+  ];
+  let best = null;
+  for (const d of dirs) {
+    const bx = clamp(d.x, POPUP_PAD, W - POPUP_W - POPUP_PAD);
+    const by = clamp(d.y, 86, H - POPUP_H - 96);
+    const overflowPenalty = Math.abs(bx - d.x) + Math.abs(by - d.y);
+    const distancePenalty = Math.hypot((bx + POPUP_W / 2) - screenNode.x, (by + POPUP_H / 2) - screenNode.y) * 0.03;
+    const score = overflowPenalty + distancePenalty;
+    if (!best || score < best.score) best = { side:d.side, x:bx, y:by, score };
+  }
+  const box = { x:best.x, y:best.y };
+  const anchor = getAnchorPoint(screenNode, box);
+  return { box, side:best.side, anchor };
+}
+
+function getAnchorPoint(screenNode, box) {
+  const cx = box.x + POPUP_W / 2;
+  const cy = box.y + POPUP_H / 2;
+  const dx = screenNode.x - cx;
+  const dy = screenNode.y - cy;
+  if (Math.abs(dx) > Math.abs(dy)) {
+    if (dx > 0) return { x: box.x + POPUP_W, y: clamp(screenNode.y, box.y + 12, box.y + POPUP_H - 12) };
+    return { x: box.x, y: clamp(screenNode.y, box.y + 12, box.y + POPUP_H - 12) };
+  }
+  if (dy > 0) return { x: clamp(screenNode.x, box.x + 12, box.x + POPUP_W - 12), y: box.y + POPUP_H };
+  return { x: clamp(screenNode.x, box.x + 12, box.x + POPUP_W - 12), y: box.y };
+}
+
+function closePopup() {
+  if (!popupEl) return;
+  popupEl.remove();
+  popupEl = null;
+}
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -332,7 +664,9 @@ function showToast(msg) {
 }
 function toast(msg) { showToast(msg); }
 
-draw();
+loadGraphFromBackend().finally(() => {
+  init();
+});
 </script>
 </body>
 </html>

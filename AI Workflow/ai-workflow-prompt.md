@@ -1,0 +1,3 @@
+Ever since I got introduced to claude flow, I was thinking of changing workflow, how it works, how it is structured by learning how claude flow works...
+
+But at the end of the day, we'll still need this shit.

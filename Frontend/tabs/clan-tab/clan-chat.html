@@ -47,7 +47,8 @@
     .post-meta { flex:1; }
     .post-name { font-size:14px; line-height:1.1; }
     .post-time { font-family:'Nunito',sans-serif; font-size:11px; color:var(--text-sec); }
-    .pin-icon { color:var(--warning); font-size:14px; flex-shrink:0; }
+    .pin-icon { width:16px; height:16px; flex-shrink:0; display:inline-block; }
+    .pin-fallback { color:var(--warning); font-size:14px; line-height:1; }
     .cat-tag { font-family:'Nunito',sans-serif; font-weight:800; font-size:10px; letter-spacing:1px; text-transform:uppercase; padding:2px 8px; border-radius:6px; flex-shrink:0; }
 
     /* Post body */
@@ -132,7 +133,8 @@
           <div class="post-name">Marcus A.</div>
           <div class="post-time">Pinned · Mar 28</div>
         </div>
-        <div class="pin-icon">📌</div>
+        <img class="pin-icon" src="../../../assets/other-ui-elements/pin.svg" alt="Pinned" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block'">
+        <span class="pin-fallback" style="display:none">📌</span>
         <span class="cat-tag" style="background:rgba(60,145,230,.15);color:#3c91e6">General</span>
       </div>
       <p class="post-body">Welcome to the Gold League! 🏆 This week's tournament runs until <strong>Sunday midnight ET</strong>. Top 4 advance to Sapphire. Good luck everyone — let's keep the quality high.</p>
@@ -231,7 +233,9 @@
         <p class="cmt-body">Let's go! I've been grinding quests all week. Top 4 here we come 💪</p>
         <div class="cmt-ftr">
           <span class="cmt-btn liked">♥ 4</span>
+          <span class="cmt-btn" onclick="giftSpark(this)">Gift Spark</span>
           <span class="cmt-btn">Reply</span>
+          <span class="cmt-btn" onclick="toggleNested(this)">Hide thread</span>
         </div>
       </div>
 
@@ -246,6 +250,7 @@
         <div class="cmt-ftr">
           <span class="cmt-btn">♥ 2</span>
           <span class="cmt-btn">Reply</span>
+          <span class="cmt-btn" onclick="giftSpark(this)">Gift Spark</span>
         </div>
       </div>
 
@@ -259,6 +264,7 @@
         <div class="cmt-ftr">
           <span class="cmt-btn">♥ 1</span>
           <span class="cmt-btn">Reply</span>
+          <span class="cmt-btn" onclick="giftSpark(this)">Gift Spark</span>
         </div>
       </div>
 
@@ -274,6 +280,16 @@
   }
   function openPopup() {
     document.getElementById('postOverlay').classList.add('show');
+  }
+  function giftSpark(el) {
+    el.textContent = "Spark Sent";
+  }
+  function toggleNested(el) {
+    const nested = document.querySelector('.comment.nested');
+    if (!nested) return;
+    const hidden = nested.style.display === "none";
+    nested.style.display = hidden ? "block" : "none";
+    el.textContent = hidden ? "Hide thread" : "Show thread";
   }
 </script>
 </body>

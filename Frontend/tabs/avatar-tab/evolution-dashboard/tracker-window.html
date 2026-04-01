@@ -1,1 +1,52 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Tracker Window</title></head><body><!-- TODO: tracker window — node visualizer, 9-col data element grid, graph/stat elements --></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evolution - Tracker Window</title>
+  <style>
+    :root { --bg:#fafffd; --surface:#fff; --surface-2:#f2f8e8; --text:#342e37; --muted:#5d585f; --border:#aeabaf; --primary:#9fd356; --info:#3c91e6; --warning:#ff9600; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:var(--bg); color:var(--text); font-family:'Nunito',system-ui,sans-serif; padding:18px; }
+    .window { max-width:1100px; margin:0 auto; background:var(--surface); border:1px solid var(--border); border-radius:20px; overflow:hidden; }
+    .top { padding:12px 14px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+    .title { margin:0; font:700 16px 'Fredoka One',system-ui; }
+    .layout { display:grid; grid-template-columns:1.1fr .9fr; min-height:560px; }
+    .viz { border-right:1px solid var(--border); position:relative; background-image:radial-gradient(circle, rgba(52,46,55,.12) 1px, transparent 1px); background-size:22px 22px; }
+    .node { position:absolute; border:1px solid var(--border); background:var(--surface); border-radius:12px; padding:8px 10px; font-size:12px; font-weight:800; }
+    .n1 { left:40px; top:50px; } .n2 { left:190px; top:170px; } .n3 { left:340px; top:90px; } .n4 { left:490px; top:240px; }
+    .edge { position:absolute; background:var(--border); height:2px; transform-origin:left center; }
+    .e1 { left:114px; top:90px; width:106px; transform:rotate(37deg); } .e2 { left:264px; top:206px; width:96px; transform:rotate(-39deg); } .e3 { left:410px; top:132px; width:110px; transform:rotate(44deg); }
+    .data { padding:12px; display:grid; gap:10px; }
+    .grid9 { display:grid; grid-template-columns:repeat(9,1fr); gap:6px; }
+    .cell { border:1px solid var(--border); border-radius:7px; background:var(--surface-2); min-height:48px; padding:5px; font-size:10px; color:var(--muted); display:flex; align-items:flex-end; justify-content:center; text-align:center; }
+    .panel { border:1px solid var(--border); border-radius:12px; padding:10px; }
+    .spark { display:grid; grid-template-columns:repeat(12,1fr); gap:4px; height:60px; align-items:end; }
+    .bar { background:var(--info); border-radius:3px 3px 0 0; }
+  </style>
+</head>
+<body>
+  <section class="window">
+    <header class="top"><h1 class="title">Tracker Window</h1><small>Node visualizer + 9-col element grid</small></header>
+    <div class="layout">
+      <div class="viz">
+        <div class="edge e1"></div><div class="edge e2"></div><div class="edge e3"></div>
+        <div class="node n1">Input</div><div class="node n2">Routine</div><div class="node n3">Output</div><div class="node n4">Feedback</div>
+      </div>
+      <aside class="data">
+        <div class="grid9">
+          <div class="cell">M1</div><div class="cell">M2</div><div class="cell">M3</div><div class="cell">M4</div><div class="cell">M5</div><div class="cell">M6</div><div class="cell">M7</div><div class="cell">M8</div><div class="cell">M9</div>
+        </div>
+        <article class="panel">
+          <strong>Velocity</strong>
+          <div class="spark">
+            <div class="bar" style="height:24%"></div><div class="bar" style="height:35%"></div><div class="bar" style="height:42%"></div><div class="bar" style="height:55%"></div>
+            <div class="bar" style="height:51%"></div><div class="bar" style="height:68%"></div><div class="bar" style="height:60%"></div><div class="bar" style="height:74%"></div>
+            <div class="bar" style="height:83%"></div><div class="bar" style="height:78%"></div><div class="bar" style="height:88%"></div><div class="bar" style="height:92%"></div>
+          </div>
+        </article>
+      </aside>
+    </div>
+  </section>
+</body>
+</html>

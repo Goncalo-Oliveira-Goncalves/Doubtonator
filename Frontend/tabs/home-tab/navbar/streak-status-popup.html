@@ -1,1 +1,52 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Streak Status Popup</title></head><body><!-- TODO: streak status popup — fire animation, streak position stat, streak calendar --></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Streak Status Popup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#fafffd; --surface:#d6d5d7; --primary:#9fd356; --text:#342e37; --text-sec:#5d585f; --line:rgba(52,46,55,.16); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { background:rgba(52,46,55,.86); min-height:100vh; display:grid; place-items:center; font-family:'Nunito',sans-serif; color:var(--text); }
+    .popup { width:350px; border-radius:24px; border:1px solid var(--line); background:var(--bg); padding:16px; display:grid; gap:10px; }
+    .fire-wrap { display:grid; place-items:center; }
+    .fire { width:54px; animation:pulse 1.2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { transform:scale(1);} 50% { transform:scale(1.12);} }
+    h1 { font:400 22px 'Fredoka One',sans-serif; text-align:center; }
+    .stat { text-align:center; font:800 34px 'Nunito',sans-serif; color:#ff9600; }
+    .sub { text-align:center; color:var(--text-sec); }
+    .cal { border:1px solid var(--line); border-radius:14px; padding:10px; display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+    .day { aspect-ratio:1/1; border-radius:8px; background:var(--surface); opacity:.45; }
+    .day.on { background:var(--primary); opacity:1; }
+    .actions { display:flex; justify-content:space-between; gap:8px; }
+    .btn { flex:1; border-radius:10px; border:1px solid var(--line); background:#fff; color:var(--text); padding:10px; text-align:center; text-decoration:none; font-weight:800; }
+    .btn.main { background:var(--primary); color:#fff; border-color:transparent; }
+  </style>
+</head>
+<body>
+  <section class="popup">
+    <div class="fire-wrap"><img class="fire" src="../../../../assets/streak/orange-fire.svg" alt="streak fire"></div>
+    <h1>Current Streak</h1>
+    <div class="stat">67</div>
+    <p class="sub">Top 8% of active creators this month.</p>
+    <div class="cal" id="calendar"></div>
+    <div class="actions">
+      <a class="btn" href="../../home-wireframe.html">Close</a>
+      <a class="btn main" href="commemorative-popup.html">Milestone</a>
+    </div>
+  </section>
+  <script>
+    const active = new Set([1, 2, 3, 5, 6, 8, 9, 10, 12, 13, 14, 16, 18, 19, 20, 22, 23, 24, 25]);
+    const grid = document.getElementById('calendar');
+    for (let i = 1; i <= 28; i += 1) {
+      const day = document.createElement('div');
+      day.className = active.has(i) ? 'day on' : 'day';
+      day.title = `Day ${i}`;
+      grid.appendChild(day);
+    }
+  </script>
+</body>
+</html>

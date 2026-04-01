@@ -8,27 +8,27 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    :root { --bg:#342e37; --surface:#3e3842; --surface-2:#4a4450; --primary:#9fd356; --info:#3c91e6; --warning:#ff9600; --danger:#e63c3c; --text:#fafffd; --text-sec:#858287; --border:rgba(255,255,255,.08); }
+    :root { --bg:#fafffd; --surface:#d6d5d7; --surface-2:#ecebed; --primary:#9fd356; --info:#3c91e6; --warning:#ff9600; --danger:#e63c3c; --text:#342e37; --text-sec:#5d585f; --border:rgba(52,46,55,.22); }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body { background:#1e1a21; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 16px; font-family:'Fredoka One',sans-serif; color:var(--text); }
-    .phone { width:390px; height:844px; background:var(--bg); border-radius:44px; overflow:hidden; border:1px solid rgba(255,255,255,.08); box-shadow:0 32px 80px rgba(0,0,0,.6); display:flex; flex-direction:column; }
+    body { background:#fafffd; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 16px; font-family:'Fredoka One',sans-serif; color:var(--text); }
+    .phone { width:390px; height:844px; background:var(--bg); border-radius:44px; overflow:hidden; border:1px solid rgba(0,0,0,.15); box-shadow:0 22px 50px rgba(0,0,0,.18); display:flex; flex-direction:column; }
 
     /* Header */
     .hdr { padding:20px 24px 0; display:flex; align-items:center; flex-shrink:0; }
-    .back-btn { width:36px; height:36px; border-radius:12px; background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px; color:var(--text-sec); flex-shrink:0; }
+    .back-btn { width:36px; height:36px; border-radius:12px; background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px; color:var(--text-sec); flex-shrink:0; border:1px solid var(--border); }
 
     /* 3D Node visualizer — canvas */
-    .node-stage { height:200px; position:relative; flex-shrink:0; overflow:hidden; }
-    #nodeCanvas { position:absolute; inset:0; }
+    .node-stage { height:220px; position:relative; flex-shrink:0; overflow:hidden; background:linear-gradient(180deg,#fafffd 0%, #ecebed 100%); }
+    #pixiNode { position:absolute; inset:0; }
 
     /* Node name */
-    .node-name { padding:0 24px 4px; font-size:24px; flex-shrink:0; }
+    .node-name { padding:10px 24px 4px; font-size:24px; flex-shrink:0; }
     .node-type  { padding:0 24px 16px; font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-sec); flex-shrink:0; }
 
     /* Tab menu */
     .tabs { display:flex; padding:0 24px; gap:4px; border-bottom:1px solid var(--border); flex-shrink:0; }
     .tab { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; padding:10px 16px; cursor:pointer; color:var(--text-sec); border-bottom:2px solid transparent; margin-bottom:-1px; transition:color .15s, border-color .15s; }
-    .tab.active { color:var(--primary); border-color:var(--primary); }
+    .tab.active { color:var(--text); border-color:var(--text); }
 
     /* Tab panels */
     .panel { flex:1; overflow-y:auto; padding:16px 24px 32px; display:none; }
@@ -52,7 +52,7 @@
     .tl-prog-fill  { height:100%; border-radius:2px; }
     .tl-prog-pct   { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; width:32px; text-align:right; }
     /* Subagent tag */
-    .tl-sub-tag { display:inline-flex; align-items:center; gap:4px; background:rgba(60,145,230,.12); border-radius:6px; padding:2px 8px; font-family:'Nunito',sans-serif; font-size:10px; font-weight:800; color:var(--info); letter-spacing:.5px; }
+    .tl-sub-tag { display:inline-flex; align-items:center; gap:4px; background:rgba(60,145,230,.10); border-radius:6px; padding:2px 8px; font-family:'Nunito',sans-serif; font-size:10px; font-weight:800; color:var(--info); letter-spacing:.5px; }
     /* Status badge */
     .tl-status { display:inline-block; border-radius:6px; padding:2px 8px; font-family:'Nunito',sans-serif; font-size:10px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; }
     .st-running { background:rgba(255,150,0,.15); color:var(--warning); }
@@ -60,18 +60,15 @@
     .st-queued  { background:rgba(133,130,135,.12); color:var(--text-sec); }
 
     /* ── Evolution panel ── */
-    .evo-wrap { display:flex; flex-direction:column; gap:0; position:relative; }
-    .evo-branch { display:flex; align-items:flex-start; gap:12px; margin-bottom:0; }
-    .evo-track  { display:flex; flex-direction:column; align-items:center; width:24px; flex-shrink:0; }
-    .evo-node   { width:16px; height:16px; border-radius:50%; border:2px solid var(--border); background:var(--surface); flex-shrink:0; margin-top:4px; cursor:pointer; transition:transform .15s; }
-    .evo-node.current { border-color:var(--primary); background:rgba(159,211,86,.2); transform:scale(1.25); }
-    .evo-node.stable  { border-color:var(--info);    background:rgba(60,145,230,.15); }
-    .evo-vbar   { width:2px; flex:1; background:var(--border); min-height:16px; }
-    .evo-content { padding:4px 0 16px; flex:1; }
-    .evo-version { font-size:14px; }
-    .evo-meta    { font-family:'Nunito',sans-serif; font-size:11px; color:var(--text-sec); margin-top:2px; }
-    .evo-badge   { display:inline-block; font-family:'Nunito',sans-serif; font-weight:800; font-size:10px; letter-spacing:1px; text-transform:uppercase; padding:2px 8px; border-radius:6px; margin-top:4px; }
-    .evo-lock { display:flex; align-items:center; gap:6px; font-family:'Nunito',sans-serif; font-size:11px; color:var(--text-sec); background:var(--surface-2); border-radius:10px; padding:8px 12px; margin-top:4px; opacity:.6; }
+    #panel-evolution { padding:12px 0 24px; }
+    .evo-lock {
+      margin:0 16px 10px;
+      display:flex; align-items:center; gap:6px;
+      font-family:'Nunito',sans-serif; font-size:11px; color:var(--text-sec);
+      background:var(--surface); border-radius:10px; padding:8px 12px; border:1px solid var(--border);
+    }
+    .evo-label { padding:0 16px; margin-bottom:8px; font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--text-sec); }
+    #evoCanvas { display:block; width:100%; }
   </style>
 </head>
 <body>
@@ -83,7 +80,7 @@
 
   <!-- 3D Node Stage -->
   <div class="node-stage">
-    <canvas id="nodeCanvas" width="390" height="200"></canvas>
+    <div id="pixiNode"></div>
   </div>
 
   <div class="node-name">Doubtonator AI</div>
@@ -91,8 +88,8 @@
 
   <!-- Tabs -->
   <div class="tabs">
-    <div class="tab active" onclick="switchTab('timeline',this)">Timeline</div>
-    <div class="tab" onclick="switchTab('evolution',this)">Evolution</div>
+    <div class="tab active" data-tab="timeline" onclick="switchTab('timeline',this)">Timeline</div>
+    <div class="tab" data-tab="evolution" onclick="switchTab('evolution',this)">Evolution</div>
   </div>
 
   <!-- Timeline panel -->
@@ -176,193 +173,366 @@
 
   <!-- Evolution panel -->
   <div class="panel" id="panel-evolution">
-
     <div class="evo-lock">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#858287" stroke-width="1.8"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="#858287" stroke-width="1.8"/></svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#5d585f" stroke-width="1.8"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="#5d585f" stroke-width="1.8"/></svg>
       Version switching is admin-only in Alpha
     </div>
-
-    <div style="height:12px"></div>
-
-    <div class="evo-wrap">
-
-      <!-- v2.4.1 (current) -->
-      <div class="evo-branch">
-        <div class="evo-track">
-          <div class="evo-node current"></div>
-          <div class="evo-vbar"></div>
-        </div>
-        <div class="evo-content">
-          <div class="evo-version">v2.4.1 — Better hooks</div>
-          <div class="evo-meta">Mar 28, 2026 · main branch</div>
-          <span class="evo-badge" style="background:rgba(159,211,86,.12);color:var(--primary)">Current</span>
-        </div>
-      </div>
-
-      <!-- v2.4.0 -->
-      <div class="evo-branch">
-        <div class="evo-track">
-          <div class="evo-node stable"></div>
-          <div class="evo-vbar"></div>
-        </div>
-        <div class="evo-content">
-          <div class="evo-version">v2.4.0 — Funnel awareness</div>
-          <div class="evo-meta">Mar 15, 2026 · main branch</div>
-          <span class="evo-badge" style="background:rgba(60,145,230,.12);color:var(--info)">Stable</span>
-        </div>
-      </div>
-
-      <!-- v2.3.2 -->
-      <div class="evo-branch">
-        <div class="evo-track">
-          <div class="evo-node"></div>
-          <div class="evo-vbar"></div>
-        </div>
-        <div class="evo-content">
-          <div class="evo-version">v2.3.2 — Patch: CTA pacing</div>
-          <div class="evo-meta">Feb 22, 2026 · main branch</div>
-        </div>
-      </div>
-
-      <!-- v2.3.0 -->
-      <div class="evo-branch">
-        <div class="evo-track">
-          <div class="evo-node"></div>
-          <div class="evo-vbar"></div>
-        </div>
-        <div class="evo-content">
-          <div class="evo-version">v2.3.0 — Niche targeting</div>
-          <div class="evo-meta">Feb 1, 2026 · main branch</div>
-        </div>
-      </div>
-
-      <!-- v2.0.0 -->
-      <div class="evo-branch">
-        <div class="evo-track">
-          <div class="evo-node"></div>
-        </div>
-        <div class="evo-content">
-          <div class="evo-version">v2.0.0 — Foundation model</div>
-          <div class="evo-meta">Jan 10, 2026 · initial release</div>
-        </div>
-      </div>
-
-    </div>
+    <div class="evo-label" id="evoLabel"></div>
+    <canvas id="evoCanvas"></canvas>
   </div>
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/pixi.js@8/dist/pixi.min.js"></script>
 <script>
 // ── Tab switching ──────────────────────────────────────────────────────────────
+let currentTab = "timeline";
+
 function switchTab(id, el) {
+  currentTab = id;
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
+  const tabEl = el || document.querySelector(`.tab[data-tab="${id}"]`);
+  if (tabEl) tabEl.classList.add('active');
   document.getElementById('panel-' + id).classList.add('active');
 }
 
-// ── 3D Node Canvas ─────────────────────────────────────────────────────────────
-const canvas = document.getElementById('nodeCanvas');
-const ctx = canvas.getContext('2d');
-const W = 390, H = 200;
+// ── PixiJS node preview ────────────────────────────────────────────────────────
+async function initPixiNodePreview() {
+  const host = document.getElementById("pixiNode");
+  const app = new PIXI.Application();
+  await app.init({ resizeTo: host, backgroundAlpha: 0, antialias: true });
+  host.appendChild(app.canvas);
 
-let t = 0;
+  const g = new PIXI.Graphics();
+  app.stage.addChild(g);
+  const centerIcon = PIXI.Sprite.from("../../../assets/other-ui-elements/clapper-board.svg");
+  centerIcon.anchor.set(0.5);
+  centerIcon.alpha = 0.92;
+  app.stage.addChild(centerIcon);
 
-function drawNode3D() {
+  const YSCALE = 0.58;
+  const GRID_SPACING = 22;
+  const NODE_POINTS_RAW = [
+    [315.283,7.155],[387.227,7.155],[569.134,82.504],[620.007,133.376],
+    [695.355,315.283],[695.355,387.227],[620.007,569.134],[569.134,620.007],
+    [387.227,695.355],[315.283,695.355],[133.376,620.007],[82.504,569.134],
+    [7.155,387.227],[7.155,315.283],[82.504,133.376],[133.376,82.504],
+  ];
+
+  const buildPts = (size) => {
+    const xs = NODE_POINTS_RAW.map((p) => p[0]);
+    const ys = NODE_POINTS_RAW.map((p) => p[1]);
+    const minX = Math.min(...xs), maxX = Math.max(...xs);
+    const minY = Math.min(...ys), maxY = Math.max(...ys);
+    const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+    const scale = size / Math.max(maxX - minX, maxY - minY);
+    return NODE_POINTS_RAW.map(([x, y]) => ({
+      x: (x - cx) * scale,
+      y: (y - cy) * scale * YSCALE,
+    }));
+  };
+
+  const perspX = (colOffset, y, w, h) => {
+    const vpY = -h * 0.25;
+    const pF = Math.pow(Math.max(0.02, (y - vpY) / (h - vpY)), 0.70);
+    return w / 2 + colOffset * GRID_SPACING * pF;
+  };
+
+  const cubicPt = (t, p0, c0, c1, p1) => {
+    const u = 1 - t;
+    return {
+      x: u*u*u*p0.x + 3*u*u*t*c0.x + 3*u*t*t*c1.x + t*t*t*p1.x,
+      y: u*u*u*p0.y + 3*u*u*t*c0.y + 3*u*t*t*c1.y + t*t*t*p1.y,
+    };
+  };
+
+  const makeWire = (colStart, yStart, colEnd, yEnd, nX, nY, w, h) => {
+    const p0 = { x: perspX(colStart, yStart, w, h), y: yStart };
+    const p1 = { x: perspX(colEnd, yEnd, w, h), y: yEnd };
+    const dist = Math.hypot(p1.x - p0.x, p1.y - p0.y);
+    const s = 0.45 * dist;
+    const norm = (ax, ay) => {
+      const l = Math.hypot(ax, ay) || 1;
+      return { x: ax / l, y: ay / l };
+    };
+
+    if (colEnd === 0) {
+      const t1 = norm(p1.x - nX, p1.y - nY);
+      const t0 = norm(p1.x - p0.x, p1.y - p0.y);
+      return { p0, c0: { x: p0.x + s*t0.x, y: p0.y + s*t0.y }, c1: { x: p1.x + s*t1.x, y: p1.y + s*t1.y }, p1 };
+    }
+
+    const t0 = norm(p0.x - nX, p0.y - nY);
+    const t1 = norm(p0.x - p1.x, p0.y - p1.y);
+    return { p0, c0: { x: p0.x + s*t0.x, y: p0.y + s*t0.y }, c1: { x: p1.x + s*t1.x, y: p1.y + s*t1.y }, p1 };
+  };
+
+  app.ticker.add((ticker) => {
+    const t = ticker.lastTime * 0.0015;
+    const w = app.renderer.width;
+    const h = app.renderer.height;
+    const cx = w * 0.5;
+    const cy = h * 0.56;
+    const nodeSize = Math.min(w, h) * 0.33;
+    const thickness = nodeSize * 0.17;
+    const pts = buildPts(nodeSize);
+
+    g.clear();
+
+    // Perspective grid lines
+    g.setStrokeStyle({ width: 1, color: 0xaeabaf, alpha: 0.4 });
+    for (let i = 0; i < 6; i++) {
+      const y = 38 + i * 28;
+      g.moveTo(0, y);
+      g.lineTo(w, y + i * 2);
+    }
+
+    // Dot grid
+    const vpY = -h * 0.25;
+    const rows = Math.ceil(h / GRID_SPACING) + 2;
+    const cols = Math.ceil(w / GRID_SPACING) + 6;
+    const halfCols = (cols - 1) / 2;
+    for (let r = 0; r < rows; r++) {
+      const y = r * GRID_SPACING;
+      const pF = Math.pow(Math.max(0.02, (y - vpY) / (h - vpY)), 0.70);
+      for (let c = 0; c < cols; c++) {
+        const x = w / 2 + (c - halfCols) * GRID_SPACING * pF;
+        if (x < -GRID_SPACING || x > w + GRID_SPACING) continue;
+        const dist = Math.hypot(x - cx, y - cy);
+        const heat = Math.max(0, 1 - dist / (nodeSize * 2.5));
+        const edgeFade = Math.max(0, 1 - dist / (Math.min(w, h) * 0.70));
+        const radius = pF * (0.45 + heat * 0.8);
+        const alpha = pF * edgeFade * (0.04 + heat * 0.45);
+        if (radius < 0.08 || alpha < 0.005) continue;
+        g.circle(x, y, radius).fill({ color: 0x342e37, alpha });
+      }
+    }
+
+    // Wires: black tube + primary green flow inside
+    const wire = (wData, phase) => {
+      g.setStrokeStyle({ width: 2.2, color: 0x2a252c, alpha: 0.95 });
+      g.moveTo(wData.p0.x, wData.p0.y);
+      g.bezierCurveTo(wData.c0.x, wData.c0.y, wData.c1.x, wData.c1.y, wData.p1.x, wData.p1.y);
+
+      const p = (t * 1.4 + phase) % 1;
+      const spread = 0.06;
+      const t0 = Math.max(0, p - spread);
+      const t1 = Math.min(1, p + spread);
+      const ptsFlow = [];
+      for (let i = 0; i <= 10; i++) {
+        ptsFlow.push(cubicPt(t0 + ((t1 - t0) * i) / 10, wData.p0, wData.c0, wData.c1, wData.p1));
+      }
+
+      // soft inner glow through the wire tube
+      g.setStrokeStyle({ width: 8, color: 0x9fd356, alpha: 0.08, cap: "round", join: "round" });
+      g.moveTo(ptsFlow[0].x, ptsFlow[0].y);
+      for (let i = 1; i < ptsFlow.length; i++) g.lineTo(ptsFlow[i].x, ptsFlow[i].y);
+      g.stroke();
+
+      g.setStrokeStyle({ width: 4, color: 0x9fd356, alpha: 0.20, cap: "round", join: "round" });
+      g.moveTo(ptsFlow[0].x, ptsFlow[0].y);
+      for (let i = 1; i < ptsFlow.length; i++) g.lineTo(ptsFlow[i].x, ptsFlow[i].y);
+      g.stroke();
+
+      g.setStrokeStyle({ width: 2.2, color: 0x9fd356, alpha: 0.50, cap: "round", join: "round" });
+      g.moveTo(ptsFlow[0].x, ptsFlow[0].y);
+      for (let i = 1; i < ptsFlow.length; i++) g.lineTo(ptsFlow[i].x, ptsFlow[i].y);
+      g.stroke();
+    };
+
+    const halfSqY = nodeSize * 0.5 * YSCALE;
+    const nodeTopY = cy - halfSqY;
+    const nodeBotY = cy + halfSqY + thickness;
+    wire(makeWire(-14, 0, 0, nodeTopY, cx, cy, w, h), 0.0);
+    wire(makeWire(0, 0, 0, nodeTopY, cx, cy, w, h), 0.25);
+    wire(makeWire(14, 0, 0, nodeTopY, cx, cy, w, h), 0.45);
+    wire(makeWire(0, nodeBotY, -2.25, h, cx, cy, w, h), 0.60);
+    wire(makeWire(0, nodeBotY, 2.25, h, cx, cy, w, h), 0.80);
+
+    // Shadow
+    g.ellipse(cx, cy + halfSqY + thickness * 0.56, nodeSize * 0.52, nodeSize * 0.17).fill({ color: 0x1f1c21, alpha: 0.18 });
+
+    // Node body (same angular model as agent-node reference)
+    const n = pts.length;
+    for (let i = 0; i < n; i++) {
+      const a = pts[i], b = pts[(i + 1) % n];
+      if ((a.y + b.y) / 2 < 0) continue;
+      g.poly([
+        cx + a.x, cy + a.y,
+        cx + b.x, cy + b.y,
+        cx + b.x, cy + b.y + thickness,
+        cx + a.x, cy + a.y + thickness,
+      ]).fill({ color: 0x2a252c, alpha: 0.96 });
+    }
+
+    const topPoly = [];
+    pts.forEach((p) => { topPoly.push(cx + p.x, cy + p.y); });
+    g.poly(topPoly).fill({ color: 0x342e37, alpha: 0.98 });
+    g.poly(topPoly).stroke({ width: 2, color: 0x3c91e6, alpha: 0.62 });
+
+    // Center icon inside node (SVG, not glow dot)
+    centerIcon.x = cx;
+    centerIcon.y = cy;
+    const iconSize = nodeSize * 0.28;
+    const baseW = centerIcon.texture.width || 24;
+    const scale = iconSize / baseW;
+    centerIcon.scale.set(scale, scale * YSCALE);
+  });
+}
+
+initPixiNodePreview();
+
+// ── Evolution canvas tree (same structure as agent-node reference) ───────────
+const EVO_COMMITS = [
+  { id:"v2.4.1", v:"v2.4.1", name:"Better Hooks", changes:"Improved orchestration and handoff reliability.", date:"3 days ago", lane:0, current:true, dead:false, parentId:"v2.4.0" },
+  { id:"v2.4.0", v:"v2.4.0", name:"Funnel Awareness", changes:"Added stage-sensitive writing behavior.", date:"12 days ago", lane:0, current:false, dead:false, parentId:"v2.3.2" },
+  { id:"v2.3.2", v:"v2.3.2", name:"CTA Pacing Patch", changes:"Hook pacing and CTA timing improvements.", date:"22 days ago", lane:0, current:false, dead:false, parentId:"v2.3.0" },
+  { id:"v2.3-exp", v:"v2.3-exp", name:"Async Experiment", changes:"Branch abandoned due to context drift.", date:"18 days ago", lane:1, current:false, dead:true, parentId:"v2.3.2" },
+  { id:"v2.3.0", v:"v2.3.0", name:"Niche Targeting", changes:"Audience segment strategy baseline.", date:"31 days ago", lane:0, current:false, dead:false, parentId:null }
+];
+
+function drawEvoTree() {
+  const canvas = document.getElementById("evoCanvas");
+  const label = document.getElementById("evoLabel");
+  label.textContent = `${EVO_COMMITS.length} versions`;
+  const panel = document.getElementById("panel-evolution");
+  const ctx = canvas.getContext("2d");
+  const W = panel.clientWidth || 360;
+  const PAD_L = 14, PAD_R = 14, PAD_T = 12, PAD_B = 20;
+  const LANE_W = 30, NUM_LANES = 2, ROW_H = 92, DOT_R = 5;
+  const H = EVO_COMMITS.length * ROW_H + PAD_T + PAD_B;
+
+  canvas.width = W;
+  canvas.height = H;
+  canvas.style.height = `${H}px`;
   ctx.clearRect(0, 0, W, H);
 
-  // Background — subtle grid suggestion
-  ctx.fillStyle = '#2a252d';
-  ctx.fillRect(0, 0, W, H);
+  const pos = {};
+  EVO_COMMITS.forEach((c, i) => {
+    pos[c.id] = { x: PAD_L + c.lane * LANE_W + LANE_W / 2, y: PAD_T + i * ROW_H + ROW_H * 0.40 };
+  });
 
-  // Perspective grid lines (horizon at y=65)
-  const horizon = 65, vp = { x: W/2, y: horizon };
-  ctx.strokeStyle = 'rgba(255,255,255,.04)';
-  ctx.lineWidth = 1;
-  for (let gx = -200; gx <= 600; gx += 40) {
+  const textX = PAD_L + NUM_LANES * LANE_W + 10;
+  const textW = W - textX - PAD_R;
+
+  ctx.lineCap = "round";
+  EVO_COMMITS.forEach((c) => {
+    if (!c.parentId) return;
+    const from = pos[c.id], to = pos[c.parentId];
+    if (c.lane === 0) {
+      ctx.beginPath(); ctx.strokeStyle = "#aeabaf"; ctx.lineWidth = 2;
+      ctx.moveTo(from.x, from.y); ctx.lineTo(to.x, to.y); ctx.stroke();
+    } else {
+      const d = Math.abs(from.y - to.y) * 0.55;
+      ctx.beginPath(); ctx.strokeStyle = "#cfcdd1"; ctx.lineWidth = 2;
+      ctx.moveTo(to.x, to.y);
+      ctx.bezierCurveTo(to.x, to.y + d, from.x, from.y - d, from.x, from.y);
+      ctx.stroke();
+    }
+  });
+
+  EVO_COMMITS.forEach((c) => {
+    const { x, y } = pos[c.id];
+    if (c.current) {
+      ctx.beginPath(); ctx.arc(x, y, DOT_R + 5, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(159,211,86,0.45)"; ctx.lineWidth = 2; ctx.stroke();
+      ctx.beginPath(); ctx.arc(x, y, DOT_R + 1, 0, Math.PI * 2); ctx.fillStyle = "#9fd356"; ctx.fill();
+    } else if (c.dead) {
+      ctx.beginPath(); ctx.arc(x, y, DOT_R - 1, 0, Math.PI * 2); ctx.fillStyle = "#d6d5d7"; ctx.fill();
+      ctx.strokeStyle = "#aeabaf"; ctx.lineWidth = 1.5; ctx.stroke();
+    } else {
+      ctx.beginPath(); ctx.arc(x, y, DOT_R, 0, Math.PI * 2); ctx.fillStyle = "#342e37"; ctx.fill();
+    }
+  });
+
+  const FONT = "Fredoka One, sans-serif";
+  function rrect(x, y, w, h, r) {
     ctx.beginPath();
-    ctx.moveTo(gx, H);
-    ctx.lineTo(vp.x + (gx - vp.x) * 0.1, vp.y);
-    ctx.stroke();
+    ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
   }
-  for (let i = 0; i < 6; i++) {
-    const fy = horizon + (H - horizon) * Math.pow(i / 5, 1.5);
-    ctx.beginPath();
-    ctx.moveTo(0, fy);
-    ctx.lineTo(W, fy);
-    ctx.stroke();
+  function fitText(text, maxW) {
+    if (ctx.measureText(text).width <= maxW) return text;
+    let t = text;
+    while (t.length > 1 && ctx.measureText(`${t}…`).width > maxW) t = t.slice(0, -1);
+    return `${t}…`;
   }
 
-  // Input wires (top — 2 inputs)
-  const nodeX = W/2, nodeY = 130, nodeR = 30;
+  EVO_COMMITS.forEach((c) => {
+    const { y } = pos[c.id];
+    const badgeY = y - 26, nameY = y + 4, changesY = y + 18, dateY = y + 31;
 
-  // Wire 1
-  drawWire(nodeX - 60, 0, nodeX - 20, nodeY - nodeR, t, '#3c91e6');
-  // Wire 2
-  drawWire(nodeX + 40, 0, nodeX + 15, nodeY - nodeR, t + 0.5, '#9fd356');
+    ctx.font = `800 9px ${FONT}`;
+    const bw = Math.max(28, ctx.measureText(c.v).width + 14);
+    rrect(textX, badgeY, bw, 16, 3);
+    ctx.fillStyle = c.dead ? "#aeabaf" : "#342e37";
+    ctx.fill();
+    ctx.fillStyle = "#fafffd"; ctx.textAlign = "center";
+    ctx.fillText(c.v, textX + bw / 2, badgeY + 11);
 
-  // Output wires (bottom — 2 outputs)
-  drawWire(nodeX - 20, nodeY + nodeR, nodeX - 70, H, t + 0.2, '#b06cff');
-  drawWire(nodeX + 15, nodeY + nodeR, nodeX + 55, H, t + 0.7, '#ff9600');
+    if (c.current) {
+      const tagX = textX + bw + 6;
+      ctx.font = `800 7px ${FONT}`;
+      const tw = ctx.measureText("CURRENT").width + 12;
+      rrect(tagX, badgeY, tw, 16, 3);
+      ctx.fillStyle = "#ecf6dd"; ctx.fill();
+      ctx.strokeStyle = "#9fd356"; ctx.lineWidth = 1.3; ctx.stroke();
+      ctx.fillStyle = "#7fa945"; ctx.fillText("CURRENT", tagX + tw / 2, badgeY + 11);
+    }
 
-  // Node shadow
-  ctx.save();
-  ctx.shadowColor = '#3c91e6';
-  ctx.shadowBlur = 20;
-  ctx.beginPath();
-  ctx.arc(nodeX, nodeY, nodeR + 4, 0, Math.PI*2);
-  ctx.fillStyle = 'rgba(60,145,230,.08)';
-  ctx.fill();
-  ctx.restore();
+    ctx.font = `700 ${c.dead ? 11 : 13}px ${FONT}`;
+    ctx.fillStyle = c.dead ? "#aeabaf" : "#342e37";
+    ctx.textAlign = "left";
+    ctx.fillText(fitText(c.name, textW), textX, nameY);
 
-  // Node circle
-  ctx.beginPath();
-  ctx.arc(nodeX, nodeY, nodeR, 0, Math.PI*2);
-  ctx.fillStyle = '#3e3842';
-  ctx.fill();
-  ctx.strokeStyle = '#3c91e6';
-  ctx.lineWidth = 2.5;
-  ctx.stroke();
+    ctx.font = "600 10px Nunito, sans-serif";
+    ctx.fillStyle = c.dead ? "#aeabaf" : "#5d585f";
+    ctx.fillText(fitText(c.changes, textW), textX, changesY);
 
-  // Node inner dot
-  const pulse = Math.sin(t * 3) * 0.15 + 0.85;
-  ctx.beginPath();
-  ctx.arc(nodeX, nodeY, 10 * pulse, 0, Math.PI*2);
-  ctx.fillStyle = '#3c91e6';
-  ctx.fill();
-
-  t += 0.015;
-  requestAnimationFrame(drawNode3D);
+    ctx.font = "700 9px Nunito, sans-serif";
+    ctx.fillStyle = "#858287";
+    ctx.fillText(c.date, textX, dateY);
+  });
 }
 
-function drawWire(x1, y1, x2, y2, offset, color) {
-  const cpY1 = y1 + Math.abs(y2 - y1) * 0.4;
-  const cpY2 = y2 - Math.abs(y2 - y1) * 0.4;
+// ── Swipe between tabs ─────────────────────────────────────────────────────────
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
 
-  ctx.beginPath();
-  ctx.moveTo(x1, y1);
-  ctx.bezierCurveTo(x1, cpY1, x2, cpY2, x2, y2);
-  ctx.strokeStyle = 'rgba(133,130,135,.2)';
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
+const swipeHost = document.querySelector(".phone");
+swipeHost.addEventListener("touchstart", (e) => {
+  const t = e.changedTouches[0];
+  touchStartX = t.clientX;
+  touchStartY = t.clientY;
+}, { passive: true });
 
-  // Animated dot along wire
-  const p = ((offset * 0.8) % 1 + 1) % 1;
-  const mt = 1 - p;
-  const bx = mt*mt*mt*x1 + 3*mt*mt*p*x1 + 3*mt*p*p*x2 + p*p*p*x2;
-  const by = mt*mt*mt*y1 + 3*mt*mt*p*cpY1 + 3*mt*p*p*cpY2 + p*p*p*y2;
+swipeHost.addEventListener("touchend", (e) => {
+  const t = e.changedTouches[0];
+  touchEndX = t.clientX;
+  touchEndY = t.clientY;
 
-  ctx.beginPath();
-  ctx.arc(bx, by, 4, 0, Math.PI*2);
-  ctx.fillStyle = color;
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(bx, by, 8, 0, Math.PI*2);
-  ctx.fillStyle = color + '33';
-  ctx.fill();
-}
+  const dx = touchEndX - touchStartX;
+  const dy = touchEndY - touchStartY;
+  const absX = Math.abs(dx);
+  const absY = Math.abs(dy);
 
-drawNode3D();
+  if (absX < 40 || absX <= absY) return;
+
+  if (dx < 0 && currentTab === "timeline") {
+    switchTab("evolution");
+  } else if (dx > 0 && currentTab === "evolution") {
+    switchTab("timeline");
+  }
+}, { passive: true });
+
+window.addEventListener("resize", () => {
+  if (currentTab === "evolution") requestAnimationFrame(drawEvoTree);
+});
+
+requestAnimationFrame(drawEvoTree);
 </script>
 </body>
 </html>

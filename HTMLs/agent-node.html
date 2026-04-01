@@ -8,7 +8,7 @@
 * { margin:0; padding:0; box-sizing:border-box; }
 
 body {
-  background:#000;
+  background:#fff;
   display:flex;
   justify-content:center;
   align-items:center;
@@ -274,7 +274,10 @@ body {
 // ════════════════════════════════════════════════════════════
 //  TAB SWITCHING
 // ════════════════════════════════════════════════════════════
+let currentTab = 'timeline';
+
 function switchTab(name) {
+  currentTab = name;
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -1034,6 +1037,27 @@ requestAnimationFrame(() => {
   // Draw evolution tree once so it's ready when the tab is opened
   requestAnimationFrame(drawEvoTree);
 });
+
+// Swipe navigation for timeline/evolution tabs
+let touchStartX = 0;
+let touchStartY = 0;
+const swipeHost = document.getElementById('frame');
+
+swipeHost.addEventListener('touchstart', (e) => {
+  const t = e.changedTouches[0];
+  touchStartX = t.clientX;
+  touchStartY = t.clientY;
+}, { passive: true });
+
+swipeHost.addEventListener('touchend', (e) => {
+  const t = e.changedTouches[0];
+  const dx = t.clientX - touchStartX;
+  const dy = t.clientY - touchStartY;
+  if (Math.abs(dx) < 40 || Math.abs(dx) <= Math.abs(dy)) return;
+
+  if (dx < 0 && currentTab === 'timeline') switchTab('evolution');
+  if (dx > 0 && currentTab === 'evolution') switchTab('timeline');
+}, { passive: true });
 </script>
 </body>
 </html>

@@ -8,35 +8,75 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    :root { --bg:#342e37; --surface:#3e3842; --surface-2:#4a4450; --primary:#9fd356; --warning:#ff9600; --text:#fafffd; --text-sec:#858287; }
+    :root { --bg:#fafffd; --surface:#d6d5d7; --surface-2:#ecebed; --primary:#9fd356; --warning:#ff9600; --text:#342e37; --text-sec:#5d585f; --muted:#aeabaf; }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body { background:#1e1a21; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:48px; padding:48px 24px; font-family:'Fredoka One',sans-serif; color:var(--text); }
+    body { background:var(--bg); min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:48px; padding:48px 24px; font-family:'Fredoka One',sans-serif; color:var(--text); }
     .eyebrow { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; letter-spacing:2.5px; text-transform:uppercase; color:var(--primary); opacity:.8; }
     .header { text-align:center; display:flex; flex-direction:column; gap:5px; }
     .header h1 { font-size:24px; }
     .header p  { font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-sec); }
     /* Phone frame context */
-    .frame { width:390px; background:var(--bg); border-radius:44px; overflow:hidden; border:1px solid rgba(255,255,255,.08); box-shadow:0 24px 60px rgba(0,0,0,.5); }
+    .frame { width:390px; background:var(--bg); border-radius:44px; overflow:hidden; border:1px solid rgba(52,46,55,.16); box-shadow:0 20px 44px rgba(0,0,0,.16); }
     /* Top nav area */
-    .top-nav { padding:24px 24px 0; display:flex; flex-direction:column; gap:16px; }
-    .nav-row  { display:flex; align-items:center; justify-content:space-between; }
-    .nav-title { font-size:22px; }
-    .nav-chips { display:flex; align-items:center; gap:8px; }
+    .top-nav { padding:24px 24px 18px; display:flex; flex-direction:column; gap:16px; }
+    .nav-row  { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; }
+    .nav-col-left { justify-self:start; }
+    .nav-col-mid { justify-self:center; }
+    .nav-col-right { justify-self:end; }
     /* Streak chip */
-    .chip { display:flex; align-items:center; gap:5px; background:var(--surface); border-radius:20px; padding:6px 12px; cursor:pointer; transition:background .15s; }
-    .chip:hover { background:var(--surface-2); }
-    .chip-val { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; letter-spacing:.5px; }
+    .chip { display:flex; align-items:center; gap:6px; background:transparent; border-radius:20px; padding:8px 14px; cursor:pointer; transition:background .15s; border:none; }
+    .chip:hover { background:rgba(52,46,55,.06); }
+    .chip-val { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; letter-spacing:0; }
     /* XP bar */
-    .xp-wrap { background:var(--surface); border-radius:16px; padding:12px 16px 10px; display:flex; flex-direction:column; gap:7px; margin-bottom:20px; }
-    .xp-row  { display:flex; align-items:center; justify-content:space-between; }
-    .lv { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--primary); background:rgba(159,211,86,.12); padding:2px 9px; border-radius:20px; }
-    .xp-txt { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; color:var(--text-sec); }
-    .xp-txt b { color:var(--text); }
-    .track { height:7px; background:var(--surface-2); border-radius:4px; overflow:hidden; }
-    .fill  { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--primary),#b2dc78); transition:width 1s cubic-bezier(.22,1,.36,1); }
+    .lv-stack { width:132px; height:42px; position:relative; display:flex; align-items:center; }
+    .lv-track {
+      width:100%;
+      height:12px;
+      background:var(--surface-2);
+      border-radius:8px;
+      overflow:hidden;
+      position:relative;
+    }
+    .lv-fill {
+      height:100%;
+      background:linear-gradient(90deg,var(--primary),#b2dc78);
+      clip-path:polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
+      transition:width 1s cubic-bezier(.22,1,.36,1);
+      width:0;
+    }
+    .lv-pill {
+      position:absolute;
+      left:8px;
+      top:50%;
+      transform:translateY(-50%);
+      background:var(--surface);
+      border:1px solid rgba(52,46,55,.14);
+      border-radius:999px;
+      padding:5px 10px;
+      font-family:'Nunito',sans-serif;
+      font-weight:800;
+      font-size:11px;
+      letter-spacing:1px;
+      color:var(--text);
+    }
+    .lv-tag {
+      position:absolute;
+      top:-4px;
+      left:-8px;
+      transform:translate(-50%,-50%);
+      font-family:'Nunito',sans-serif;
+      font-weight:800;
+      font-size:9px;
+      letter-spacing:1.5px;
+      text-transform:uppercase;
+      color:var(--primary);
+      background:var(--bg);
+      padding:1px 5px;
+      border-radius:999px;
+    }
     /* Mock quests below */
     .mock { padding:0 16px 24px; display:flex; flex-direction:column; gap:10px; }
-    .mock-card { height:72px; background:var(--surface); border-radius:16px; opacity:.3; }
+    .mock-card { height:72px; background:var(--surface); border-radius:16px; opacity:.28; }
     .mock-card:nth-child(2){opacity:.2} .mock-card:nth-child(3){opacity:.12}
   </style>
 </head>
@@ -50,31 +90,24 @@
 <div class="frame">
   <div class="top-nav">
     <div class="nav-row">
-      <span class="nav-title">Quests</span>
-      <div class="nav-chips">
-        <!-- Streak -->
+      <div class="nav-col-left">
+        <div class="lv-stack" title="Level progress">
+          <div class="lv-track"><div class="lv-fill" id="fill"></div></div>
+          <div class="lv-pill"><span class="lv-tag">LV</span>12</div>
+        </div>
+      </div>
+      <div class="nav-col-mid">
         <div class="chip" title="Streak">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2C8 7 6 10 6 14a6 6 0 0012 0c0-2-.8-4-2-6-1 2-2 3-4 3 0-3 1-6 3-9z" fill="#ff9600"/>
-          </svg>
+          <img width="22" height="22" src="../../../assets/streak/orange-fire.svg" alt="Streak">
           <span class="chip-val" style="color:#ff9600">18</span>
         </div>
-        <!-- Sparks -->
+      </div>
+      <div class="nav-col-right">
         <div class="chip" title="Sparks">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2l2.5 6H21l-5.5 4 2 6.5L12 15l-5.5 3.5 2-6.5L3 8h6.5L12 2z" fill="#9fd356"/>
-          </svg>
-          <span class="chip-val" style="color:#9fd356">248</span>
+          <img width="22" height="22" src="../../../assets/spark-2d.svg" alt="Sparks">
+          <span class="chip-val" style="color:#ffcc00">248</span>
         </div>
       </div>
-    </div>
-    <!-- XP bar -->
-    <div class="xp-wrap">
-      <div class="xp-row">
-        <span class="lv">LV 12</span>
-        <span class="xp-txt"><b>3,240</b> / <b>4,000</b> XP</span>
-      </div>
-      <div class="track"><div class="fill" id="fill" style="width:0%"></div></div>
     </div>
   </div>
   <!-- Ghost cards to show context -->

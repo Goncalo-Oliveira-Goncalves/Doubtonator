@@ -36,9 +36,23 @@
     .script-content p,li { font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-sec); line-height:1.7; margin-bottom:10px; }
     .script-content strong { color:var(--text); font-weight:700; }
     .script-content ul { padding-left:18px; }
-    .script-fade { position:absolute; bottom:0; left:16px; right:16px; height:80px; background:linear-gradient(to bottom,transparent,var(--bg)); pointer-events:none; }
+    .script-fade { position:absolute; bottom:0; left:16px; right:16px; height:80px; background:linear-gradient(to bottom,rgba(52,46,55,0),rgba(52,46,55,.95)); pointer-events:none; }
     /* Upload button */
     .upload-area { position:absolute; bottom:0; left:0; right:0; padding:16px 24px 32px; display:flex; justify-content:center; }
+    .upload-area::before {
+      content:'';
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:0;
+      height:112px;
+      background:linear-gradient(to bottom, rgba(52,46,55,.98) 0%, rgba(52,46,55,0) 100%);
+      -webkit-backdrop-filter:blur(0px);
+      backdrop-filter:blur(0px);
+      pointer-events:none;
+      mask-image:linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+      -webkit-mask-image:linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+    }
     .upload-btn { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; letter-spacing:2px; text-transform:uppercase; background:var(--primary); color:#342e37; border:none; border-radius:16px; padding:16px 32px; cursor:pointer; transition:opacity .15s, transform .12s; }
     .upload-btn:hover{opacity:.92} .upload-btn:active{transform:scale(.97)}
     /* Cancel popup */
@@ -82,7 +96,7 @@
     </div>
     <!-- Print section -->
     <div class="print-section" onclick="toast('Sending to printer…')">
-      <span class="print-label">Print Script</span>
+      <span class="print-label">PRINT SCRIPT</span>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
         <path d="M5 12l14 0M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
@@ -115,8 +129,8 @@
   <!-- Cancel overlay -->
   <div class="cancel-overlay" id="cancelOverlay">
     <div class="cancel-popup">
-      <span class="cp-title">Leave this quest?</span>
-      <p class="cp-sub">Your progress won't be saved and you won't earn your XP or sparks.</p>
+      <span class="cp-title">Are you sure you want to cancel this task?</span>
+      <p class="cp-sub">Your progress won't be saved.</p>
       <div class="cp-btns">
         <button class="cp-btn cp-back" onclick="document.getElementById('cancelOverlay').classList.remove('show')">BACK TO TASK</button>
         <button class="cp-btn cp-quit" onclick="document.getElementById('cancelOverlay').classList.remove('show')">GIVE TASK UP</button>
@@ -131,7 +145,17 @@
       <div class="fb-item"><div class="fb-dot"></div><p class="fb-text">Your hook landed well — the direct call-out gets attention immediately.</p></div>
       <div class="fb-item"><div class="fb-dot"></div><p class="fb-text">Background is slightly out of focus. Consider re-recording with better lighting behind you.</p></div>
       <div class="fb-item"><div class="fb-dot"></div><p class="fb-text">Pacing is great in the first 20 seconds, but there's a 3-second pause at 0:42 — trim this in editing.</p></div>
-      <button class="fb-close" onclick="document.getElementById('feedbackOverlay').classList.remove('show')">GOT IT</button>
+      <button class="fb-close" onclick="completeQuest()">COMPLETE QUEST</button>
+    </div>
+  </div>
+  <div class="cancel-overlay" id="rewardsOverlay">
+    <div class="cancel-popup" style="gap:12px">
+      <span class="cp-title">Quest Complete</span>
+      <p class="cp-sub" style="text-transform:uppercase;letter-spacing:1.4px;color:var(--primary);font-weight:800">Your hard work has rewarded you with...</p>
+      <p class="cp-sub"><strong style="color:var(--text)">+30 XP</strong> and <strong style="color:#ff9600">+14 Sparks</strong></p>
+      <div class="cp-btns">
+        <button class="cp-btn cp-back" onclick="document.getElementById('rewardsOverlay').classList.remove('show')">HURRAY</button>
+      </div>
     </div>
   </div>
 </div>
@@ -142,6 +166,10 @@
     t.style.cssText='position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#3e3842;color:#fafffd;font-family:Nunito,sans-serif;font-weight:800;font-size:13px;padding:10px 20px;border-radius:12px;border:1px solid rgba(255,255,255,.1);white-space:nowrap;z-index:999;transition:opacity .3s';
     t.textContent=msg;document.body.appendChild(t);
     setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300)},1800);
+  }
+  function completeQuest(){
+    document.getElementById('feedbackOverlay').classList.remove('show');
+    document.getElementById('rewardsOverlay').classList.add('show');
   }
 </script>
 </body>

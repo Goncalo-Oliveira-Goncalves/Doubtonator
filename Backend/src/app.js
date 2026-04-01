@@ -19,9 +19,24 @@ const app = express();
 app.set("trust proxy", 1);
 app.use(requestId);
 app.use(morgan("tiny"));
+const allowedOrigins = new Set([
+  env.corsOrigin,
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "http://localhost:5500",
+  "http://127.0.0.1:5500",
+]);
+
 app.use(
   cors({
-    origin: env.corsOrigin,
+    origin(origin, callback) {
+      // Allow server-to-server or direct file preview requests.
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      callback(null, allowedOrigins.has(origin));
+    },
     credentials: true,
   })
 );

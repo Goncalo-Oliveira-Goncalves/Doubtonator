@@ -1,1 +1,62 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Avatar Top Navbar / Card Subtab</title></head><body><!-- TODO: avatar top navbar — node tree / card / journal icon switcher --></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avatar - Profile Card</title>
+  <style>
+    :root { --bg:#fafffd; --surface:#fff; --surface-2:#f2f8e8; --text:#342e37; --muted:#5d585f; --border:#aeabaf; --primary:#9fd356; --info:#3c91e6; --warning:#ff9600; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:var(--bg); color:var(--text); font-family:'Nunito',system-ui,sans-serif; display:grid; place-items:center; padding:20px; }
+    .phone { width:min(390px,96vw); background:var(--surface); border:1px solid var(--border); border-radius:28px; overflow:hidden; box-shadow:0 16px 40px rgba(0,0,0,.12); }
+    .top { padding:14px 16px 10px; border-bottom:1px solid var(--border); }
+    .seg { display:flex; gap:8px; background:var(--surface-2); border-radius:12px; padding:4px; }
+    .seg button { flex:1; border:0; border-radius:9px; padding:9px 0; font:800 11px 'Nunito',sans-serif; letter-spacing:.8px; text-transform:uppercase; color:var(--muted); background:transparent; }
+    .seg .active { background:var(--surface); color:var(--text); box-shadow:0 2px 0 rgba(0,0,0,.08); }
+    .card { padding:18px; display:grid; gap:14px; }
+    .identity { display:flex; gap:12px; align-items:center; }
+    .avatar { width:58px; height:58px; border-radius:16px; background:linear-gradient(145deg,var(--primary),#83be3a); display:grid; place-items:center; font:900 20px 'Fredoka One',system-ui; }
+    .name { margin:0; font:700 20px 'Fredoka One',system-ui; }
+    .meta { margin:2px 0 0; color:var(--muted); font-size:12px; }
+    .chips { display:flex; gap:8px; flex-wrap:wrap; }
+    .chip { padding:5px 9px; border-radius:999px; font:800 10px 'Nunito',sans-serif; letter-spacing:.7px; text-transform:uppercase; border:1px solid var(--border); }
+    .chip.primary { background:rgba(159,211,86,.18); border-color:rgba(159,211,86,.5); }
+    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+    .stat { border:1px solid var(--border); border-radius:12px; padding:8px; background:var(--surface-2); }
+    .k { font:800 9px 'Nunito',sans-serif; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
+    .v { font:800 18px 'Fredoka One',system-ui; margin-top:4px; }
+    .cta { width:100%; border:1px solid var(--border); border-radius:11px; padding:11px 12px; background:var(--primary); color:var(--text); font:800 11px 'Nunito',sans-serif; letter-spacing:1px; text-transform:uppercase; }
+  </style>
+</head>
+<body>
+  <section class="phone">
+    <header class="top">
+      <div class="seg" aria-label="Avatar tabs">
+        <button>Node Tree</button>
+        <button class="active">Card</button>
+        <button>Journal</button>
+      </div>
+    </header>
+    <main class="card">
+      <div class="identity">
+        <div class="avatar" aria-hidden="true">A</div>
+        <div>
+          <h1 class="name">Alex Flow</h1>
+          <p class="meta">Builder persona · Last active 15m ago</p>
+        </div>
+      </div>
+      <div class="chips">
+        <span class="chip primary">Momentum: High</span>
+        <span class="chip">Focus: Learning</span>
+        <span class="chip">Streak: 12 days</span>
+      </div>
+      <div class="stats">
+        <article class="stat"><div class="k">Nodes</div><div class="v">24</div></article>
+        <article class="stat"><div class="k">Done</div><div class="v" style="color:var(--info)">18</div></article>
+        <article class="stat"><div class="k">Health</div><div class="v" style="color:var(--warning)">92%</div></article>
+      </div>
+      <button class="cta">Open Evolution Dashboard</button>
+    </main>
+  </section>
+</body>
+</html>

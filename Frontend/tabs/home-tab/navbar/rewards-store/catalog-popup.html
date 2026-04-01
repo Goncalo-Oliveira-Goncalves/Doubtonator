@@ -1,1 +1,56 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Catalog Popup</title></head><body><!-- TODO: catalog popup — display section + product card list --></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Catalog Popup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#fafffd; --surface:#d6d5d7; --primary:#9fd356; --text:#342e37; --text-sec:#5d585f; --line:rgba(52,46,55,.16); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { background:rgba(52,46,55,.88); min-height:100vh; display:grid; place-items:center; font-family:'Nunito',sans-serif; color:var(--text); }
+    .popup { width:360px; border-radius:24px; background:var(--bg); border:1px solid var(--line); overflow:hidden; }
+    .hero { padding:14px; background:linear-gradient(180deg, rgba(159,211,86,.25), rgba(159,211,86,0)); }
+    .hero h1 { font:400 20px 'Fredoka One',sans-serif; }
+    .hero p { color:var(--text-sec); margin-top:4px; }
+    .list { padding:12px; display:grid; gap:8px; max-height:340px; overflow:auto; }
+    .item { border:1px solid var(--line); border-radius:14px; background:#fff; padding:10px; display:flex; justify-content:space-between; align-items:center; }
+    .meta strong { display:block; }
+    .meta span { color:var(--text-sec); font-size:13px; }
+    .btn { border:none; border-radius:10px; font-weight:800; padding:8px 10px; cursor:pointer; }
+    .buy { background:var(--primary); color:#fff; }
+    .actions { border-top:1px solid var(--line); padding:12px; display:flex; justify-content:space-between; }
+    a.btn { text-decoration:none; color:var(--text); background:#fff; border:1px solid var(--line); }
+  </style>
+</head>
+<body>
+  <section class="popup">
+    <header class="hero">
+      <h1>Catalog</h1>
+      <p>Preview all unlockables and tap to inspect details.</p>
+    </header>
+    <div class="list" id="catalogList"></div>
+    <footer class="actions">
+      <a class="btn" href="../rewards-store.html">Close</a>
+      <a class="btn" href="item-popup.html">Open Selected</a>
+    </footer>
+  </section>
+  <script>
+    const items = [
+      ['Neon Hex Ring', 'Avatar Frame', 120],
+      ['Flow Pulse', 'Canvas Animation', 80],
+      ['Power Sparks', 'Effect Pack', 65],
+      ['Elite Banner', 'Profile Flair', 95]
+    ];
+    const list = document.getElementById('catalogList');
+    items.forEach((entry) => {
+      const row = document.createElement('article');
+      row.className = 'item';
+      row.innerHTML = `<div class="meta"><strong>${entry[0]}</strong><span>${entry[1]}</span></div><button class="btn buy">${entry[2]} sparks</button>`;
+      list.appendChild(row);
+    });
+  </script>
+</body>
+</html>

@@ -1,2 +1,53 @@
-<?xml version='1.0' encoding='utf-8'?>
-<svg:svg xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="10.8579mm" height="15.5217mm" viewBox="-5.91006 -8.15061 10.8579 15.5217" version="1.1" id="svg1" xml:space="preserve" sodipodi:docname="badges.svg.2026_03_30_21_14_50.0.svg" inkscape:version="1.4.3 (0d15f75, 2025-12-25)" inkscape:export-filename="Doubtonator\assets\other-ui-elements\clapper-board.svg" inkscape:export-xdpi="96" inkscape:export-ydpi="96"><svg:defs id="defs1" /><svg:g inkscape:label="Camada 1" inkscape:groupmode="layer" id="layer1" transform="translate(-141.8609,-206.943)"><svg:g id="g5-2-7" transform="translate(14.158355,35.61626)"><svg:g id="g9-9" transform="translate(33.580154,-0.050205)"><svg:g id="streak-empty-1" transform="matrix(0.26458333,0,0,0.26458333,56.242741,151.97385)" fill-rule="nonzero" style="fill:none;stroke:none;stroke-width:1"><svg:image width="31" height="37" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAAlCAYAAAC6TzLyAAAABHNCSVQICAgIfAhkiAAAAoZJREFU&#10;WIXt1z1rFEEYwPH/7Mu9X7jDSKIBEQQR7RSChY0iWIiFgigW+RL2fglba8VGgghRURAkoEiaNFZG&#10;UIuY3JHc697uzcxjYTxuc4fs5XIGIU+3szPzmxee2VklIsIBhXNQ8CF+iP8PuCBoYPwMHREXuuY7&#10;zc5btK3+W1ybDTabD1mvPyDSXxl39olxY+tstR/Tjj7iqAKOygJq8rhISCN8TSN8g7E1PPc4SmXH&#10;ghPhgqHdXaEWPKNrfgDgOzM4KjNpXIj0F7bbTwi7n3ulnnsMNWm8a9bZaj+lHX1CsL1y353b2fMJ&#10;4cZuU++8oBW+w0rQ98bDd2dwVHps3BtWaKVNM3xPvbOEtpX4aFUOEUHbrVi5wsV1SoySAQO4iCbo&#10;rlIPFndyeWBoNMKXBN2VOK58iumrZPxziQewCxcis0Y9WCTQq9C3zz1amjQ6r4b3Jg5p/wxq+IIO&#10;RGzPtdmg3lmiFS4jEiXq4E+4zpEdOPmhGasZmW+0wg8YqY8EK5WhlL1NIX1pd5d/jdj6eM40+dQ8&#10;nlNCdp3bkV5D2w0Gz3NFMX2NUvbWyOmn+m+vgkabCsZWY4hIRLX1iFa0PNBBLjXP0cJ9Mv5pRv1I&#10;xmau8PDdWXx3NlZJm58o5Q80TrknKecWSHunRoZJ2kLbCkaa8YZqinJ+gVzqwtCB7SNexdpG71nh&#10;Uc7doZC+jKNye4JHwCvYvpkXs9eZytzAc0p7hkfANzH2d/pl/fOUMjfxvbmkzfeOCxpjKlhpkXJP&#10;UM7dI+OfTXyKjYUbW8NIDUflKeXukk9dRO3DFw125fmwsBJQC54DUMxcwXOmGffulhgHwUqIQqFU&#10;at/ghPjk4n/7XTrEx49fcEMHTkCSCmAAAAAASUVORK5CYII=&#10;" id="image1" x="122.71972" y="44.418835" /><svg:path style="fill:#f5cc1e;fill-opacity:1;stroke:none;stroke-width:1.99937;stroke-linejoin:miter;stroke-miterlimit:4.6;stroke-dasharray:none;stroke-opacity:1;paint-order:normal" d="m 153.65858,73.565977 -10.25466,12.806046 a 1.0788692,1.0788692 64.343285 0 0 0.84215,1.753227 h 4.4328 a 0.84432802,0.84432802 50.067126 0 1 0.83116,0.992892 l -1.73982,9.733585 a 0.56681523,0.56681523 24.297645 0 0 1.0018,0.452284 l 11.20598,-14.107522 a 1.0843148,1.0843148 64.230519 0 0 -0.84906,-1.758739 h -4.91326 a 0.67695862,0.67695862 48.978763 0 1 -0.67044,-0.770676 l 1.20633,-8.629886 a 0.61717342,0.61717342 23.322047 0 0 -1.09298,-0.471211 z" id="path24" sodipodi:nodetypes="cccccccc" inkscape:path-effect="#path-effect24" inkscape:original-d="M 155.0625,71.81275 142,88.12525 h 7.6875 l -2.3125,12.9375 14,-17.625 h -7.9375 z" inkscape:export-filename="Doubtonator\Assets\spark-2d.svg" inkscape:export-xdpi="96" inkscape:export-ydpi="96" /></svg:g></svg:g></svg:g></svg:g></svg:svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="8.4330502mm"
+   height="12.277395mm"
+   viewBox="-5.91006 -8.15061 8.4330504 12.277395"
+   version="1.1"
+   id="svg1"
+   xml:space="preserve"
+   sodipodi:docname="spark-2d.svg"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   inkscape:export-filename="Doubtonator\assets\other-ui-elements\clapper-board.svg"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"><inkscape:page
+       x="-4.038179e-23"
+       y="0"
+       width="8.4330511"
+       height="12.277395"
+       id="page2"
+       margin="0"
+       bleed="0" /></sodipodi:namedview><defs
+     id="defs1" /><g
+     inkscape:label="Camada 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-143.11797,-208.85909)"><g
+       id="g5-2-7"
+       transform="translate(14.158355,35.61626)"><g
+         id="g9-9"
+         transform="translate(33.580154,-0.050205)"><g
+           id="streak-empty-1"
+           transform="matrix(0.26458333,0,0,0.26458333,56.242741,151.97385)"
+           fill-rule="nonzero"
+           style="fill:none;stroke:none;stroke-width:1"><path
+             style="fill:#f5cc1e;fill-opacity:1;stroke:#ffffff;stroke-width:5.05323;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4.6;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+             d="m 144.62967,52.6373 -16.21613,20.250746 a 1.7060618,1.7060618 0 0 0 1.33173,2.772452 h 7.00977 a 1.3351719,1.3351719 0 0 1 1.31435,1.570103 l -2.75125,15.392132 a 0.89632907,0.89632907 0 0 0 1.58419,0.715216 l 17.72049,-22.308825 a 1.7146732,1.7146732 0 0 0 -1.34265,-2.781169 h -7.76955 a 1.0705035,1.0705035 0 0 1 -1.06019,-1.218703 l 1.90762,-13.646806 A 0.97596262,0.97596262 0 0 0 144.62967,52.6373 Z"
+             id="path24"
+             sodipodi:nodetypes="cccccccc"
+             inkscape:export-filename="Doubtonator\Assets\spark-2d.svg"
+             inkscape:export-xdpi="96"
+             inkscape:export-ydpi="96" /></g></g></g></g></svg>

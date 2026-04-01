@@ -1,0 +1,32 @@
+---
+config:
+  look: handDrawn
+  layout: dagre
+---
+flowchart LR
+    scrapper["Trend-Scrapper AI"] --> trends["Trends DB"]
+    group-calls["Group Calls DB"] --> icp-enricher["ICP Enricher"]
+    icp-enricher --> scripter["Scripting AI"]
+    trends --> scripter
+    scripter --> scripts["Videos DB"]
+    scripts --> n1["Filmed (Human)"] & n2["Zernio API"]
+    n1 --> scripts
+    n2 --> n3["Instagram"] & n4["Threads"] & n5["Linkedin"]
+    n3 --> n6["IG Page Fetcher"]
+    n4 --> n6
+    n5 --> n6
+    n6 --> n7["Other Data"] & n8["Video Data DB"]
+    n7 --> n9["Instagram Scorecard"]
+    n8 --> n10["Auto-Feedback System"]
+    n10 --> scripts
+
+    scrapper@{ shape: procs}
+    trends@{ shape: cyl}
+    group-calls@{ shape: cyl}
+    icp-enricher@{ shape: procs}
+    scripter@{ shape: procs}
+    scripts@{ shape: db}
+    n1@{ shape: proc}
+    n2@{ shape: rect}
+    n7@{ shape: rect}
+    n9@{ shape: doc}

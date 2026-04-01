@@ -1,1 +1,138 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Settings Page</title></head><body><!-- TODO: settings page — dark/light toggle, API Keys submenu, Account Info submenu --></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Settings Page</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#fafffd; --surface:#d6d5d7; --primary:#9fd356; --text:#342e37; --text-sec:#5d585f; --line:rgba(52,46,55,.16); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Nunito',sans-serif; background:var(--bg); min-height:100vh; display:grid; place-items:center; color:var(--text); padding:20px; }
+    .phone { width:390px; min-height:760px; border:1px solid var(--line); border-radius:32px; background:var(--bg); box-shadow:0 18px 40px rgba(0,0,0,.15); padding:16px; display:grid; gap:10px; align-content:start; }
+    .head { display:flex; align-items:center; justify-content:space-between; }
+    h1 { font:400 22px 'Fredoka One',sans-serif; }
+    .row { border:1px solid var(--line); border-radius:14px; padding:12px; display:flex; align-items:center; justify-content:space-between; background:#fff; }
+    .sub { color:var(--text-sec); font-size:13px; margin-top:2px; }
+    .switch { position:relative; width:50px; height:30px; border-radius:999px; background:var(--surface); cursor:pointer; border:none; }
+    .switch::after { content:""; position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:50%; background:#fff; transition:transform .2s; box-shadow:0 2px 6px rgba(0,0,0,.15); }
+    .switch.on { background:var(--primary); }
+    .switch.on::after { transform:translateX(20px); }
+    .btn { border:1px solid var(--line); border-radius:10px; background:#fff; text-decoration:none; color:var(--text); font-weight:800; padding:8px 10px; }
+    .pill { border-radius:999px; border:1px solid var(--line); padding:4px 8px; font-size:11px; font-weight:800; }
+    .status-ok { color:#7fa945; border-color:rgba(127,169,69,.35); background:#ecf6dd; }
+    .status-offline { color:#e63c3c; border-color:rgba(230,60,60,.28); background:#fad8d8; }
+    .inline-actions { display:flex; gap:8px; }
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <header class="head">
+      <a class="btn" href="../../home-wireframe.html">Back</a>
+      <h1>Settings</h1>
+      <span class="pill" id="apiStatus">API checking…</span>
+    </header>
+    <section class="row">
+      <div>
+        <strong>Dark mode</strong>
+        <p class="sub">Toggle app appearance.</p>
+      </div>
+      <button class="switch" id="themeSwitch" aria-label="toggle theme"></button>
+    </section>
+    <section class="row">
+      <div>
+        <strong>API Keys</strong>
+        <p class="sub">Manage service tokens.</p>
+      </div>
+      <button class="btn" id="apiBtn">Open</button>
+    </section>
+    <section class="row">
+      <div>
+        <strong>Account Info</strong>
+        <p class="sub">Email, plan and linked profiles.</p>
+      </div>
+      <button class="btn" id="accountBtn">Open</button>
+    </section>
+    <section class="row">
+      <div>
+        <strong>Session</strong>
+        <p class="sub" id="sessionText">Checking current session…</p>
+      </div>
+      <div class="inline-actions">
+        <button class="btn" id="loginBtn">Login</button>
+        <button class="btn" id="logoutBtn">Logout</button>
+      </div>
+    </section>
+  </main>
+  <script>
+    const API_BASE = window.__API_BASE__ || 'http://localhost:3001';
+    const body = document.body;
+    const sw = document.getElementById('themeSwitch');
+    const apiStatus = document.getElementById('apiStatus');
+    const sessionText = document.getElementById('sessionText');
+    sw.addEventListener('click', () => {
+      sw.classList.toggle('on');
+      const dark = sw.classList.contains('on');
+      body.style.background = dark ? '#1f1b22' : '#fafffd';
+    });
+    document.getElementById('apiBtn').addEventListener('click', () => window.alert('Demo API Keys panel'));
+    document.getElementById('accountBtn').addEventListener('click', () => window.alert('Demo Account Info panel'));
+
+    async function refreshSession() {
+      try {
+        const [healthRes, sessionRes] = await Promise.all([
+          fetch(`${API_BASE}/health`, { credentials: 'include' }),
+          fetch(`${API_BASE}/api/v1/auth/session`, { credentials: 'include' }),
+        ]);
+
+        if (healthRes.ok) {
+          apiStatus.textContent = 'API online';
+          apiStatus.classList.add('status-ok');
+          apiStatus.classList.remove('status-offline');
+        } else {
+          throw new Error('health failed');
+        }
+
+        const payload = await sessionRes.json();
+        const isAuthed = Boolean(payload?.data?.authenticated);
+        sessionText.textContent = isAuthed
+          ? `Logged in as ${payload.data.userId}`
+          : 'Not logged in';
+      } catch (err) {
+        apiStatus.textContent = 'API offline';
+        apiStatus.classList.add('status-offline');
+        apiStatus.classList.remove('status-ok');
+        sessionText.textContent = 'Session unavailable (backend offline)';
+      }
+    }
+
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      try {
+        await fetch(`${API_BASE}/api/v1/auth/session`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: 'demo-user' }),
+        });
+      } finally {
+        refreshSession();
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        await fetch(`${API_BASE}/api/v1/auth/session`, {
+          method: 'DELETE',
+          credentials: 'include',
+        });
+      } finally {
+        refreshSession();
+      }
+    });
+
+    refreshSession();
+  </script>
+</body>
+</html>

@@ -38,11 +38,11 @@
     .card-title { font-size:18px; line-height:1.2; flex:1; }
     .card-desc  { font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-sec); line-height:1.5; }
     /* Button row */
-    .btn-row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-    .accept-btn { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; background:var(--primary); color:#342e37; padding:11px 20px; border-radius:12px; border:none; cursor:pointer; transition:opacity .15s; flex:1; }
+    .btn-row { display:flex; flex-direction:column; align-items:stretch; gap:8px; }
+    .accept-btn { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; background:var(--primary); color:#342e37; padding:11px 20px; border-radius:12px; border:none; cursor:pointer; transition:opacity .15s; width:100%; }
     .accept-btn.film { background:var(--info); color:#fff; }
     .accept-btn:hover { opacity:.9; }
-    .time-chip { display:flex; align-items:center; gap:5px; font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; color:var(--text-sec); white-space:nowrap; }
+    .time-chip { display:flex; align-items:center; gap:5px; font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; color:var(--text-sec); white-space:nowrap; justify-content:flex-end; }
     /* toast */
     .toast { position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--surface-2); border:1px solid var(--border); border-radius:14px; padding:10px 20px; font-family:'Nunito',sans-serif; font-size:13px; font-weight:600; white-space:nowrap; opacity:0; transition:opacity .25s, transform .25s; pointer-events:none; }
     .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
