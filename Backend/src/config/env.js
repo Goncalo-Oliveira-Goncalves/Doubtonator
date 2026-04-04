@@ -11,6 +11,8 @@ function loadEnv() {
     port: Number(process.env.PORT),
     sessionSecret: process.env.SESSION_SECRET,
     corsOrigin: process.env.CORS_ORIGIN || "http://localhost:3000",
+    /** When set in development, first API request gets this userId in session (per browser). */
+    devAutoUserId: process.env.DEV_AUTO_USER_ID?.trim() || null,
   };
 }
 

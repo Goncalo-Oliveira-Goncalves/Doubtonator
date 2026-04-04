@@ -7,10 +7,10 @@ This file tracks backend decisions and unresolved questions for planning and imp
 - Backend language and runtime: JavaScript on Node.js.
 - Framework: Express.js.
 - API style: RESTful JSON API.
-- Database: PostgreSQL.
+- Database: PostgreSQL via **Supabase** (managed).
 - ORM: Sequelize.
-- Auth model: session-based (with strong security controls).
-- Deployment direction: cloud/serverless-first.
+- Auth model: session-based for current dev scaffold; production path: **Supabase Auth** (JWT) and/or DB-backed sessions.
+- API hosting: **Railway**. Data hosting: **Supabase**.
 
 ## Product constraints shaping backend
 
@@ -35,8 +35,7 @@ This file tracks backend decisions and unresolved questions for planning and imp
 
 ## Open questions to resolve
 
-- Final hosting provider and exact serverless topology.
-- Session storage backend choice (DB-only vs Redis-backed).
+- Session storage for production (Supabase-backed table, Redis, or pure JWT with short TTL).
 - Real-time channel strategy for clan/chat updates (polling, SSE, or WebSocket).
 - Caching policy and where cache is introduced in MVP vs later phases.
 - Rollout strategy for integrations (all at once vs staged by provider).

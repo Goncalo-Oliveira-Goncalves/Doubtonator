@@ -4,7 +4,9 @@
   "description": "> *Just press record.*",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "backend:dev": "npm run dev --prefix Backend",
+    "backend:start": "npm start --prefix Backend"
   },
   "repository": {
     "type": "git",

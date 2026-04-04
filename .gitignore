@@ -1,2 +1,45 @@
 # Local Claude Code settings (machine-specific)
 .claude/settings.local.json
+
+# Dependencies (never commit — run npm install in each package)
+node_modules/
+**/node_modules/
+
+# Environment (never commit secrets)
+.env
+.env.local
+.env.*.local
+Backend/.env
+backend/.env
+frontend/react-mobile/.env
+frontend/react-mobile/.env.local
+
+# Local-only data (per-user canvas Mermaid, etc.)
+backend/data/
+Backend/data/
+
+# Logs and Cursor debug artifacts
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.cursor/debug*.log
+.cursor/plans/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+
+# Python (repo scripts)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Test / coverage
+coverage/
+.nyc_output/

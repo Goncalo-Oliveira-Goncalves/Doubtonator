@@ -1,0 +1,14 @@
+# Railway: set the service "Root Directory" to this folder (Backend/ on case-sensitive clones).
+# https://docs.railway.com/reference/config-as-code
+#
+# Required variables (set in Railway dashboard): NODE_ENV, PORT (auto), SESSION_SECRET,
+# CORS_ORIGIN, and later DATABASE_URL / Supabase keys when the DB is wired.
+
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "npm start"
+healthcheckPath = "/health"
+healthcheckTimeout = 100
+restartPolicyType = "on_failure"

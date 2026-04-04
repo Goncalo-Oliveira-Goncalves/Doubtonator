@@ -1,59 +1,86 @@
 const express = require("express");
-const { ok } = require("../../shared/http/response");
+const { ok, error } = require("../../shared/http/response");
+const { safeUserId } = require("../../shared/utils/user-id");
+const {
+  readUserMermaidSource,
+  writeUserMermaidSource,
+  loadGraphForUser,
+} = require("./user-canvas-store");
+const { buildGraphFromMermaid } = require("./mermaid-graph");
 
 const router = express.Router();
 
-const graph = {
-  nodes: [
-    { id: "scrapper", label: "Trend-Scrapper AI", x: 120, y: 250, color: "#3c91e6", sub: "AI node", route: "agent-node-popup.html" },
-    { id: "trends", label: "Trends DB", x: 290, y: 250, color: "#9fd356", sub: "Database node", route: "database-node-popup.html" },
-    { id: "groupCalls", label: "Group Calls DB", x: 120, y: 390, color: "#ff9600", sub: "Database node", route: "database-node-popup.html" },
-    { id: "icpEnricher", label: "ICP Enricher", x: 300, y: 390, color: "#3c91e6", sub: "AI node", route: "agent-node-popup.html" },
-    { id: "scripter", label: "Scripting AI", x: 490, y: 320, color: "#3c91e6", sub: "AI node", route: "agent-node-popup.html" },
-    { id: "scripts", label: "Videos DB", x: 690, y: 320, color: "#9fd356", sub: "Database node", route: "database-node-popup.html" },
-    { id: "filmed", label: "Filmed (Human)", x: 690, y: 175, color: "#b06cff", sub: "Human node", route: "agent-node-popup.html" },
-    { id: "zernio", label: "Zernio API", x: 865, y: 320, color: "#ff9600", sub: "API node", route: "agent-node-popup.html" },
-    { id: "instagram", label: "Instagram", x: 1010, y: 215, color: "#9fd356", sub: "Channel node", route: "agent-node-popup.html" },
-    { id: "threads", label: "Threads", x: 1010, y: 320, color: "#9fd356", sub: "Channel node", route: "agent-node-popup.html" },
-    { id: "linkedin", label: "LinkedIn", x: 1010, y: 425, color: "#9fd356", sub: "Channel node", route: "agent-node-popup.html" },
-    { id: "igFetcher", label: "IG Page Fetcher", x: 1160, y: 320, color: "#3c91e6", sub: "Fetcher node", route: "agent-node-popup.html" },
-    { id: "otherData", label: "Other Data", x: 1160, y: 210, color: "#ff9600", sub: "Data node", route: "database-node-popup.html" },
-    { id: "videoData", label: "Video Data DB", x: 1160, y: 430, color: "#9fd356", sub: "Database node", route: "database-node-popup.html" },
-    { id: "igScore", label: "Instagram Scorecard", x: 960, y: 160, color: "#3c91e6", sub: "Analytics node", route: "agent-node-popup.html" },
-    { id: "autoFeedback", label: "Auto-Feedback System", x: 960, y: 500, color: "#3c91e6", sub: "AI feedback", route: "agent-node-popup.html" },
-  ],
-  edges: [
-    { id: "e0", from: "scrapper", to: "trends", speed: 1.1 },
-    { id: "e1", from: "groupCalls", to: "icpEnricher", speed: 1.0 },
-    { id: "e2", from: "icpEnricher", to: "scripter", speed: 1.2 },
-    { id: "e3", from: "trends", to: "scripter", speed: 1.1 },
-    { id: "e4", from: "scripter", to: "scripts", speed: 1.3 },
-    { id: "e5", from: "scripts", to: "filmed", speed: 0.9 },
-    { id: "e6", from: "filmed", to: "scripts", speed: 0.9 },
-    { id: "e7", from: "scripts", to: "zernio", speed: 1.1 },
-    { id: "e8", from: "zernio", to: "instagram", speed: 1.05 },
-    { id: "e9", from: "zernio", to: "threads", speed: 1.0 },
-    { id: "e10", from: "zernio", to: "linkedin", speed: 1.0 },
-    { id: "e11", from: "instagram", to: "igFetcher", speed: 1.2 },
-    { id: "e12", from: "threads", to: "igFetcher", speed: 1.15 },
-    { id: "e13", from: "linkedin", to: "igFetcher", speed: 1.1 },
-    { id: "e14", from: "igFetcher", to: "otherData", speed: 0.95 },
-    { id: "e15", from: "igFetcher", to: "videoData", speed: 1.15 },
-    { id: "e16", from: "otherData", to: "igScore", speed: 0.95 },
-    { id: "e17", from: "videoData", to: "autoFeedback", speed: 1.2 },
-    { id: "e18", from: "autoFeedback", to: "scripts", speed: 1.25 },
-  ],
-};
+function sessionUserId(req) {
+  return safeUserId(req.session?.userId);
+}
+
+function requireUser(req, res, next) {
+  const id = sessionUserId(req);
+  if (!id) {
+    return error(
+      res,
+      401,
+      "UNAUTHORIZED",
+      'Set a session user: POST /api/v1/auth/session with { "userId": "your-id" } (letters, numbers, _ and - only). In development, set DEV_AUTO_USER_ID in .env to skip that.'
+    );
+  }
+  req.doubtonatorUserId = id;
+  next();
+}
 
 router.get("/", (req, res) => {
   return ok(res, {
     message: "Canvas routes online",
-    endpoints: ["/api/v1/canvas/graph"],
+    endpoints: ["/api/v1/canvas/graph", "/api/v1/canvas/mermaid"],
+    storage:
+      "Per-user file backend/data/user-canvas/<userId>/workflow.mermaid (matches Canvases DB in your backend design doc)",
   });
 });
 
-router.get("/graph", (req, res) => {
-  return ok(res, graph);
+router.get("/graph", requireUser, (req, res) => {
+  const userId = req.doubtonatorUserId;
+  try {
+    const { graph } = loadGraphForUser(userId);
+    return ok(res, graph);
+  } catch (err) {
+    return error(res, 422, "CANVAS_PARSE_ERROR", String(err.message || err));
+  }
+});
+
+router.get("/mermaid", requireUser, (req, res) => {
+  try {
+    const source = readUserMermaidSource(req.doubtonatorUserId);
+    return ok(res, { userId: req.doubtonatorUserId, source });
+  } catch (err) {
+    return error(res, 500, "CANVAS_READ_ERROR", String(err.message || err));
+  }
+});
+
+router.put("/mermaid", requireUser, (req, res) => {
+  const source = req.body?.source;
+  if (typeof source !== "string") {
+    return error(res, 400, "INVALID_BODY", 'JSON body must include string "source"');
+  }
+  if (source.trim().length < 3) {
+    return error(res, 400, "INVALID_SOURCE", "Mermaid source is too short");
+  }
+  try {
+    buildGraphFromMermaid(source);
+  } catch (err) {
+    return error(res, 422, "CANVAS_PARSE_ERROR", String(err.message || err));
+  }
+  try {
+    writeUserMermaidSource(req.doubtonatorUserId, source);
+    const { graph } = loadGraphForUser(req.doubtonatorUserId);
+    return ok(res, {
+      userId: req.doubtonatorUserId,
+      saved: true,
+      nodeCount: graph.nodes.length,
+      edgeCount: graph.edges.length,
+    });
+  } catch (err) {
+    return error(res, 500, "CANVAS_WRITE_ERROR", String(err.message || err));
+  }
 });
 
 module.exports = {

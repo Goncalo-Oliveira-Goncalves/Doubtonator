@@ -8,7 +8,7 @@
 - **ORM:** Sequelize
 - **API style:** REST (`/api/v1`)
 - **Auth model:** Session-based auth with secure cookies
-- **Deployment target:** Serverless/cloud functions plus background workers
+- **Deployment target:** **Railway** for the API; **Supabase** for PostgreSQL (and optional Auth/Storage). Background workers added when needed.
 
 ## Why this stack
 

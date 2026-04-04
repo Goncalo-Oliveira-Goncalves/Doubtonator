@@ -1,6 +1,25 @@
-# Doubtonator Backend Planning Pack
+# Doubtonator Backend
 
-This folder defines how the backend should be designed and delivered before implementation begins.
+## Implementation status
+
+- **Running API:** Express app in `src/` — `npm install`, copy `.env.example` → `.env`, then `npm run dev` or `npm start`.
+- **Persistence:** Not fully wired yet. Canvas workflow is per-user on disk under `data/user-canvas/<userId>/` (see `src/modules/canvas/`). PostgreSQL + Sequelize integration is the next step.
+- **Production target:** **Railway** (Node process) + **Supabase** (Postgres; optional Auth, Storage, Realtime). Config stub: `railway.toml`. Env placeholders: `.env.example`.
+
+## Infrastructure decisions (frozen for next phase)
+
+| Concern | Choice |
+|--------|--------|
+| API hosting | **Railway** — connect the GitHub repo, set service root to this `Backend/` folder |
+| Database | **Supabase Postgres** — use `DATABASE_URL` in Railway; align schema with `database-info/Database Structure Backend.md` over time |
+| Auth (target) | **Supabase Auth** (JWT) for real users, or session store backed by DB/Redis if you keep cookies |
+| Secrets | Railway + Supabase dashboards only — never commit `.env` |
+
+---
+
+# Planning pack
+
+This folder defines how the backend should be designed and delivered; implementation is catching up to these docs.
 
 ## Scope
 
@@ -17,8 +36,8 @@ This folder defines how the backend should be designed and delivered before impl
 - Product phase: `alpha-v0.1`
 - Backend stack direction: Node.js + Express + PostgreSQL + Sequelize
 - API style: REST
-- Auth direction: session-based with security hardening
-- Deployment direction: serverless/cloud functions
+- Auth direction: session-based for local dev; production toward Supabase Auth + hardened cookies / JWT
+- Deployment direction: **Railway** (API) + **Supabase** (data); workers/queues later as needed
 
 ## Planning docs
 

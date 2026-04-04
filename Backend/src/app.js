@@ -11,6 +11,7 @@ const { loadEnv } = require("./config/env");
 const { ok } = require("./shared/http/response");
 const { requestId } = require("./shared/middleware/request-id");
 const { errorHandler, notFoundHandler } = require("./shared/middleware/error-handler");
+const { devAutoSession } = require("./shared/middleware/dev-auto-session");
 const { apiV1Router } = require("./routes/api-v1");
 
 const env = loadEnv();
@@ -23,6 +24,8 @@ const allowedOrigins = new Set([
   env.corsOrigin,
   "http://localhost:3000",
   "http://127.0.0.1:3000",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
   "http://localhost:5500",
   "http://127.0.0.1:5500",
 ]);
@@ -63,6 +66,7 @@ app.use(
     },
   })
 );
+app.use(devAutoSession(env));
 
 app.get("/health", (req, res) => {
   return ok(res, { status: "ok" });
@@ -75,6 +79,38 @@ app.get("/ready", (req, res) => {
       database: "not-wired",
       sessionStore: "memory-store-dev-only",
     },
+  });
+});
+
+app.get("/", (req, res) => {
+  return ok(res, {
+    service: "doubtonator-backend",
+    status: "ok",
+    docs: {
+      health: "/health",
+      readiness: "/ready",
+      apiBase: "/api/v1",
+      session: "/api/v1/auth/session",
+      canvasGraph: "/api/v1/canvas/graph",
+      canvasMermaid: "/api/v1/canvas/mermaid",
+    },
+  });
+});
+
+app.get("/api", (req, res) => {
+  return ok(res, {
+    version: "v1",
+    basePath: "/api/v1",
+    endpoints: [
+      "/api/v1/auth/session",
+      "/api/v1/canvas/graph",
+      "/api/v1/canvas/mermaid",
+      "/api/v1/users",
+      "/api/v1/quests",
+      "/api/v1/clan",
+      "/api/v1/events",
+      "/api/v1/rewards",
+    ],
   });
 });
 

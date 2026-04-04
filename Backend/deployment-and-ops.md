@@ -2,10 +2,10 @@
 
 ## Target runtime model
 
-- **Compute:** serverless HTTP functions for API routes.
-- **Workers:** async job workers for retries, syncs, and heavy non-request tasks.
-- **Data:** managed PostgreSQL.
-- **Optional later:** managed cache/queue for throughput scaling.
+- **Compute (decided):** **Railway** — long-running Node/Express process (see `railway.toml`). Serverless functions remain an optional future split if cost/scale require it.
+- **Workers:** async job workers for retries, syncs, and heavy non-request tasks (later; same platform or separate Railway service).
+- **Data (decided):** **Supabase** — managed PostgreSQL (`DATABASE_URL`); optional Auth, Storage, Realtime from the same project.
+- **Optional later:** Redis or provider cache/queue for sessions and throughput scaling.
 
 ## Environment strategy
 
